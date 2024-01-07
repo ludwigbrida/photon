@@ -1,5 +1,9 @@
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
 
 export const App = () => {
-	return <Canvas width={640} height={480} />;
+	const run = (canvas: HTMLCanvasElement) => {
+		console.log(canvas);
+	};
+
+	return <Canvas width={640} height={480} run={run} />;
 };
