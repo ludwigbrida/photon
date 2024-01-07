@@ -1,0 +1,7 @@
+.canvas {
+	display: block;
+	height: 100%;
+	image-rendering: pixelated;
+	object-fit: contain;
+	width: 100%;
+}
