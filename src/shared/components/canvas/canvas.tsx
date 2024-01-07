@@ -12,7 +12,7 @@ export const Canvas = ({ width, height, run }: CanvasProps) => {
 
 	useEffect(() => {
 		canvas.current && run(canvas.current);
-	}, [canvas]);
+	}, [canvas, run]);
 
 	return (
 		<canvas
