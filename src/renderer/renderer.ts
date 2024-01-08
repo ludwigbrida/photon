@@ -85,7 +85,7 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 
 		device.queue.onSubmittedWorkDone().then(() => {
 			const end = performance.now();
-			console.log(end - begin);
+			// console.log(end - begin);
 		});
 	};
 };
