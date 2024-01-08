@@ -5,5 +5,7 @@ export const createDevice = async () => {
 		throw Error("Could not request adapter");
 	}
 
-	return adapter.requestDevice();
+	return adapter.requestDevice({
+		label: "device",
+	});
 };
