@@ -56,8 +56,8 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 		sampler,
 	);
 
-	return (_: number) => {
-		const begin = performance.now();
+	const render = (_: number) => {
+		// const begin = performance.now();
 
 		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array([0, 0, 0]), 0, 3);
 
@@ -93,11 +93,25 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 		renderPass.draw(6, 1, 0, 0);
 		renderPass.end();
 
-		device.queue.submit([commandEncoder.finish()]);
+		device.queue.submit([
+			commandEncoder.finish({
+				label: "commandBuffer",
+			}),
+		]);
 
 		device.queue.onSubmittedWorkDone().then(() => {
-			const end = performance.now();
+			// const end = performance.now();
 			// console.log(end - begin);
 		});
+	};
+
+	const cleanup = () => {
+		colorBuffer.destroy();
+		sceneBuffer.destroy();
+	};
+
+	return {
+		render,
+		cleanup,
 	};
 };
