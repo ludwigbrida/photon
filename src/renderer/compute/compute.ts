@@ -6,6 +6,7 @@ export const createComputePipeline = (
 	scene: GPUBuffer,
 ) => {
 	const computeBindGroupLayout = device.createBindGroupLayout({
+		label: "computeBindGroupLayout",
 		entries: [
 			{
 				binding: 0,
@@ -27,6 +28,7 @@ export const createComputePipeline = (
 	});
 
 	const computeBindGroup = device.createBindGroup({
+		label: "computeBindGroup",
 		layout: computeBindGroupLayout,
 		entries: [
 			{
@@ -43,15 +45,20 @@ export const createComputePipeline = (
 	});
 
 	const computePipelineLayout = device.createPipelineLayout({
+		label: "computePipelineLayout",
 		bindGroupLayouts: [computeBindGroupLayout],
 	});
 
+	const computeShaderModule = device.createShaderModule({
+		label: "computeShader",
+		code: computeShader,
+	});
+
 	const computePipeline = device.createComputePipeline({
+		label: "computePipeline",
 		layout: computePipelineLayout,
 		compute: {
-			module: device.createShaderModule({
-				code: computeShader,
-			}),
+			module: computeShaderModule,
 			entryPoint: "main",
 		},
 	});

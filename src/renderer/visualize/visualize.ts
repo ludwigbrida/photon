@@ -6,6 +6,7 @@ export const createVisualizePipeline = (
 	sampler: GPUSampler,
 ) => {
 	const visualizeBindGroupLayout = device.createBindGroupLayout({
+		label: "visualizeBindGroupLayout",
 		entries: [
 			{
 				binding: 0,
@@ -21,6 +22,7 @@ export const createVisualizePipeline = (
 	});
 
 	const visualizeBindGroup = device.createBindGroup({
+		label: "visualizeBindGroup",
 		layout: visualizeBindGroupLayout,
 		entries: [
 			{
@@ -35,21 +37,24 @@ export const createVisualizePipeline = (
 	});
 
 	const visualizePipelineLayout = device.createPipelineLayout({
+		label: "visualizePipelineLayout",
 		bindGroupLayouts: [visualizeBindGroupLayout],
 	});
 
+	const visualizeShaderModule = device.createShaderModule({
+		label: "visualizeShaderModule",
+		code: visualizeShader,
+	});
+
 	const visualizePipeline = device.createRenderPipeline({
+		label: "visualizePipeline",
 		layout: visualizePipelineLayout,
 		vertex: {
-			module: device.createShaderModule({
-				code: visualizeShader,
-			}),
+			module: visualizeShaderModule,
 			entryPoint: "vertexMain",
 		},
 		fragment: {
-			module: device.createShaderModule({
-				code: visualizeShader,
-			}),
+			module: visualizeShaderModule,
 			entryPoint: "fragmentMain",
 			targets: [
 				{

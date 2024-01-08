@@ -10,6 +10,7 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 	// Assets
 
 	const colorBuffer = device.createTexture({
+		label: "colorBuffer",
 		size: {
 			width: canvas.width,
 			height: canvas.height,
@@ -21,9 +22,12 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 			GPUTextureUsage.TEXTURE_BINDING,
 	});
 
-	const colorBufferView = colorBuffer.createView();
+	const colorBufferView = colorBuffer.createView({
+		label: "colorBufferView",
+	});
 
 	const sampler = device.createSampler({
+		label: "sampler",
 		addressModeU: "repeat",
 		addressModeV: "repeat",
 		magFilter: "linear",
@@ -33,6 +37,7 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 	});
 
 	const sceneBuffer = device.createBuffer({
+		label: "sceneBuffer",
 		size: 16,
 		usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	});
@@ -56,17 +61,24 @@ export const createRenderer = async (canvas: HTMLCanvasElement) => {
 
 		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array([0, 0, 0]), 0, 3);
 
-		const commandEncoder = device.createCommandEncoder();
+		const commandEncoder = device.createCommandEncoder({
+			label: "commandEncoder",
+		});
 
-		const computePass = commandEncoder.beginComputePass();
+		const computePass = commandEncoder.beginComputePass({
+			label: "computePass",
+		});
 		computePass.setPipeline(computePipeline);
 		computePass.setBindGroup(0, computeBindGroup);
 		computePass.dispatchWorkgroups(canvas.width, canvas.height, 1);
 		computePass.end();
 
-		const textureView = context.getCurrentTexture().createView();
+		const textureView = context.getCurrentTexture().createView({
+			label: "textureView",
+		});
 
 		const renderPass = commandEncoder.beginRenderPass({
+			label: "visualizePass",
 			colorAttachments: [
 				{
 					view: textureView,
