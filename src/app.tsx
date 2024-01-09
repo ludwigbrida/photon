@@ -13,8 +13,6 @@ export const App = () => {
 
 	useEffect(() => {
 		if (canvas.current && device) {
-			console.log(device);
-			// TODO: Retrieve device asynchronously in a useState and pass it as a dependency as well to resolve this mess
 			const { render, cleanup } = createRenderer(canvas.current, device);
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
