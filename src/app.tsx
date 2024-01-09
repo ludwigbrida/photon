@@ -1,15 +1,15 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { Vector3Input } from "./core/components/vector3-input.tsx";
+import { Scene } from "./core/contexts/scene.tsx";
 import { createDevice } from "./renderer/helpers/device.ts";
 import { createRenderer } from "./renderer/renderer.ts";
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
-import { Vector3 } from "./shared/types/vector3.ts";
 
 export const App = () => {
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const [device, setDevice] = useState<GPUDevice>();
 
-	const [camera, setCamera] = useState<Vector3>([0, 0, 0]);
+	const { camera, setCamera } = useContext(Scene);
 
 	useEffect(() => {
 		createDevice().then((device) => setDevice(device));
