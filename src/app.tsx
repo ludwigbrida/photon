@@ -13,7 +13,7 @@ export const App = () => {
 
 	useEffect(() => {
 		if (canvas.current && device) {
-			const { render, cleanup } = createRenderer(canvas.current, device);
+			const { render, destroy } = createRenderer(canvas.current, device);
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
 				const deltaTime = elapsedTime - previousTime;
@@ -22,7 +22,7 @@ export const App = () => {
 				requestAnimationFrame(frame);
 			};
 			requestAnimationFrame(frame);
-			return cleanup;
+			return destroy;
 		}
 	}, [canvas, device]);
 

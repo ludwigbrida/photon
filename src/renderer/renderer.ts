@@ -106,13 +106,13 @@ export const createRenderer = (
 		});
 	};
 
-	const cleanup = () => {
+	const destroy = () => {
 		colorBuffer.destroy();
 		sceneBuffer.destroy();
 	};
 
 	return {
 		render,
-		cleanup,
+		destroy,
 	};
 };
