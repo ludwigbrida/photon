@@ -3,12 +3,10 @@ import { createComputePipeline } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createVisualizePipeline } from "./visualize/visualize.ts";
 
-export type Renderer = (deltaTime: number, camera: Vector3) => void;
-
 export const createRenderer = (
 	device: GPUDevice,
 	canvas: HTMLCanvasElement,
-): Renderer => {
+) => {
 	const context = createContext(canvas, device);
 
 	// Assets
@@ -60,8 +58,8 @@ export const createRenderer = (
 		sampler,
 	);
 
-	return (_: number, camera: Vector3) => {
-		// const begin = performance.now();
+	return async (_: number, camera: Vector3) => {
+		const begin = performance.now();
 
 		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array(camera), 0, 3);
 
@@ -107,9 +105,10 @@ export const createRenderer = (
 			}),
 		]);
 
-		device.queue.onSubmittedWorkDone().then(() => {
-			// const end = performance.now();
-			// console.log(end - begin);
-		});
+		await device.queue.onSubmittedWorkDone();
+
+		const end = performance.now();
+
+		return end - begin;
 	};
 };
