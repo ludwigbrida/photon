@@ -21,14 +21,14 @@ export const App = () => {
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
 				const deltaTime = elapsedTime - previousTime;
-				render(deltaTime);
+				render(deltaTime, camera);
 				previousTime = elapsedTime;
 				requestAnimationFrame(frame);
 			};
 			requestAnimationFrame(frame);
 			return destroy;
 		}
-	}, [device, canvas]);
+	}, [device, canvas, camera]);
 
 	return (
 		<Fragment>

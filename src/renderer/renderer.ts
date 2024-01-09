@@ -1,3 +1,4 @@
+import { Vector3 } from "../shared/types/vector3.ts";
 import { createComputePipeline } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createVisualizePipeline } from "./visualize/visualize.ts";
@@ -57,10 +58,10 @@ export const createRenderer = (
 		sampler,
 	);
 
-	const render = (_: number) => {
+	const render = (_: number, camera: Vector3) => {
 		// const begin = performance.now();
 
-		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array([0, 0, 0]), 0, 3);
+		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array(camera), 0, 3);
 
 		const commandEncoder = device.createCommandEncoder({
 			label: "commandEncoder",
