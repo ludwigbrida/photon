@@ -3,10 +3,12 @@ import { createComputePipeline } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createVisualizePipeline } from "./visualize/visualize.ts";
 
+export type Renderer = (deltaTime: number, camera: Vector3) => void;
+
 export const createRenderer = (
-	canvas: HTMLCanvasElement,
 	device: GPUDevice,
-) => {
+	canvas: HTMLCanvasElement,
+): Renderer => {
 	const context = createContext(canvas, device);
 
 	// Assets
@@ -58,7 +60,7 @@ export const createRenderer = (
 		sampler,
 	);
 
-	const render = (_: number, camera: Vector3) => {
+	return (_: number, camera: Vector3) => {
 		// const begin = performance.now();
 
 		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array(camera), 0, 3);
@@ -109,15 +111,5 @@ export const createRenderer = (
 			// const end = performance.now();
 			// console.log(end - begin);
 		});
-	};
-
-	const destroy = () => {
-		colorBuffer.destroy();
-		sceneBuffer.destroy();
-	};
-
-	return {
-		render,
-		destroy,
 	};
 };
