@@ -26,7 +26,7 @@ export const App = () => {
 	}, [device, canvas]);
 
 	useEffect(() => {
-		cameraRef.current = camera; // Update the ref whenever camera state changes
+		cameraRef.current = camera;
 	}, [camera]);
 
 	useEffect(() => {
