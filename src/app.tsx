@@ -1,26 +1,22 @@
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef } from "react";
 import { Vector3Input } from "./core/components/vector3-input.tsx";
+import { Device } from "./core/contexts/device.tsx";
 import { Scene } from "./core/contexts/scene.tsx";
-import { createDevice } from "./renderer/helpers/device.ts";
 import { createRenderer } from "./renderer/renderer.ts";
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
 
 export const App = () => {
-	const canvas = useRef<HTMLCanvasElement>(null);
-	const [device, setDevice] = useState<GPUDevice>();
-
+	const { device } = useContext(Device);
 	const { camera, setCamera } = useContext(Scene);
 
-	useEffect(() => {
-		createDevice().then((device) => setDevice(device));
-	}, []);
+	const canvas = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
 		console.log(camera);
 	}, [camera]);
 
 	useEffect(() => {
-		if (canvas.current && device) {
+		if (device && canvas.current) {
 			const { render, destroy } = createRenderer(canvas.current, device);
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
@@ -32,7 +28,7 @@ export const App = () => {
 			requestAnimationFrame(frame);
 			return destroy;
 		}
-	}, [canvas, device]);
+	}, [device, canvas]);
 
 	return (
 		<Fragment>

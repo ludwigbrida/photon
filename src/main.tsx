@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./app.tsx";
+import { DeviceContext } from "./core/contexts/device.tsx";
 import { SceneContext } from "./core/contexts/scene.tsx";
 import "./main.css";
 
@@ -9,8 +10,10 @@ const main = ReactDOM.createRoot(
 );
 main.render(
 	<React.StrictMode>
-		<SceneContext>
-			<App />
-		</SceneContext>
+		<DeviceContext>
+			<SceneContext>
+				<App />
+			</SceneContext>
+		</DeviceContext>
 	</React.StrictMode>,
 );
