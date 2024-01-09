@@ -1,10 +1,11 @@
 import { createComputePipeline } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
-import { createDevice } from "./helpers/device.ts";
 import { createVisualizePipeline } from "./visualize/visualize.ts";
 
-export const createRenderer = async (canvas: HTMLCanvasElement) => {
-	const device = await createDevice();
+export const createRenderer = (
+	canvas: HTMLCanvasElement,
+	device: GPUDevice,
+) => {
 	const context = createContext(canvas, device);
 
 	// Assets
