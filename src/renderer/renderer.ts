@@ -14,8 +14,8 @@ export const createRenderer = (
 	const colorBuffer = device.createTexture({
 		label: "colorBuffer",
 		size: {
-			width: canvas.width,
-			height: canvas.height,
+			width: context.canvas.width,
+			height: context.canvas.height,
 		},
 		format: "rgba8unorm",
 		usage:
@@ -72,7 +72,11 @@ export const createRenderer = (
 		});
 		computePass.setPipeline(computePipeline);
 		computePass.setBindGroup(0, computeBindGroup);
-		computePass.dispatchWorkgroups(canvas.width, canvas.height, 1);
+		computePass.dispatchWorkgroups(
+			context.canvas.width,
+			context.canvas.height,
+			1,
+		);
 		computePass.end();
 
 		const textureView = context.getCurrentTexture().createView({
