@@ -120,9 +120,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		pixelColor = vec3<f32>(0.5, 1, 0.75) * diffuseContribution;
 	}*/
 
-	let numVoxels: u32 = arrayLength(&voxels); // Get the number of voxels
-
-	for (var i: u32 = 0; i < numVoxels; i++) {
+	for (var i: u32 = 0; i < arrayLength(&voxels); i++) {
 		let voxel: Voxel = voxels[i]; // Access the voxel at index i
 		var impact: Impact;
 
