@@ -4,6 +4,8 @@ export const createComputePipeline = (
 	device: GPUDevice,
 	colorBufferView: GPUTextureView,
 	scene: GPUBuffer,
+	voxelBuffer: GPUBuffer,
+	materialBuffer: GPUBuffer,
 ) => {
 	const computeBindGroupLayout = device.createBindGroupLayout({
 		label: "computeBindGroupLayout",
@@ -24,6 +26,20 @@ export const createComputePipeline = (
 					type: "uniform",
 				},
 			},
+			{
+				binding: 2,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "storage",
+				},
+			},
+			{
+				binding: 3,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "storage",
+				},
+			},
 		],
 	});
 
@@ -39,6 +55,18 @@ export const createComputePipeline = (
 				binding: 1,
 				resource: {
 					buffer: scene,
+				},
+			},
+			{
+				binding: 2,
+				resource: {
+					buffer: voxelBuffer,
+				},
+			},
+			{
+				binding: 3,
+				resource: {
+					buffer: materialBuffer,
 				},
 			},
 		],

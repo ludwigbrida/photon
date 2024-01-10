@@ -64,6 +64,8 @@ export const createRenderer = (
 		device,
 		colorBufferView,
 		sceneBuffer,
+		voxelBuffer,
+		materialBuffer,
 	);
 
 	const { visualizeBindGroup, visualizePipeline } = createVisualizePipeline(

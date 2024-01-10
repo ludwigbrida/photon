@@ -2,6 +2,11 @@ struct Material {
 	diffuse: vec3<f32>,
 }
 
+struct Voxel {
+	position: vec3<i32>,
+	materialIndex: i32,
+}
+
 struct Sphere {
 	origin: vec3<f32>,
 	radius: f32,
@@ -50,6 +55,14 @@ var colorBuffer: texture_storage_2d<rgba8unorm, write>;
 @group(0)
 @binding(1)
 var<uniform> scene: Scene;
+
+@group(0)
+@binding(2)
+var<storage, read> voxels: array<Voxel>;
+
+@group(0)
+@binding(3)
+var<storage, read> materials: array<Material>;
 
 @compute
 @workgroup_size(1, 1, 1)
