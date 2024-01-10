@@ -34,7 +34,7 @@ struct Scene {
 	cameraPosition: vec3<f32>,
 }
 
-fn intersect(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
+fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
 	let a: f32 = dot(ray.direction, ray.direction);
 	let b: f32 = 2 * dot(ray.direction, ray.origin - sphere.origin);
 	let c: f32 = dot(ray.origin - sphere.origin, ray.origin - sphere.origin) - sphere.radius * sphere.radius;
@@ -46,6 +46,30 @@ fn intersect(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
 	(*impact).material = sphere.material;
 
 	return discriminant > 0;
+}
+
+fn intersectVoxel(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
+    let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
+    let voxelMax: vec3<f32> = vec3<f32>(voxel.position) + vec3<f32>(1.0, 1.0, 1.0); // Upper corner of the voxel
+
+    let invDir: vec3<f32> = 1.0 / ray.direction;
+    let t1: vec3<f32> = (voxelMin - ray.origin) * invDir;
+    let t2: vec3<f32> = (voxelMax - ray.origin) * invDir;
+
+    let tmin: f32 = max(max(min(t1.x, t2.x), min(t1.y, t2.y)), min(t1.z, t2.z));
+    let tmax: f32 = min(min(max(t1.x, t2.x), max(t1.y, t2.y)), max(t1.z, t2.z));
+
+    if (tmax < max(tmin, 0.0)) {
+        return false;
+    }
+
+    (*impact).distance = tmin;
+    (*impact).origin = ray.origin + ray.direction * tmin;
+    // Calculate the normal based on the intersected face
+    (*impact).normal = normalize(sign(ray.direction) * (1.0 - abs(step(voxelMax, (*impact).origin)) - abs(step((*impact).origin, voxelMin))));
+    (*impact).material = materials[voxel.materialIndex];
+
+    return true;
 }
 
 @group(0)
@@ -93,9 +117,13 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 
 	var impact: Impact;
 
-	if (intersect(ray, sphere, &impact) && impact.distance > 0) {
+	/*if (intersectSphere(ray, sphere, &impact) && impact.distance > 0) {
 		let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
 		pixelColor = vec3<f32>(0.5, 1, 0.75) * diffuseContribution;
+	}*/
+
+	if (intersectVoxel(ray, voxels[0], &impact) && impact.distance > 0) {
+		pixelColor = vec3<f32>(0.5, 1, 0.75);
 	}
 
 	textureStore(colorBuffer, screenPosition, vec4<f32>(pixelColor, 1));

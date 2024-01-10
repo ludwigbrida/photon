@@ -30,14 +30,14 @@ export const createComputePipeline = (
 				binding: 2,
 				visibility: GPUShaderStage.COMPUTE,
 				buffer: {
-					type: "storage",
+					type: "read-only-storage",
 				},
 			},
 			{
 				binding: 3,
 				visibility: GPUShaderStage.COMPUTE,
 				buffer: {
-					type: "storage",
+					type: "read-only-storage",
 				},
 			},
 		],

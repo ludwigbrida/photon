@@ -37,9 +37,9 @@ export const App = () => {
 					cameraRef.current!,
 					new Int32Array([
 						// Voxel 1
-						0, 0, 0, 0,
+						0, 0, -10, 0,
 						// Voxel 2
-						2, 0, 0, 1,
+						2, 0, -10, 1,
 					]),
 					new Float32Array([
 						// Material 1
