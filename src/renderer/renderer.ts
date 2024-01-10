@@ -44,6 +44,20 @@ export const createRenderer = (
 		usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	});
 
+	const voxelCount = 16;
+	const voxelBuffer = device.createBuffer({
+		label: "voxelBuffer",
+		size: 4 * 4 * voxelCount,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+	});
+
+	const materialCount = 3;
+	const materialBuffer = device.createBuffer({
+		label: "materialBuffer",
+		size: 4 * 4 * materialCount,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+	});
+
 	// Pipelines
 
 	const { computeBindGroup, computePipeline } = createComputePipeline(
@@ -58,10 +72,18 @@ export const createRenderer = (
 		sampler,
 	);
 
-	return async (_: number, camera: Vector3) => {
+	return async (
+		_: number,
+		camera: Vector3,
+		voxels: Int32Array,
+		materials: Float32Array,
+	) => {
 		const begin = performance.now();
 
 		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array(camera), 0, 3);
+
+		device.queue.writeBuffer(voxelBuffer, 0, voxels.buffer);
+		device.queue.writeBuffer(materialBuffer, 0, materials.buffer);
 
 		const commandEncoder = device.createCommandEncoder({
 			label: "commandEncoder",

@@ -32,7 +32,22 @@ export const App = () => {
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
 				const deltaTime = elapsedTime - previousTime;
-				const frameTime = await render(deltaTime, cameraRef.current!);
+				const frameTime = await render(
+					deltaTime,
+					cameraRef.current!,
+					new Int32Array([
+						// Voxel 1
+						0, 0, 0, 0,
+						// Voxel 2
+						2, 0, 0, 1,
+					]),
+					new Float32Array([
+						// Material 1
+						1.0, 0.5, 0.5,
+						// Material 2
+						0.3, 0.6, 0.9,
+					]),
+				);
 				setFps(Math.floor(1000 / frameTime));
 				previousTime = elapsedTime;
 				requestAnimationFrame(frame);
