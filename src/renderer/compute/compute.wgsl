@@ -115,15 +115,20 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 
 	var pixelColor: vec3<f32> = vec3<f32>(0.5, 0, 0.25);
 
-	var impact: Impact;
-
 	/*if (intersectSphere(ray, sphere, &impact) && impact.distance > 0) {
 		let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
 		pixelColor = vec3<f32>(0.5, 1, 0.75) * diffuseContribution;
 	}*/
 
-	if (intersectVoxel(ray, voxels[0], &impact) && impact.distance > 0) {
-		pixelColor = vec3<f32>(0.5, 1, 0.75);
+	let numVoxels: u32 = arrayLength(&voxels); // Get the number of voxels
+
+	for (var i: u32 = 0; i < numVoxels; i++) {
+		let voxel: Voxel = voxels[i]; // Access the voxel at index i
+		var impact: Impact;
+
+		if (intersectVoxel(ray, voxel, &impact) && impact.distance > 0) {
+			pixelColor = vec3<f32>(0.5, 1, 0.75);
+		}
 	}
 
 	textureStore(colorBuffer, screenPosition, vec4<f32>(pixelColor, 1));
