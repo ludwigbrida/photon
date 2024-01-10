@@ -127,7 +127,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		var impact: Impact;
 
 		if (intersectVoxel(ray, voxel, &impact) && impact.distance > 0) {
-			pixelColor = vec3<f32>(0.5, 1, 0.75);
+			pixelColor = impact.material.diffuse;
 		}
 	}
 
