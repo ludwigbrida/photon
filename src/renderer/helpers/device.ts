@@ -1,5 +1,7 @@
 export const createDevice = async () => {
-	const adapter = await navigator.gpu.requestAdapter();
+	const adapter = await navigator.gpu.requestAdapter({
+		powerPreference: "high-performance",
+	});
 
 	if (!adapter) {
 		throw Error("Could not request adapter");
