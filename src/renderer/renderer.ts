@@ -123,11 +123,11 @@ export const createRenderer = (
 		renderPass.draw(6, 1, 0, 0);
 		renderPass.end();
 
-		device.queue.submit([
-			commandEncoder.finish({
-				label: "commandBuffer",
-			}),
-		]);
+		const commandBuffer = commandEncoder.finish({
+			label: "commandBuffer",
+		});
+
+		device.queue.submit([commandBuffer]);
 
 		await device.queue.onSubmittedWorkDone();
 
