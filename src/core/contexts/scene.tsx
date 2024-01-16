@@ -1,21 +1,22 @@
 import {
 	createContext,
 	Dispatch,
+	MutableRefObject,
 	PropsWithChildren,
 	SetStateAction,
-	useState,
 } from "react";
+import { useRefState } from "../../shared/hooks/use-ref-state.ts";
 import { Vector3 } from "../../shared/types/vector3.ts";
 
 export type SceneProps = {
-	camera: Vector3;
+	camera: MutableRefObject<Vector3>;
 	setCamera: Dispatch<SetStateAction<Vector3>>;
 };
 
 export const Scene = createContext(null as unknown as SceneProps);
 
 export const SceneContext = ({ children }: PropsWithChildren) => {
-	const [camera, setCamera] = useState<Vector3>([0, 0, 0]);
+	const [camera, setCamera] = useRefState<Vector3>([0, 0, 0]);
 
 	return (
 		<Scene.Provider

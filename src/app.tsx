@@ -4,7 +4,6 @@ import { Device } from "./core/contexts/device.tsx";
 import { Scene } from "./core/contexts/scene.tsx";
 import { createRenderer } from "./renderer/renderer.ts";
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
-import { Vector3 } from "./shared/types/vector3.ts";
 
 export const App = () => {
 	const { camera, setCamera } = useContext(Scene);
@@ -14,8 +13,6 @@ export const App = () => {
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
-	const cameraRef = useRef<Vector3>();
-
 	useEffect(() => {
 		if (device && canvas.current) {
 			const render = createRenderer(device, canvas.current);
@@ -24,17 +21,13 @@ export const App = () => {
 	}, [device, canvas]);
 
 	useEffect(() => {
-		cameraRef.current = camera;
-	}, [camera]);
-
-	useEffect(() => {
-		if (render && cameraRef.current) {
+		if (render) {
 			let previousTime = 0;
 			const frame = async (elapsedTime = previousTime) => {
 				const deltaTime = elapsedTime - previousTime;
 				const frameTime = await render(
 					deltaTime,
-					cameraRef.current!,
+					camera.current,
 					new Int32Array([
 						// Voxel 1
 						0, 0, -10, 0,
@@ -58,7 +51,7 @@ export const App = () => {
 
 	return (
 		<Fragment>
-			<Vector3Control value={camera} onChange={setCamera} />
+			<Vector3Control value={camera.current} onChange={setCamera} />
 			{fps}
 			<Canvas width={640} height={480} ref={canvas} />
 		</Fragment>
