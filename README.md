@@ -1,15 +1,20 @@
 # 🌈 Photon
 
-Photon is a minimalist, dependency-free [path tracer](https://en.wikipedia.org/wiki/Path_tracing) implemented from scratch using WebGPU compute shaders.
+Photon is a minimalist, dependency-free [path tracer](https://en.wikipedia.org/wiki/Path_tracing), built from scratch using WebGPU compute shaders and [WGSL](https://w3.org/TR/WGSL).
+
+It takes a three-dimensional, geometric scene description and synthesizes a two-dimensional image by simulating the physically accurate propagation of light within this scene from the perspective of a virtual camera.
 
 ## Features
 
-- [x] Parametric shapes
+- [x] Simple parametric shapes
   - Spheres
   - Cubes
 - [ ] Arbitrary polygonal meshes
-- [ ] Configurable materials
-- [ ] Reflection and refraction
+- [ ] Physically-based materials
+  - Reflection
+  - Refraction
+  - Dielectrics
+  - Metals
 - [ ] Acceleration structures
 - [ ] Global illumination
 - [ ] Ambient occlusion
@@ -17,4 +22,4 @@ Photon is a minimalist, dependency-free [path tracer](https://en.wikipedia.org/w
 
 ## License
 
-Photon is licensed under [MIT](LICENSE.md).
+Photon is licensed under [MIT](./LICENSE.md).
