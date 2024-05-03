@@ -6,8 +6,8 @@ import { createRenderer } from "./renderer/renderer.ts";
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
 
 export const App = () => {
-	const { camera, setCamera } = useContext(Scene);
 	const { device } = useContext(Device);
+	const { camera, setCamera } = useContext(Scene);
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
 
