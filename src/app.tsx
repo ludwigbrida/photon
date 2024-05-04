@@ -1,5 +1,5 @@
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
-import { Vector3Control } from "./core/components/vector3-control.tsx";
+import { Vector3Input } from "./core/components/vector3-input.tsx";
 import { Device } from "./core/contexts/device.tsx";
 import { Scene } from "./core/contexts/scene.tsx";
 import { createRenderer } from "./renderer/renderer.ts";
@@ -51,7 +51,7 @@ export const App = () => {
 
 	return (
 		<Fragment>
-			<Vector3Control value={camera.current} onChange={setCamera} />
+			<Vector3Input value={camera.current} onChange={setCamera} />
 			{fps}
 			<Canvas width={640} height={480} ref={canvas} />
 		</Fragment>
