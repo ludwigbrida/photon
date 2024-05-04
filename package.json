@@ -1,27 +1,15 @@
 {
-	"name": "@ludwigbrida/photon",
-	"version": "0.0.0",
 	"private": true,
-	"type": "module",
+	"workspaces": [
+		"app"
+	],
 	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1"
+		"dev": "yarn workspace app dev"
 	},
 	"devDependencies": {
-		"@types/react": "^18.3.1",
-		"@types/react-dom": "^18.3.0",
-		"@vitejs/plugin-react": "^4.2.1",
-		"@webgpu/types": "^0.1.40",
 		"prettier": "^3.2.5",
 		"prettier-plugin-css-order": "^2.1.2",
-		"prettier-plugin-organize-imports": "^3.2.4",
-		"typescript": "^5.4.5",
-		"vite": "^5.2.11"
+		"prettier-plugin-organize-imports": "^3.2.4"
 	},
 	"prettier": {
 		"plugins": [

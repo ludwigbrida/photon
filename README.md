@@ -68,4 +68,4 @@ Photon takes in a descriptor in `JSON` format that outlines all objects and mate
 
 ## License
 
-Photon is licensed under [MIT](./LICENSE.md).
+Photon is licensed under [MIT](LICENSE.md).
