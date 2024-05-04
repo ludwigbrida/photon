@@ -8,7 +8,7 @@ Photon is a minimalist, real-time [path tracer](https://en.wikipedia.org/wiki/Pa
 Photon takes a three-dimensional, geometric scene description and synthesizes an image by simulating the physically accurate propagation of light from the perspective of a virtual camera.
 
 > [!TIP]
-> A fully functional demo can be viewed and tested here: ✨ [photon.ludwigbrida.dev](https://photon.ludwigbrida.dev)
+> A fully functional demo can be viewed and tested here: [photon.ludwigbrida.dev](https://photon.ludwigbrida.dev) ✨
 
 ## Features
 
