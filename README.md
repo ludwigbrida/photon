@@ -23,6 +23,46 @@ Photon takes a three-dimensional, geometric scene description and synthesizes an
 - [ ] Ambient occlusion
 - [ ] Subsurface scattering
 
+## Scenes
+
+Photon takes in a descriptor in `JSON` format that outlines all objects and materials that are present in a scene as well as some metadata. An exemplary scene descriptor could roughly look like this:
+
+```json
+{
+	"objects": [
+		{
+			"name": "Sphere",
+			"transform": {
+				"translation": [0, 0, 0],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			},
+			"mesh": {
+				"type": "sphere",
+				"radius": 1
+			},
+			"material": "768d515d-60a9-4183-9b66-2fb01f08c066"
+		}
+	],
+	"materials": {
+		"768d515d-60a9-4183-9b66-2fb01f08c066": {
+			"name": "Metal",
+			"albedo": [0, 0, 0],
+			"reflectance": 1
+		}
+	},
+	"meta": {
+		"camera": {
+			"transform": {
+				"translation": [0, 0, -5],
+				"rotation": [0, 0, 0],
+				"scale": [1, 1, 1]
+			}
+		}
+	}
+}
+```
+
 ## License
 
 Photon is licensed under [MIT](./LICENSE.md).
