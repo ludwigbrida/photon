@@ -3,7 +3,7 @@
 	"workspaces": [
 		"app",
 		"docs",
-		"@ludwigbrida/photon"
+		"lib"
 	],
 	"scripts": {
 		"dev": "yarn workspace app dev",

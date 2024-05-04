@@ -1,6 +1,6 @@
+import { Vector3 } from "@ludwigbrida/photon";
 import { Fragment } from "react";
 import { Input } from "../../shared/components/input/input.tsx";
-import { Vector3 } from "../../shared/types/vector3.ts";
 
 export type Vector3InputProps = {
 	value: Vector3;
