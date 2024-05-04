@@ -2,10 +2,12 @@
 	"private": true,
 	"workspaces": [
 		"app",
+		"docs",
 		"@ludwigbrida/photon"
 	],
 	"scripts": {
-		"dev": "yarn workspace app dev"
+		"dev": "yarn workspace app dev",
+		"docs": "yarn workspace docs dev"
 	},
 	"devDependencies": {
 		"prettier": "^3.2.5",
