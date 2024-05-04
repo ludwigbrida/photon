@@ -1,8 +1,11 @@
 # 🌈 Photon
 
-Photon is a minimalist, dependency-free [path tracer](https://en.wikipedia.org/wiki/Path_tracing), built from scratch using WebGPU compute shaders and [WGSL](https://w3.org/TR/WGSL).
+Photon is a minimalist, real-time [path tracer](https://en.wikipedia.org/wiki/Path_tracing), built from scratch using WebGPU compute shaders and [WGSL](https://w3.org/TR/WGSL).
 
-It takes a three-dimensional, geometric scene description and synthesizes a two-dimensional image by simulating the physically accurate propagation of light within this scene from the perspective of a virtual camera.
+- **Dependency-free:** The actual renderer uses no external dependencies; all rendering code and mathematical expressions have been implemented from scratch
+- **Real-time:** This is a hardware accelerated path tracer, running computations in parallel on the GPU, which grants interactive frame rates for most operations
+
+Photon takes a three-dimensional, geometric scene description and synthesizes an image by simulating the physically accurate propagation of light from the perspective of a virtual camera.
 
 ## Features
 
