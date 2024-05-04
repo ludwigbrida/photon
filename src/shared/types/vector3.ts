@@ -1,5 +1,5 @@
 /**
- * Type that represents a 3-dimensional vector with members x, y and z.
+ * Type that represents a 3-dimensional vector with members **x**, **y** and **z**.
  *
  * @example
  * const vector: Vector3 = [1, 2, 3];
