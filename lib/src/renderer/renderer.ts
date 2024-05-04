@@ -1,7 +1,7 @@
-import { Vector3 } from "@ludwigbrida/photon";
-import { createComputePipeline } from "./compute/compute.ts";
-import { createContext } from "./helpers/context.ts";
-import { createVisualizePipeline } from "./visualize/visualize.ts";
+import { Vector3 } from "../types/vector3";
+import { createComputePipeline } from "./compute/compute";
+import { createContext } from "./helpers/context";
+import { createVisualizePipeline } from "./visualize/visualize";
 
 export const createRenderer = (
 	device: GPUDevice,

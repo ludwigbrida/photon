@@ -1,5 +1,5 @@
+import { createDevice } from "@ludwigbrida/photon";
 import { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { createDevice } from "../../renderer/helpers/device.ts";
 
 export type DeviceProps = {
 	device: GPUDevice | undefined;
