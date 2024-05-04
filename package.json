@@ -1,7 +1,8 @@
 {
 	"private": true,
 	"workspaces": [
-		"app"
+		"app",
+		"@ludwigbrida/photon"
 	],
 	"scripts": {
 		"dev": "yarn workspace app dev"
