@@ -2,8 +2,9 @@ export const createComputePipeline = (
 	device: GPUDevice,
 	colorBufferView: GPUTextureView,
 	scene: GPUBuffer,
-	voxelBuffer: GPUBuffer,
 	materialBuffer: GPUBuffer,
+	voxelBuffer: GPUBuffer,
+	sphereBuffer: GPUBuffer,
 ) => {
 	const computeBindGroupLayout = device.createBindGroupLayout({
 		label: "computeBindGroupLayout",
@@ -38,6 +39,13 @@ export const createComputePipeline = (
 					type: "read-only-storage",
 				},
 			},
+			{
+				binding: 4,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
 		],
 	});
 
@@ -58,13 +66,19 @@ export const createComputePipeline = (
 			{
 				binding: 2,
 				resource: {
-					buffer: voxelBuffer,
+					buffer: materialBuffer,
 				},
 			},
 			{
 				binding: 3,
 				resource: {
-					buffer: materialBuffer,
+					buffer: voxelBuffer,
+				},
+			},
+			{
+				binding: 4,
+				resource: {
+					buffer: sphereBuffer,
 				},
 			},
 		],
@@ -90,7 +104,7 @@ export const createComputePipeline = (
 			struct Sphere {
 				origin: vec3<f32>,
 				radius: f32,
-				material: Material,
+				materialIndex: i32,
 			}
 
 			struct Ray {
@@ -120,13 +134,51 @@ export const createComputePipeline = (
 				let c: f32 = dot(ray.origin - sphere.origin, ray.origin - sphere.origin) - sphere.radius * sphere.radius;
 				let discriminant: f32 = b * b - 4 * a * c;
 
-				(*impact).distance = (-b - sqrt(discriminant)) / (2 * a);
-				(*impact).origin = ray.origin + ray.direction * (*impact).distance;
-				(*impact).normal = normalize((*impact).origin - sphere.origin);
-				(*impact).material = sphere.material;
+				impact.distance = (-b - sqrt(discriminant)) / (2 * a);
+				impact.origin = ray.origin + ray.direction * (*impact).distance;
+				impact.normal = normalize((*impact).origin - sphere.origin);
+				impact.material = materials[sphere.materialIndex];
 
 				return discriminant > 0;
 			}
+
+fn calculateNormal(ray: Ray, tmin: f32, t1: vec3<f32>, t2: vec3<f32>) -> vec3<f32> {
+    var normal: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
+    let tNear: vec3<f32> = select(t2, t1, ray.direction > vec3<f32>(0.0, 0.0, 0.0));
+
+    // Determine which face the ray hit based on tmin
+    if (tNear.x == tmin) {
+        normal = vec3<f32>(-sign(ray.direction.x), 0.0, 0.0);
+    } else if (tNear.y == tmin) {
+        normal = vec3<f32>(0.0, -sign(ray.direction.y), 0.0);
+    } else if (tNear.z == tmin) {
+        normal = vec3<f32>(0.0, 0.0, -sign(ray.direction.z));
+    }
+    return normal;
+}
+
+fn intersectVoxel2(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
+    let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
+    let voxelMax: vec3<f32> = vec3<f32>(voxel.position) + vec3<f32>(1.0, 1.0, 1.0); // Upper corner of the voxel
+
+    let invDir: vec3<f32> = 1.0 / ray.direction;
+    let t1: vec3<f32> = (voxelMin - ray.origin) * invDir;
+    let t2: vec3<f32> = (voxelMax - ray.origin) * invDir;
+
+    let tmin: f32 = max(max(min(t1.x, t2.x), min(t1.y, t2.y)), min(t1.z, t2.z));
+    let tmax: f32 = min(min(max(t1.x, t2.x), max(t1.y, t2.y)), max(t1.z, t2.z));
+
+    if (tmax < max(tmin, 0.0)) {
+        return false;
+    }
+
+    impact.distance = tmin;
+    impact.origin = ray.origin + ray.direction * tmin;
+    impact.normal = calculateNormal(ray, tmin, t1, t2);
+    impact.material = materials[voxel.materialIndex];
+
+    return true;
+}
 
 			fn intersectVoxel(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
 				let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
@@ -143,11 +195,11 @@ export const createComputePipeline = (
 						return false;
 				}
 
-				(*impact).distance = tmin;
-				(*impact).origin = ray.origin + ray.direction * tmin;
+				impact.distance = tmin;
+				impact.origin = ray.origin + ray.direction * tmin;
 				// Calculate the normal based on the intersected face
-				(*impact).normal = normalize(sign(ray.direction) * (1.0 - abs(step(voxelMax, (*impact).origin)) - abs(step((*impact).origin, voxelMin))));
-				(*impact).material = materials[voxel.materialIndex];
+				impact.normal = normalize(sign(ray.direction) * (1.0 - abs(step(voxelMax, (*impact).origin)) - abs(step((*impact).origin, voxelMin))));
+				impact.material = materials[voxel.materialIndex];
 
 				return true;
 			}
@@ -162,11 +214,15 @@ export const createComputePipeline = (
 
 			@group(0)
 			@binding(2)
-			var<storage, read> voxels: array<Voxel>;
+			var<storage, read> materials: array<Material>;
 
 			@group(0)
 			@binding(3)
-			var<storage, read> materials: array<Material>;
+			var<storage, read> voxels: array<Voxel>;
+
+			@group(0)
+			@binding(4)
+			var<storage, read> spheres: array<Sphere>;
 
 			@compute
 			@workgroup_size(1, 1, 1)
@@ -195,17 +251,23 @@ export const createComputePipeline = (
 
 				var pixelColor: vec3<f32> = vec3<f32>(0.5, 0, 0.25);
 
-				/* if (intersectSphere(ray, sphere, &impact) && impact.distance > 0) {
-				let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
-				pixelColor = vec3<f32>(0.5, 1, 0.75) * diffuseContribution;
-				} */
-
 				for (var i: u32 = 0; i < arrayLength(&voxels); i++) {
 					let voxel: Voxel = voxels[i]; // Access the voxel at index i
 					var impact: Impact;
 
-					if (intersectVoxel(ray, voxel, &impact) && impact.distance > 0) {
-						pixelColor = impact.material.diffuse;
+					if (intersectVoxel2(ray, voxel, &impact) && impact.distance > 0) {
+						let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
+						pixelColor = impact.material.diffuse * diffuseContribution;
+					}
+				}
+
+				for (var i: u32 = 0; i < arrayLength(&spheres); i++) {
+					let sphere: Sphere = spheres[i];
+					var impact: Impact;
+
+					if (intersectSphere(ray, sphere, &impact) && impact.distance > 0) {
+						let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
+						pixelColor = impact.material.diffuse * diffuseContribution;
 					}
 				}
 

@@ -4,7 +4,7 @@
  * @example
  * const vector: Vector3 = [1, 2, 3];
  */
-type Vector3 = Tuple<number, 3>;
+export type Vector3 = Tuple<number, 3>;
 
 /**
  * Adds two vectors.
@@ -19,7 +19,7 @@ type Vector3 = Tuple<number, 3>;
  *
  * @return A new vector representing the element-wise sum of both input vectors.
  */
-export const add = (vector1: Vector3, vector2: Vector3): Vector3 => {
+const add = (vector1: Vector3, vector2: Vector3): Vector3 => {
 	return [
 		vector1[0] + vector2[0],
 		vector1[1] + vector2[1],
@@ -27,4 +27,6 @@ export const add = (vector1: Vector3, vector2: Vector3): Vector3 => {
 	];
 };
 
-export default Vector3;
+export const vector3 = {
+	add,
+};

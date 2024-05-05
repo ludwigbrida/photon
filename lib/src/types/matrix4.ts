@@ -1,4 +1,4 @@
-import Vector3 from "./vector3";
+import { Vector3 } from "./vector3";
 
 /**
  * Type that represents a 4x4-dimensional matrix with members **m01** to **m33** in column-major notation.
@@ -6,7 +6,7 @@ import Vector3 from "./vector3";
  * @example
  * const matrix: Matrix4 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
  */
-type Matrix4 = Tuple<number, 16>;
+export type Matrix4 = Tuple<number, 16>;
 
 /**
  * Creates a matrix from a translation vector.
@@ -15,7 +15,7 @@ type Matrix4 = Tuple<number, 16>;
  *
  * @return A matrix representing the resulting translation transform.
  */
-export const createFromTranslation = (translation: Vector3): Matrix4 => {
+const createFromTranslation = (translation: Vector3): Matrix4 => {
 	return [
 		identity[0],
 		identity[1],
@@ -46,7 +46,7 @@ export const createFromTranslation = (translation: Vector3): Matrix4 => {
  *
  * @return A matrix representing the perspective projection.
  */
-export const createPerspective = (
+const createPerspective = (
 	fieldOfView: number,
 	aspectRatio: number,
 	near: number,
@@ -74,8 +74,10 @@ export const createPerspective = (
 	];
 };
 
-export const identity: Matrix4 = [
-	1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-];
+const identity: Matrix4 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
-export default Matrix4;
+export const matrix4 = {
+	createFromTranslation,
+	createPerspective,
+	identity,
+};

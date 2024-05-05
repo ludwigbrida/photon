@@ -44,6 +44,13 @@ export const createRenderer = (
 		usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	});
 
+	const materialCount = 3;
+	const materialBuffer = device.createBuffer({
+		label: "materialBuffer",
+		size: 4 * 4 * materialCount,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+	});
+
 	const voxelCount = 16;
 	const voxelBuffer = device.createBuffer({
 		label: "voxelBuffer",
@@ -51,10 +58,10 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
-	const materialCount = 3;
-	const materialBuffer = device.createBuffer({
-		label: "materialBuffer",
-		size: 4 * 4 * materialCount,
+	const sphereCount = 16;
+	const sphereBuffer = device.createBuffer({
+		label: "sphereBuffer",
+		size: 4 * 4 * sphereCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
@@ -64,8 +71,9 @@ export const createRenderer = (
 		device,
 		colorBufferView,
 		sceneBuffer,
-		voxelBuffer,
 		materialBuffer,
+		voxelBuffer,
+		sphereBuffer,
 	);
 
 	const { visualizeBindGroup, visualizePipeline } = createVisualizePipeline(
@@ -76,16 +84,24 @@ export const createRenderer = (
 
 	return async (
 		_: number,
-		camera: Vector3,
-		voxels: Int32Array,
+		cameraPosition: Vector3,
 		materials: Float32Array,
+		voxels: Int32Array,
+		spheres: Float32Array,
 	) => {
 		const begin = performance.now();
 
-		device.queue.writeBuffer(sceneBuffer, 0, new Float32Array(camera), 0, 3);
+		device.queue.writeBuffer(
+			sceneBuffer,
+			0,
+			new Float32Array(cameraPosition),
+			0,
+			3,
+		);
 
-		device.queue.writeBuffer(voxelBuffer, 0, voxels.buffer);
-		device.queue.writeBuffer(materialBuffer, 0, materials.buffer);
+		device.queue.writeBuffer(materialBuffer, 0, materials);
+		device.queue.writeBuffer(voxelBuffer, 0, voxels);
+		device.queue.writeBuffer(sphereBuffer, 0, spheres);
 
 		const commandEncoder = device.createCommandEncoder({
 			label: "commandEncoder",
@@ -112,7 +128,6 @@ export const createRenderer = (
 			colorAttachments: [
 				{
 					view: textureView,
-					clearValue: { r: 0.5, g: 0, b: 0.25, a: 1 },
 					loadOp: "clear",
 					storeOp: "store",
 				},

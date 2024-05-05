@@ -28,17 +28,21 @@ export const App = () => {
 				const frameTime = await render(
 					deltaTime,
 					camera.current,
-					new Int32Array([
-						// Voxel 1
-						0, 0, -10, 0,
-						// Voxel 2
-						2, 0, -10, 1,
-					]),
 					new Float32Array([
 						// Material 1
 						1.0, 0.5, 0.5,
 						// Material 2
 						0.3, 0.6, 0.9,
+					]),
+					new Int32Array([
+						// Voxel 1
+						0, 0, -10, 0,
+						// Voxel 2
+						2, -3, -10, 1,
+					]),
+					new Float32Array([
+						// Sphere 1
+						-2, 0, -10, 1, 0,
 					]),
 				);
 				setFps(Math.floor(1000 / frameTime));
@@ -53,7 +57,7 @@ export const App = () => {
 		<Fragment>
 			<Vector3Input value={camera.current} onChange={setCamera} />
 			{fps}
-			<Canvas width={640} height={480} ref={canvas} />
+			<Canvas width={512} height={512} ref={canvas} />
 		</Fragment>
 	);
 };
