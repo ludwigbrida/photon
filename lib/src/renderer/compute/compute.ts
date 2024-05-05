@@ -3,7 +3,7 @@ export const createComputePipeline = (
 	colorBufferView: GPUTextureView,
 	scene: GPUBuffer,
 	materialBuffer: GPUBuffer,
-	voxelBuffer: GPUBuffer,
+	planeBuffer: GPUBuffer,
 	sphereBuffer: GPUBuffer,
 ) => {
 	const computeBindGroupLayout = device.createBindGroupLayout({
@@ -72,7 +72,7 @@ export const createComputePipeline = (
 			{
 				binding: 3,
 				resource: {
-					buffer: voxelBuffer,
+					buffer: planeBuffer,
 				},
 			},
 			{
@@ -98,6 +98,12 @@ export const createComputePipeline = (
 
 			struct Voxel {
 				position: vec3<i32>,
+				materialIndex: i32,
+			}
+
+			struct Plane {
+				origin: vec3<f32>,
+				normal: vec3<f32>,
 				materialIndex: i32,
 			}
 
@@ -128,6 +134,10 @@ export const createComputePipeline = (
 				cameraPosition: vec3<f32>,
 			}
 
+			fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
+				return true; // TODO
+			}
+
 			fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
 				let a: f32 = dot(ray.direction, ray.direction);
 				let b: f32 = 2 * dot(ray.direction, ray.origin - sphere.origin);
@@ -142,43 +152,43 @@ export const createComputePipeline = (
 				return discriminant > 0;
 			}
 
-fn calculateNormal(ray: Ray, tmin: f32, t1: vec3<f32>, t2: vec3<f32>) -> vec3<f32> {
-    var normal: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
-    let tNear: vec3<f32> = select(t2, t1, ray.direction > vec3<f32>(0.0, 0.0, 0.0));
+			fn calculateNormal(ray: Ray, tmin: f32, t1: vec3<f32>, t2: vec3<f32>) -> vec3<f32> {
+					var normal: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
+					let tNear: vec3<f32> = select(t2, t1, ray.direction > vec3<f32>(0.0, 0.0, 0.0));
 
-    // Determine which face the ray hit based on tmin
-    if (tNear.x == tmin) {
-        normal = vec3<f32>(-sign(ray.direction.x), 0.0, 0.0);
-    } else if (tNear.y == tmin) {
-        normal = vec3<f32>(0.0, -sign(ray.direction.y), 0.0);
-    } else if (tNear.z == tmin) {
-        normal = vec3<f32>(0.0, 0.0, -sign(ray.direction.z));
-    }
-    return normal;
-}
+					// Determine which face the ray hit based on tmin
+					if (tNear.x == tmin) {
+							normal = vec3<f32>(-sign(ray.direction.x), 0.0, 0.0);
+					} else if (tNear.y == tmin) {
+							normal = vec3<f32>(0.0, -sign(ray.direction.y), 0.0);
+					} else if (tNear.z == tmin) {
+							normal = vec3<f32>(0.0, 0.0, -sign(ray.direction.z));
+					}
+					return normal;
+			}
 
-fn intersectVoxel2(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
-    let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
-    let voxelMax: vec3<f32> = vec3<f32>(voxel.position) + vec3<f32>(1.0, 1.0, 1.0); // Upper corner of the voxel
+			fn intersectVoxel2(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
+					let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
+					let voxelMax: vec3<f32> = vec3<f32>(voxel.position) + vec3<f32>(1.0, 1.0, 1.0); // Upper corner of the voxel
 
-    let invDir: vec3<f32> = 1.0 / ray.direction;
-    let t1: vec3<f32> = (voxelMin - ray.origin) * invDir;
-    let t2: vec3<f32> = (voxelMax - ray.origin) * invDir;
+					let invDir: vec3<f32> = 1.0 / ray.direction;
+					let t1: vec3<f32> = (voxelMin - ray.origin) * invDir;
+					let t2: vec3<f32> = (voxelMax - ray.origin) * invDir;
 
-    let tmin: f32 = max(max(min(t1.x, t2.x), min(t1.y, t2.y)), min(t1.z, t2.z));
-    let tmax: f32 = min(min(max(t1.x, t2.x), max(t1.y, t2.y)), max(t1.z, t2.z));
+					let tmin: f32 = max(max(min(t1.x, t2.x), min(t1.y, t2.y)), min(t1.z, t2.z));
+					let tmax: f32 = min(min(max(t1.x, t2.x), max(t1.y, t2.y)), max(t1.z, t2.z));
 
-    if (tmax < max(tmin, 0.0)) {
-        return false;
-    }
+					if (tmax < max(tmin, 0.0)) {
+							return false;
+					}
 
-    impact.distance = tmin;
-    impact.origin = ray.origin + ray.direction * tmin;
-    impact.normal = calculateNormal(ray, tmin, t1, t2);
-    impact.material = materials[voxel.materialIndex];
+					impact.distance = tmin;
+					impact.origin = ray.origin + ray.direction * tmin;
+					impact.normal = calculateNormal(ray, tmin, t1, t2);
+					impact.material = materials[voxel.materialIndex];
 
-    return true;
-}
+					return true;
+			}
 
 			fn intersectVoxel(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> bool {
 				let voxelMin: vec3<f32> = vec3<f32>(voxel.position); // Lower corner of the voxel
@@ -218,7 +228,7 @@ fn intersectVoxel2(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> boo
 
 			@group(0)
 			@binding(3)
-			var<storage, read> voxels: array<Voxel>;
+			var<storage, read> planes: array<Plane>;
 
 			@group(0)
 			@binding(4)
@@ -251,11 +261,21 @@ fn intersectVoxel2(ray: Ray, voxel: Voxel, impact: ptr<function, Impact>) -> boo
 
 				var pixelColor: vec3<f32> = vec3<f32>(0.5, 0, 0.25);
 
-				for (var i: u32 = 0; i < arrayLength(&voxels); i++) {
-					let voxel: Voxel = voxels[i]; // Access the voxel at index i
+				// for (var i: u32 = 0; i < arrayLength(&voxels); i++) {
+				// 	let voxel: Voxel = voxels[i]; // Access the voxel at index i
+				// 	var impact: Impact;
+				//
+				// 	if (intersectVoxel2(ray, voxel, &impact) && impact.distance > 0) {
+				// 		let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
+				// 		pixelColor = impact.material.diffuse * diffuseContribution;
+				// 	}
+				// }
+
+				for (var i: u32 = 0; i < arrayLength(&planes); i++) {
+					let plane: Plane = planes[i];
 					var impact: Impact;
 
-					if (intersectVoxel2(ray, voxel, &impact) && impact.distance > 0) {
+					if (intersectPlane(ray, plane, &impact) && impact.distance > 0) {
 						let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
 						pixelColor = impact.material.diffuse * diffuseContribution;
 					}

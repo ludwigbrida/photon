@@ -51,17 +51,17 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
-	const voxelCount = 16;
-	const voxelBuffer = device.createBuffer({
-		label: "voxelBuffer",
-		size: 4 * 4 * voxelCount,
+	const planeCount = 16;
+	const planeBuffer = device.createBuffer({
+		label: "planeBuffer",
+		size: 4 * 4 * planeCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
 	const sphereCount = 16;
 	const sphereBuffer = device.createBuffer({
 		label: "sphereBuffer",
-		size: 4 * 4 * sphereCount,
+		size: 6 * 4 * sphereCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
@@ -72,7 +72,7 @@ export const createRenderer = (
 		colorBufferView,
 		sceneBuffer,
 		materialBuffer,
-		voxelBuffer,
+		planeBuffer,
 		sphereBuffer,
 	);
 
@@ -86,7 +86,7 @@ export const createRenderer = (
 		_: number,
 		cameraPosition: Vector3,
 		materials: Float32Array,
-		voxels: Int32Array,
+		planes: Float32Array,
 		spheres: Float32Array,
 	) => {
 		const begin = performance.now();
@@ -100,7 +100,7 @@ export const createRenderer = (
 		);
 
 		device.queue.writeBuffer(materialBuffer, 0, materials);
-		device.queue.writeBuffer(voxelBuffer, 0, voxels);
+		device.queue.writeBuffer(planeBuffer, 0, planes);
 		device.queue.writeBuffer(sphereBuffer, 0, spheres);
 
 		const commandEncoder = device.createCommandEncoder({
