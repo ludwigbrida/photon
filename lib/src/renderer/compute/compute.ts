@@ -135,7 +135,21 @@ export const createComputePipeline = (
 			}
 
 			fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
-				return true; // TODO
+				let denominator: f32 = dot(plane.normal, ray.direction);
+
+				if (denominator > 0.000001) {
+					let p0l0: vec3<f32> = plane.origin - ray.origin;
+
+					impact.distance = dot(p0l0, plane.normal) / denominator;
+					impact.origin = ray.origin + ray.direction * impact.distance;
+					impact.normal = plane.normal;
+					impact.material = materials[plane.materialIndex];
+
+					return true;
+					// return impact.distance >= 0;
+				}
+
+				return false;
 			}
 
 			fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
@@ -275,9 +289,9 @@ export const createComputePipeline = (
 					let plane: Plane = planes[i];
 					var impact: Impact;
 
-					if (intersectPlane(ray, plane, &impact) && impact.distance > 0) {
-						let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
-						pixelColor = impact.material.diffuse * diffuseContribution;
+					if (intersectPlane(ray, plane, &impact)) {
+						// let diffuseContribution: f32 = max(dot(-light.direction, impact.normal), 0);
+						pixelColor = impact.material.diffuse; // * diffuseContribution;
 					}
 				}
 
