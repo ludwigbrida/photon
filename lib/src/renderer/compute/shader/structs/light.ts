@@ -1,8 +1,8 @@
 export default `
 
 struct Light {
-	color: vec3f,
-	direction: vec3f,
+	color: vec3<f32>,
+	direction: vec3<f32>,
 }
 
 `;

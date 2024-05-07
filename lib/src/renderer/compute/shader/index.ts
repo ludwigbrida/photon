@@ -8,7 +8,7 @@ import Ray from "./structs/ray";
 import Scene from "./structs/scene";
 import Sphere from "./structs/sphere";
 
-export default `
+const prefix = `
 
 ${Ray}
 ${Material}
@@ -20,6 +20,11 @@ ${Scene}
 
 ${intersectPlane}
 ${intersectSphere}
+
+`;
+
+export default prefix +
+	`
 
 @group(0)
 @binding(0)

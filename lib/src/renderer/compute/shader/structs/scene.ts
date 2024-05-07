@@ -1,7 +1,7 @@
 export default `
 
 struct Scene {
-	cameraPosition: vec3f,
+	cameraPosition: vec3<f32>,
 }
 
 `;

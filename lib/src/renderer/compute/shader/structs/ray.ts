@@ -9,8 +9,8 @@
 export default `
 
 struct Ray {
-	origin: vec3f,
-	direction: vec3f,
+	origin: vec3<f32>,
+	direction: vec3<f32>,
 }
 
 `;

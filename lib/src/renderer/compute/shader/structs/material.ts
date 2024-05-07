@@ -1,7 +1,7 @@
 export default `
 
 struct Material {
-	diffuse: vec3f,
+	diffuse: vec3<f32>,
 }
 
 `;
