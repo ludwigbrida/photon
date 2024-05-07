@@ -1,3 +1,5 @@
+import shader from "./shader";
+
 export const createComputePipeline = (
 	device: GPUDevice,
 	colorBufferView: GPUTextureView,
@@ -91,7 +93,7 @@ export const createComputePipeline = (
 
 	const computeShaderModule = device.createShaderModule({
 		label: "computeShader",
-		code: `
+		code: shader /*`
 			struct Material {
 				diffuse: vec3<f32>,
 			}
@@ -307,7 +309,7 @@ export const createComputePipeline = (
 
 				textureStore(colorBuffer, screenPosition, vec4<f32>(pixelColor, 1));
 			}
-		`,
+		`, */,
 	});
 
 	const computePipeline = device.createComputePipeline({
