@@ -6,6 +6,7 @@
  * ray.origin = vec3f(0, 0, 0);
  * ray.direction = vec3f(0, 0, 1);
  */
+// language=WGSL
 export default `
 
 struct Ray {

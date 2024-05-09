@@ -1,3 +1,4 @@
+// language=WGSL
 export default `
 
 fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {

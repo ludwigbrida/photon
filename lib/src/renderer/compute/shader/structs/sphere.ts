@@ -1,3 +1,4 @@
+// language=WGSL
 export default `
 
 struct Sphere {

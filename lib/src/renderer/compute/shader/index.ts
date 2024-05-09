@@ -8,23 +8,8 @@ import Ray from "./structs/ray";
 import Scene from "./structs/scene";
 import Sphere from "./structs/sphere";
 
-const prefix = `
-
-${Ray}
-${Material}
-${Plane}
-${Sphere}
-${Impact}
-${Light}
-${Scene}
-
-${intersectPlane}
-${intersectSphere}
-
-`;
-
-export default prefix +
-	`
+// language=WGSL
+const main = `
 
 @group(0)
 @binding(0)
@@ -91,5 +76,22 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 
 	textureStore(colorBuffer, screenPosition, vec4<f32>(pixelColor, 1));
 }
+
+`;
+
+export default `
+
+${Ray}
+${Material}
+${Plane}
+${Sphere}
+${Impact}
+${Light}
+${Scene}
+
+${intersectPlane}
+${intersectSphere}
+
+${main}
 
 `;
