@@ -9,6 +9,7 @@ export const Input = <T extends string | number>({
 }: InputProps<T>) => {
 	return (
 		<input
+			type="number"
 			value={value}
 			onChange={(event) => onChange(event.target.value as T)}
 		/>
