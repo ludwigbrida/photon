@@ -29,28 +29,34 @@ export const App = () => {
 					deltaTime,
 					camera.current,
 					new Float32Array([
-						// Material 1
+						// White
+						1, 1, 1, 0,
+						// Red
+						1, 0, 0, 0,
+						// Green
+						0, 1, 0, 0,
+						// Sphere 1
 						1.0, 0.5, 0.5, 0,
-						// Material 2
-						0.3, 0.6, 0.9, 0,
+						// Sphere 2
+						0.5, 0.5, 0.1, 0,
 					]),
 					new Float32Array([
 						// Back wall
 						0, 0, -100, 0, 0, 0, 1, 0,
+						// Top wall
+						// 0, 10, 0, 0, 0, -1, 0, 0,
+						// Bottom wall
+						0, -10, 0, 0, 0, 1, 0, 0,
 						// Left wall
 						// -10, 0, 0, 0, 1, 0, 0, 1,
 						// Right wall
-						// 10, 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0,
-						// Top wall
-						// 0, 10, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0,
-						// Bottom wall
-						0, -10, 0, 0, 0, 1, 0, 1,
+						// 10, 0, 0, 0, -1, 0, 0, 2,
 					]),
 					new Float32Array([
 						// Sphere 1
-						-1.5, 0, -8, 0, 1, 0, 0, 0,
+						-1.5, 0, -8, 0, 1, 3, 0, 0,
 						// Sphere 2
-						1.5, 0, -8, 0, 1, 1, 0, 0,
+						1.5, 0, -8, 0, 1, 4, 0, 0,
 					]),
 				);
 				setFps(Math.floor(1000 / frameTime));
