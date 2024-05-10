@@ -46,8 +46,8 @@ fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool
 		impact.normal = plane.normal;
 		impact.material = materials[u32(plane.materialIndex)];
 
-		// Only hit if impact occurs in front of the ray
-		return impact.distance > 0;
+		// Only if hit from the right direction && Only hit if impact occurs in front of the ray
+		return denominator < 0 && impact.distance > 0;
 	//}
 
 	// return false;
