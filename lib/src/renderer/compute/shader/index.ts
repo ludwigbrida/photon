@@ -50,7 +50,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 
 	var light: Light;
 	light.color = vec3<f32>(1, 1, 1);
-	light.direction = normalize(vec3<f32>(1, -1, -1));
+	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
 	var pixelColor = vec3<f32>(0.5, 0, 0.25);
 
@@ -59,8 +59,8 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		var impact: Impact;
 
 		if (intersectPlane(ray, plane, &impact)) {
-			// let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			pixelColor = impact.material.diffuse; // * diffuseContribution;
+			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
+			pixelColor = impact.material.diffuse * diffuseContribution;
 		}
 	}
 

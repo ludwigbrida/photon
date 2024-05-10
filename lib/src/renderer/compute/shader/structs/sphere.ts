@@ -2,7 +2,7 @@
 export default `
 
 struct Sphere {
-	origin: vec3<f32>,
+	position: vec3<f32>,
 	_padding1: f32,
 	radius: f32,
 	materialIndex: f32,
