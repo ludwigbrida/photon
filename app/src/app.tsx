@@ -35,8 +35,10 @@ export const App = () => {
 						0.3, 0.6, 0.9,
 					]),
 					new Float32Array([
-						// Plane 1
+						// Back wall
 						0, 0, -10, 0, 0, 1, 0,
+						// Left wall
+						-2, 0, 0, 1, 0, 0, 0,
 					]),
 					new Float32Array([
 						// Sphere 1
