@@ -30,21 +30,21 @@ export const App = () => {
 					camera.current,
 					new Float32Array([
 						// Material 1
-						1.0, 0.5, 0.5,
+						1.0, 0.5, 0.5, 0,
 						// Material 2
-						0.3, 0.6, 0.9,
+						0.3, 0.6, 0.9, 0,
 					]),
 					new Float32Array([
 						// Back wall
-						0, 0, -10, 0, 0, 1, 0,
+						0, 0, -10, 0, 0, 0, 1, 0, 0, 0, 0, 0,
 						// Left wall
-						-2, 0, 0, 1, 0, 0, 0,
+						-2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
 					]),
 					new Float32Array([
 						// Sphere 1
-						-2, 0, -10, 1, 0,
+						-2, 0, -10, 0, 1, 0, 0, 0,
 						// Sphere 2
-						2, 0, -10, 1, 1,
+						2, 0, -10, 0, 1, 1, 0, 0,
 					]),
 				);
 				setFps(Math.floor(1000 / frameTime));

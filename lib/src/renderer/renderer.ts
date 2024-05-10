@@ -91,13 +91,7 @@ export const createRenderer = (
 	) => {
 		const begin = performance.now();
 
-		device.queue.writeBuffer(
-			cameraBuffer,
-			0,
-			new Float32Array(cameraPosition),
-			0,
-			3,
-		);
+		device.queue.writeBuffer(cameraBuffer, 0, new Float32Array(cameraPosition));
 
 		device.queue.writeBuffer(materialBuffer, 0, materials);
 		device.queue.writeBuffer(planeBuffer, 0, planes);
