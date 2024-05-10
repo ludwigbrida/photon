@@ -38,13 +38,13 @@ export const createRenderer = (
 		maxAnisotropy: 1,
 	});
 
-	const sceneBuffer = device.createBuffer({
-		label: "sceneBuffer",
-		size: 16,
+	const cameraBuffer = device.createBuffer({
+		label: "cameraBuffer",
+		size: 4 * 4,
 		usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	});
 
-	const materialCount = 3;
+	const materialCount = 16;
 	const materialBuffer = device.createBuffer({
 		label: "materialBuffer",
 		size: 3 * 4 * materialCount,
@@ -70,7 +70,7 @@ export const createRenderer = (
 	const { computeBindGroup, computePipeline } = createComputePipeline(
 		device,
 		colorBufferView,
-		sceneBuffer,
+		cameraBuffer,
 		materialBuffer,
 		planeBuffer,
 		sphereBuffer,
@@ -92,7 +92,7 @@ export const createRenderer = (
 		const begin = performance.now();
 
 		device.queue.writeBuffer(
-			sceneBuffer,
+			cameraBuffer,
 			0,
 			new Float32Array(cameraPosition),
 			0,

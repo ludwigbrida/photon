@@ -1,11 +1,11 @@
 import intersectPlane from "./functions/intersect-plane";
 import intersectSphere from "./functions/intersect-sphere";
+import Camera from "./structs/camera";
 import Impact from "./structs/impact";
 import Light from "./structs/light";
 import Material from "./structs/material";
 import Plane from "./structs/plane";
 import Ray from "./structs/ray";
-import Scene from "./structs/scene";
 import Sphere from "./structs/sphere";
 
 // language=WGSL
@@ -17,7 +17,7 @@ var colorBuffer: texture_storage_2d<rgba8unorm, write>;
 
 @group(0)
 @binding(1)
-var<uniform> scene: Scene;
+var<uniform> camera: Camera;
 
 @group(0)
 @binding(2)
@@ -45,7 +45,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 	let up: vec3<f32> = vec3<f32>(0, 1, 0);
 
 	var ray: Ray;
-	ray.origin = scene.cameraPosition;
+	ray.origin = camera.position;
 	ray.direction = normalize(forward + horizontalCoefficient * right + verticalCoefficient * up);
 
 	var light: Light;
@@ -87,7 +87,7 @@ ${Plane}
 ${Sphere}
 ${Impact}
 ${Light}
-${Scene}
+${Camera}
 
 ${intersectPlane}
 ${intersectSphere}
