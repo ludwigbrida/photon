@@ -10,7 +10,7 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	impact.distance = (-b - sqrt(discriminant)) / (2 * a);
 	impact.origin = ray.origin + ray.direction * impact.distance;
 	impact.normal = normalize(impact.origin - sphere.origin);
-	impact.material = materials[sphere.materialIndex];
+	impact.material = materials[u32(sphere.materialIndex)];
 
 	return discriminant > 0;
 }

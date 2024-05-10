@@ -47,21 +47,21 @@ export const createRenderer = (
 	const materialCount = 3;
 	const materialBuffer = device.createBuffer({
 		label: "materialBuffer",
-		size: 4 * 4 * materialCount,
+		size: 3 * 4 * materialCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
 	const planeCount = 16;
 	const planeBuffer = device.createBuffer({
 		label: "planeBuffer",
-		size: 4 * 4 * planeCount,
+		size: 7 * 4 * planeCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
 	const sphereCount = 16;
 	const sphereBuffer = device.createBuffer({
 		label: "sphereBuffer",
-		size: 6 * 4 * sphereCount,
+		size: 5 * 4 * sphereCount,
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
