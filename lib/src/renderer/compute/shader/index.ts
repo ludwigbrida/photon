@@ -53,12 +53,14 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
 	var pixelColor = vec3<f32>(0.5, 0, 0.25);
+	var closestDistance = f32(1e8);
 
 	for (var i: u32 = 0; i < arrayLength(&planes); i++) {
 		let plane: Plane = planes[i];
 		var impact: Impact;
 
-		if (intersectPlane(ray, plane, &impact)) {
+		if (intersectPlane(ray, plane, &impact) && impact.distance < closestDistance) {
+			closestDistance = impact.distance;
 			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
 			pixelColor = impact.material.diffuse * diffuseContribution;
 		}
@@ -68,7 +70,8 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		let sphere: Sphere = spheres[i];
 		var impact: Impact;
 
-		if (intersectSphere(ray, sphere, &impact) && impact.distance > 0) {
+		if (intersectSphere(ray, sphere, &impact) && impact.distance < closestDistance) {
+			closestDistance = impact.distance;
 			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
 			pixelColor = impact.material.diffuse * diffuseContribution;
 		}

@@ -12,7 +12,7 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	impact.normal = normalize(impact.origin - sphere.position);
 	impact.material = materials[u32(sphere.materialIndex)];
 
-	return discriminant > 0;
+	return discriminant > 0 && impact.distance > 0;
 }
 
 `;
