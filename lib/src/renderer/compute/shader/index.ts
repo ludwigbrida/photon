@@ -65,7 +65,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 	// 		pixelColor = impact.material.diffuse * diffuseContribution;
 	// 	}
 	// }
-/*
+
 	let plane1: Plane = planes[0];
  	var impact1: Impact;
 
@@ -74,7 +74,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
  		let diffuseContribution = max(dot(-light.direction, impact1.normal), 0);
  		pixelColor = impact1.material.diffuse * diffuseContribution;
  	}
-*/
+
  	let plane2: Plane = planes[1];
  	var impact2: Impact;
 
