@@ -66,24 +66,6 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		}
 	}
 
-	//let plane1: Plane = planes[0];
- 	//var impact1: Impact;
-//
- 	//if (intersectPlane(ray, plane1, &impact1) && impact1.distance < closestDistance) {
- 	//	closestDistance = impact1.distance;
- 	//	let diffuseContribution = max(dot(-light.direction, impact1.normal), 0);
- 	//	pixelColor = impact1.material.diffuse * diffuseContribution;
- 	//}
-//
- 	//let plane2: Plane = planes[1];
- 	//var impact2: Impact;
-//
- 	//if (intersectPlane(ray, plane2, &impact2) && impact2.distance < closestDistance) {
- 	//	closestDistance = impact2.distance;
- 	//	let diffuseContribution = max(dot(-light.direction, impact2.normal), 0);
- 	//	pixelColor = impact2.material.diffuse * diffuseContribution;
- 	//}
-
 	for (var i: u32 = 0; i < arrayLength(&spheres); i++) {
 		let sphere: Sphere = spheres[i];
 		var impact: Impact;
