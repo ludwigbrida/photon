@@ -8,7 +8,7 @@ fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool
 		let rayToPlane = plane.position - ray.origin;
 
 		impact.distance = dot(rayToPlane, plane.normal) / denominator;
-		impact.origin = ray.origin + ray.direction * impact.distance;
+		impact.position = ray.origin + ray.direction * impact.distance;
 		impact.normal = plane.normal;
 		impact.material = materials[i32(plane.materialIndex)];
 
@@ -42,7 +42,7 @@ fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool
 
 	//if (denominator < 0) {
 		impact.distance = t;
-		impact.origin = ray.origin + ray.direction * impact.distance;
+		impact.position = ray.origin + ray.direction * impact.distance;
 		impact.normal = plane.normal;
 		impact.material = materials[u32(plane.materialIndex)];
 
