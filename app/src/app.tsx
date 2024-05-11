@@ -94,7 +94,7 @@ export const App = () => {
 					]),
 					new Float32Array([
 						// Sphere 1
-						-2,
+						-1.5,
 						0,
 						-8,
 						1,
@@ -103,7 +103,7 @@ export const App = () => {
 						NaN,
 						NaN,
 						// Sphere 2
-						2,
+						1.5,
 						0,
 						-8,
 						1,
