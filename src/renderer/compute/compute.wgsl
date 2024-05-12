@@ -130,6 +130,8 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 		}
 	}
 
+	// TODO: Continue by introducing the raytracing pipeline
+
 	for (var i: u32 = 0; i < arrayLength(&spheres); i++) {
 		// let sphere: Sphere = spheres[i];
 		var impact: Impact;
