@@ -41,6 +41,7 @@ export const createVisualizePipeline = (
 
 	const visualizeShaderModule = device.createShaderModule({
 		label: "visualizeShaderModule",
+		// language=WGSL
 		code: `
 			@group(0)
 			@binding(0)
