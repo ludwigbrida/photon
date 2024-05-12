@@ -35,10 +35,10 @@ struct Camera {
 	position: vec3<f32>,
 }
 
-fn intersectPlaneLegacy(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
+fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
 	let denominator = dot(plane.normal, ray.direction);
 
-	if (abs(denominator) > 0.000001) {
+	if (denominator < 0) {
 		let rayToPlane = plane.position - ray.origin;
 
 		impact.distance = dot(rayToPlane, plane.normal) / denominator;
@@ -46,40 +46,12 @@ fn intersectPlaneLegacy(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -
 		impact.normal = plane.normal;
 		impact.material = materials[i32(plane.materialIndex)];
 
-		// return true;
+		// Ensure that the plane is in front of the ray
+		// TODO: Should this be > 0 to ensure that e.g. shadow rays work?
 		return impact.distance >= 0;
 	}
 
 	return false;
-}
-
-fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
-	let rayToPlane = plane.position - ray.origin;
-	let denominator = dot(rayToPlane, plane.normal);
-	let vn = dot(ray.direction, plane.normal);
-	let t = denominator / vn;
-
-	if (vn == 0) {
-		// Ray is parallel to plane
-		return false;
-	}
-
-	if (t < 0) {
-		// Ray in front of plane
-		return false;
-	}
-
-	//if (denominator < 0) {
-		impact.distance = t;
-		impact.position = ray.origin + ray.direction * impact.distance;
-		impact.normal = plane.normal;
-		impact.material = materials[u32(plane.materialIndex)];
-
-		// Only if hit from the right direction && Only hit if impact occurs in front of the ray
-		return denominator < 0 && impact.distance > 0;
-	//}
-
-	// return false;
 }
 
 fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
@@ -119,15 +91,15 @@ var<storage, read> spheres: array<Sphere>;
 @compute
 @workgroup_size(1, 1, 1)
 fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
-	let screenSize: vec2<u32> = textureDimensions(colorBuffer);
-	let screenPosition: vec2<i32> = vec2<i32>(i32(globalInvocationId.x), i32(globalInvocationId.y));
+	let screenSize = textureDimensions(colorBuffer);
+	let screenPosition = vec2<i32>(i32(globalInvocationId.x), i32(globalInvocationId.y));
 
-	let horizontalCoefficient: f32 = (f32(screenPosition.x) - f32(screenSize.x) / 2) / f32(screenSize.x);
-	let verticalCoefficient: f32 = -((f32(screenPosition.y) - f32(screenSize.y) / 2) / f32(screenSize.x));
+	let horizontalCoefficient = (f32(screenPosition.x) - f32(screenSize.x) / 2) / f32(screenSize.x);
+	let verticalCoefficient = -((f32(screenPosition.y) - f32(screenSize.y) / 2) / f32(screenSize.x));
 
-	let forward: vec3<f32> = vec3<f32>(0, 0, -1);
-	let right: vec3<f32> = vec3<f32>(1, 0, 0);
-	let up: vec3<f32> = vec3<f32>(0, 1, 0);
+	let forward = vec3<f32>(0, 0, -1);
+	let right = vec3<f32>(1, 0, 0);
+	let up = vec3<f32>(0, 1, 0);
 
 	var ray: Ray;
 	ray.origin = camera.position;
@@ -137,7 +109,7 @@ fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 	light.color = vec3<f32>(1, 1, 1);
 	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
-	var pixelColor = vec3<f32>(0.5, 0, 0.25);
+	var pixelColor = vec3<f32>(1, 0.75, 0.8);
 	var closestDistance = f32(1e8);
 
 	for (var i: u32 = 0; i < arrayLength(&planes); i++) {
