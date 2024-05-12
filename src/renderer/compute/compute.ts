@@ -1,4 +1,4 @@
-import shader from "./shader";
+import computeShader from "./compute.wgsl?raw";
 
 export const createComputePipeline = (
 	device: GPUDevice,
@@ -92,8 +92,8 @@ export const createComputePipeline = (
 	});
 
 	const computeShaderModule = device.createShaderModule({
-		label: "computeShader",
-		code: shader,
+		label: "computeShaderModule",
+		code: computeShader,
 	});
 
 	const computePipeline = device.createComputePipeline({
