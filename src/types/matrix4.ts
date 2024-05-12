@@ -1,4 +1,4 @@
-import { Vector3 } from "./vector3";
+import { Vector3 } from "./vector3.ts";
 
 /**
  * Type that represents a 4x4-dimensional matrix with members **m01** to **m33** in column-major notation.

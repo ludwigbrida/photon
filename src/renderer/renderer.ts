@@ -1,4 +1,4 @@
-import { Vector3 } from "../types/vector3";
+import { Vector3 } from "../types/vector3.ts";
 import { createComputePipeline } from "./compute/compute";
 import { createContext } from "./helpers/context";
 import { createVisualizePipeline } from "./visualize/visualize";

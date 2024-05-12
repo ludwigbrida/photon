@@ -1,4 +1,3 @@
-import { Vector3 } from "@ludwigbrida/photon";
 import {
 	createContext,
 	Dispatch,
@@ -7,6 +6,7 @@ import {
 	SetStateAction,
 } from "react";
 import { useRefState } from "../../shared/hooks/use-ref-state.ts";
+import { Vector3 } from "../../types/vector3.ts";
 
 export type SceneProps = {
 	camera: MutableRefObject<Vector3>;
