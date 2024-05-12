@@ -60,6 +60,13 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	let c = dot(ray.origin - sphere.position, ray.origin - sphere.position) - sphere.radius * sphere.radius;
 	let discriminant = b * b - 4 * a * c;
 
+	// TODO: Split intersection check and impact calculation.
+	// TODO: The impact should only be evaluated if the sphere is actually the
+	// TODO: closest object to the camera for performance reasons.
+	// TODO: - Loop over all objects in the scene and determine the closest one
+	// TODO: - Do impact evaluation for closest object
+	// TODO: - Calculate shading for this object
+
 	impact.distance = (-b - sqrt(discriminant)) / (2 * a);
 	impact.position = ray.origin + ray.direction * impact.distance;
 	impact.normal = normalize(impact.position - sphere.position);
