@@ -2,7 +2,7 @@ export const createContext = (canvas: HTMLCanvasElement, device: GPUDevice) => {
 	const context = canvas.getContext("webgpu");
 
 	if (!context) {
-		throw Error("Could not create context");
+		throw new Error("Could not create context");
 	}
 
 	context.configure({
