@@ -25,6 +25,10 @@ export const App = () => {
 			let previousTime = 0;
 			let step = 0;
 			const frame = async (elapsedTime = previousTime) => {
+				if (step > 100) {
+					setFps(0);
+					return;
+				}
 				const deltaTime = elapsedTime - previousTime;
 				const frameTime = await render(
 					deltaTime,
@@ -117,6 +121,7 @@ export const App = () => {
 				);
 				setFps(Math.floor(1000 / frameTime));
 				previousTime = elapsedTime;
+				step++;
 				requestAnimationFrame(frame);
 			};
 			requestAnimationFrame(frame);

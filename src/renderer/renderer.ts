@@ -104,8 +104,6 @@ export const createRenderer = (
 		planes: Float32Array,
 		spheres: Float32Array,
 	) => {
-		if (step > 100) return 0;
-
 		const begin = performance.now();
 
 		device.queue.writeBuffer(cameraBuffer, 0, new Float32Array(cameraPosition));
@@ -158,8 +156,6 @@ export const createRenderer = (
 		await device.queue.onSubmittedWorkDone();
 
 		const end = performance.now();
-
-		step++;
 
 		return end - begin;
 	};
