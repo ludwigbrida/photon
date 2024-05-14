@@ -11,8 +11,14 @@ export const createRenderer = (
 
 	// Assets
 
-	const colorBuffer = device.createTexture({
-		label: "colorBuffer",
+	const sampler = device.createSampler({
+		label: "sampler",
+		magFilter: "linear",
+		minFilter: "linear",
+	});
+
+	const textureA = device.createTexture({
+		label: "textureA",
 		size: {
 			width: context.canvas.width,
 			height: context.canvas.height,
@@ -24,19 +30,27 @@ export const createRenderer = (
 			GPUTextureUsage.TEXTURE_BINDING,
 	});
 
-	const colorBufferView = colorBuffer.createView({
-		label: "colorBufferView",
+	const textureB = device.createTexture({
+		label: "textureB",
+		size: {
+			width: context.canvas.width,
+			height: context.canvas.height,
+		},
+		format: "rgba8unorm",
+		usage:
+			GPUTextureUsage.COPY_DST |
+			GPUTextureUsage.STORAGE_BINDING |
+			GPUTextureUsage.TEXTURE_BINDING,
 	});
 
-	const sampler = device.createSampler({
-		label: "sampler",
-		addressModeU: "repeat",
-		addressModeV: "repeat",
-		magFilter: "linear",
-		minFilter: "nearest",
-		mipmapFilter: "nearest",
-		maxAnisotropy: 1,
-	});
+	const textureViews = [
+		textureA.createView({
+			label: "textureViewA",
+		}),
+		textureB.createView({
+			label: "textureViewB",
+		}),
+	];
 
 	const cameraBuffer = device.createBuffer({
 		label: "cameraBuffer",
@@ -67,28 +81,31 @@ export const createRenderer = (
 
 	// Pipelines
 
-	const { computeBindGroup, computePipeline } = createComputePipeline(
+	const { computeBindGroups, computePipeline } = createComputePipeline(
 		device,
-		colorBufferView,
+		textureViews,
 		cameraBuffer,
 		materialBuffer,
 		planeBuffer,
 		sphereBuffer,
 	);
 
-	const { visualizeBindGroup, visualizePipeline } = createVisualizePipeline(
+	const { visualizeBindGroups, visualizePipeline } = createVisualizePipeline(
 		device,
-		colorBufferView,
+		textureViews,
 		sampler,
 	);
 
 	return async (
 		_: number,
+		step: number,
 		cameraPosition: Vector3,
 		materials: Float32Array,
 		planes: Float32Array,
 		spheres: Float32Array,
 	) => {
+		if (step > 100) return 0;
+
 		const begin = performance.now();
 
 		device.queue.writeBuffer(cameraBuffer, 0, new Float32Array(cameraPosition));
@@ -105,7 +122,7 @@ export const createRenderer = (
 			label: "computePass",
 		});
 		computePass.setPipeline(computePipeline);
-		computePass.setBindGroup(0, computeBindGroup);
+		computePass.setBindGroup(0, computeBindGroups[step % 2]);
 		computePass.dispatchWorkgroups(
 			context.canvas.width,
 			context.canvas.height,
@@ -117,7 +134,7 @@ export const createRenderer = (
 			label: "textureView",
 		});
 
-		const renderPass = commandEncoder.beginRenderPass({
+		const visualizePass = commandEncoder.beginRenderPass({
 			label: "visualizePass",
 			colorAttachments: [
 				{
@@ -127,10 +144,10 @@ export const createRenderer = (
 				},
 			],
 		});
-		renderPass.setPipeline(visualizePipeline);
-		renderPass.setBindGroup(0, visualizeBindGroup);
-		renderPass.draw(6, 1, 0, 0);
-		renderPass.end();
+		visualizePass.setPipeline(visualizePipeline);
+		visualizePass.setBindGroup(0, visualizeBindGroups[step % 2]);
+		visualizePass.draw(6, 1, 0, 0);
+		visualizePass.end();
 
 		const commandBuffer = commandEncoder.finish({
 			label: "commandBuffer",
@@ -141,6 +158,8 @@ export const createRenderer = (
 		await device.queue.onSubmittedWorkDone();
 
 		const end = performance.now();
+
+		step++;
 
 		return end - begin;
 	};

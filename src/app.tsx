@@ -23,10 +23,12 @@ export const App = () => {
 	useEffect(() => {
 		if (render) {
 			let previousTime = 0;
+			let step = 0;
 			const frame = async (elapsedTime = previousTime) => {
 				const deltaTime = elapsedTime - previousTime;
 				const frameTime = await render(
 					deltaTime,
+					step,
 					camera.current,
 					new Float32Array([
 						// White

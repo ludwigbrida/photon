@@ -2,7 +2,7 @@ import computeShader from "./compute.wgsl?raw";
 
 export const createComputePipeline = (
 	device: GPUDevice,
-	colorBufferView: GPUTextureView,
+	textureViews: GPUTextureView[],
 	cameraBuffer: GPUBuffer,
 	materialBuffer: GPUBuffer,
 	planeBuffer: GPUBuffer,
@@ -23,15 +23,17 @@ export const createComputePipeline = (
 			{
 				binding: 1,
 				visibility: GPUShaderStage.COMPUTE,
-				buffer: {
-					type: "uniform",
+				storageTexture: {
+					access: "write-only",
+					format: "rgba8unorm",
+					viewDimension: "2d",
 				},
 			},
 			{
 				binding: 2,
 				visibility: GPUShaderStage.COMPUTE,
 				buffer: {
-					type: "read-only-storage",
+					type: "uniform",
 				},
 			},
 			{
@@ -43,6 +45,13 @@ export const createComputePipeline = (
 			},
 			{
 				binding: 4,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+			{
+				binding: 5,
 				visibility: GPUShaderStage.COMPUTE,
 				buffer: {
 					type: "read-only-storage",
@@ -51,40 +60,84 @@ export const createComputePipeline = (
 		],
 	});
 
-	const computeBindGroup = device.createBindGroup({
-		label: "computeBindGroup",
-		layout: computeBindGroupLayout,
-		entries: [
-			{
-				binding: 0,
-				resource: colorBufferView,
-			},
-			{
-				binding: 1,
-				resource: {
-					buffer: cameraBuffer,
+	const computeBindGroups = [
+		device.createBindGroup({
+			label: "computeBindGroupA",
+			layout: computeBindGroupLayout,
+			entries: [
+				{
+					binding: 0,
+					resource: textureViews[0],
 				},
-			},
-			{
-				binding: 2,
-				resource: {
-					buffer: materialBuffer,
+				{
+					binding: 1,
+					resource: textureViews[1],
 				},
-			},
-			{
-				binding: 3,
-				resource: {
-					buffer: planeBuffer,
+				{
+					binding: 2,
+					resource: {
+						buffer: cameraBuffer,
+					},
 				},
-			},
-			{
-				binding: 4,
-				resource: {
-					buffer: sphereBuffer,
+				{
+					binding: 3,
+					resource: {
+						buffer: materialBuffer,
+					},
 				},
-			},
-		],
-	});
+				{
+					binding: 4,
+					resource: {
+						buffer: planeBuffer,
+					},
+				},
+				{
+					binding: 5,
+					resource: {
+						buffer: sphereBuffer,
+					},
+				},
+			],
+		}),
+		device.createBindGroup({
+			label: "computeBindGroupB",
+			layout: computeBindGroupLayout,
+			entries: [
+				{
+					binding: 0,
+					resource: textureViews[1],
+				},
+				{
+					binding: 1,
+					resource: textureViews[0],
+				},
+				{
+					binding: 2,
+					resource: {
+						buffer: cameraBuffer,
+					},
+				},
+				{
+					binding: 3,
+					resource: {
+						buffer: materialBuffer,
+					},
+				},
+				{
+					binding: 4,
+					resource: {
+						buffer: planeBuffer,
+					},
+				},
+				{
+					binding: 5,
+					resource: {
+						buffer: sphereBuffer,
+					},
+				},
+			],
+		}),
+	];
 
 	const computePipelineLayout = device.createPipelineLayout({
 		label: "computePipelineLayout",
@@ -106,7 +159,7 @@ export const createComputePipeline = (
 	});
 
 	return {
-		computeBindGroup,
+		computeBindGroups,
 		computePipeline,
 	};
 };

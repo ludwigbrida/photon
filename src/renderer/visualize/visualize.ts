@@ -2,7 +2,7 @@ import visualizeShader from "./visualize.wgsl?raw";
 
 export const createVisualizePipeline = (
 	device: GPUDevice,
-	colorBufferView: GPUTextureView,
+	textureViews: GPUTextureView[],
 	sampler: GPUSampler,
 ) => {
 	const visualizeBindGroupLayout = device.createBindGroupLayout({
@@ -21,20 +21,36 @@ export const createVisualizePipeline = (
 		],
 	});
 
-	const visualizeBindGroup = device.createBindGroup({
-		label: "visualizeBindGroup",
-		layout: visualizeBindGroupLayout,
-		entries: [
-			{
-				binding: 0,
-				resource: sampler,
-			},
-			{
-				binding: 1,
-				resource: colorBufferView,
-			},
-		],
-	});
+	const visualizeBindGroups = [
+		device.createBindGroup({
+			label: "visualizeBindGroupA",
+			layout: visualizeBindGroupLayout,
+			entries: [
+				{
+					binding: 0,
+					resource: sampler,
+				},
+				{
+					binding: 1,
+					resource: textureViews[0],
+				},
+			],
+		}),
+		device.createBindGroup({
+			label: "visualizeBindGroupB",
+			layout: visualizeBindGroupLayout,
+			entries: [
+				{
+					binding: 0,
+					resource: sampler,
+				},
+				{
+					binding: 1,
+					resource: textureViews[1],
+				},
+			],
+		}),
+	];
 
 	const visualizePipelineLayout = device.createPipelineLayout({
 		label: "visualizePipelineLayout",
@@ -68,7 +84,7 @@ export const createVisualizePipeline = (
 	});
 
 	return {
-		visualizeBindGroup,
+		visualizeBindGroups,
 		visualizePipeline,
 	};
 };
