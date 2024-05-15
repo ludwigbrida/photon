@@ -100,6 +100,12 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 	let right = vec3<f32>(1, 0, 0);
 	let up = vec3<f32>(0, 1, 0);
 
+	let samples = 1u;
+
+	var color = vec3(0.f);
+
+	for (var i = 0u; i < samples; i++) {}
+
 	var ray: Ray;
 	ray.origin = camera.position;
 	ray.direction = normalize(forward + horizontalCoefficient * right + verticalCoefficient * up);
@@ -108,16 +114,15 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 	light.color = vec3<f32>(1, 1, 1);
 	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
-	var pixelColor = vec3<f32>(1, 0.75, 0.8);
 	var closestDistance = f32(1e8);
 
-	for (var i: u32 = 0; i < arrayLength(&planes); i++) {
+	for (var i = 0u; i < arrayLength(&planes); i++) {
 		var impact: Impact;
 
 		if (intersectPlane(ray, planes[i], &impact) && impact.distance < closestDistance) {
 			closestDistance = impact.distance;
 			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			pixelColor = impact.material.diffuse * diffuseContribution;
+			color = impact.material.diffuse * diffuseContribution;
 		}
 	}
 
@@ -129,9 +134,9 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 		if (intersectSphere(ray, spheres[i], &impact) && impact.distance < closestDistance) {
 			closestDistance = impact.distance;
 			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			pixelColor = impact.material.diffuse * diffuseContribution;
+			color = impact.material.diffuse * diffuseContribution;
 		}
 	}
 
-	textureStore(outputTexture, screenPosition, vec4<f32>(pixelColor, 1));
+	textureStore(outputTexture, screenPosition, vec4<f32>(color, 1));
 }
