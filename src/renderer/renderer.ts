@@ -9,10 +9,8 @@ export const createRenderer = (
 ) => {
 	const context = createContext(canvas, device);
 
-	// Assets
-
-	const sampler = device.createSampler({
-		label: "sampler",
+	const textureSampler = device.createSampler({
+		label: "textureSampler",
 		magFilter: "linear",
 		minFilter: "linear",
 	});
@@ -79,8 +77,6 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
-	// Pipelines
-
 	const { computeBindGroups, computePipeline } = createComputePipeline(
 		device,
 		textureViews,
@@ -90,10 +86,10 @@ export const createRenderer = (
 		sphereBuffer,
 	);
 
-	const { visualizeBindGroups, visualizePipeline } = createVisualizePipeline(
+	const { visualizePipeline, visualizeBindGroups } = createVisualizePipeline(
 		device,
+		textureSampler,
 		textureViews,
-		sampler,
 	);
 
 	return async (
@@ -121,22 +117,18 @@ export const createRenderer = (
 		});
 		computePass.setPipeline(computePipeline);
 		computePass.setBindGroup(0, computeBindGroups[step % 2]);
-		computePass.dispatchWorkgroups(
-			context.canvas.width,
-			context.canvas.height,
-			1,
-		);
+		computePass.dispatchWorkgroups(context.canvas.width, context.canvas.height);
 		computePass.end();
 
-		const textureView = context.getCurrentTexture().createView({
-			label: "textureView",
+		const canvasTextureView = context.getCurrentTexture().createView({
+			label: "canvasTextureView",
 		});
 
 		const visualizePass = commandEncoder.beginRenderPass({
 			label: "visualizePass",
 			colorAttachments: [
 				{
-					view: textureView,
+					view: canvasTextureView,
 					loadOp: "clear",
 					storeOp: "store",
 				},
@@ -144,7 +136,7 @@ export const createRenderer = (
 		});
 		visualizePass.setPipeline(visualizePipeline);
 		visualizePass.setBindGroup(0, visualizeBindGroups[step % 2]);
-		visualizePass.draw(6, 1, 0, 0);
+		visualizePass.draw(6);
 		visualizePass.end();
 
 		const commandBuffer = commandEncoder.finish({
