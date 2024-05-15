@@ -2,7 +2,7 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { Vector3Input } from "./core/components/vector3-input.tsx";
 import { Device } from "./core/contexts/device.tsx";
 import { Scene } from "./core/contexts/scene.tsx";
-import { createRenderer } from "./renderer/renderer.ts";
+import { createRenderer } from "./render";
 import { Canvas } from "./shared/components/canvas/canvas.tsx";
 
 export const App = () => {

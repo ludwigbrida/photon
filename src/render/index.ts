@@ -1,7 +1,7 @@
 import { Vector3 } from "../types/vector3.ts";
-import { createComputePipeline } from "./compute/compute";
-import { createContext } from "./helpers/context";
-import { createVisualizePipeline } from "./visualize/visualize";
+import { createComputeResources } from "./compute/compute.ts";
+import { createContext } from "./helpers/context.ts";
+import { createVisualizeResources } from "./visualize/visualize.ts";
 
 export const createRenderer = (
 	device: GPUDevice,
@@ -77,7 +77,7 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
-	const { computeBindGroups, computePipeline } = createComputePipeline(
+	const { computePipeline, computeBindGroups } = createComputeResources(
 		device,
 		textureViews,
 		cameraBuffer,
@@ -86,7 +86,7 @@ export const createRenderer = (
 		sphereBuffer,
 	);
 
-	const { visualizePipeline, visualizeBindGroups } = createVisualizePipeline(
+	const { visualizePipeline, visualizeBindGroups } = createVisualizeResources(
 		device,
 		textureSampler,
 		textureViews,

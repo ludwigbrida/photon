@@ -1,6 +1,6 @@
 import visualizeShader from "./visualize.wgsl?raw";
 
-export const createVisualizePipeline = (
+export const createVisualizeResources = (
 	device: GPUDevice,
 	textureSampler: GPUSampler,
 	textureViews: GPUTextureView[],

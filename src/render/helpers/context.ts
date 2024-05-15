@@ -5,9 +5,11 @@ export const createContext = (canvas: HTMLCanvasElement, device: GPUDevice) => {
 		throw new Error("Could not create context");
 	}
 
+	const format = navigator.gpu.getPreferredCanvasFormat();
+
 	context.configure({
-		device: device,
-		format: "bgra8unorm",
+		device,
+		format,
 	});
 
 	return context;
