@@ -41,6 +41,8 @@ export const App = () => {
 						1, 0, 0, 0,
 						// Green
 						0, 1, 0, 0,
+						// Spheres
+						0, 0, 0, 1,
 					]),
 					new Float32Array([
 						// Back wall
@@ -95,7 +97,7 @@ export const App = () => {
 						0,
 						-8,
 						1,
-						0,
+						3,
 						NaN,
 						NaN,
 						NaN,
@@ -104,7 +106,7 @@ export const App = () => {
 						0,
 						-8,
 						1,
-						0,
+						3,
 						NaN,
 						NaN,
 						NaN,
