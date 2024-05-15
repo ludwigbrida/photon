@@ -42,6 +42,10 @@ struct Camera {
 	position: vec3<f32>,
 }
 
+fn rayAt(ray: Ray, distance: f32) -> vec3f {
+	return ray.origin + ray.direction * distance;
+}
+
 fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
 	let denominator = dot(plane.normal, ray.direction);
 
@@ -49,7 +53,7 @@ fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool
 		let rayToPlane = plane.position - ray.origin;
 
 		impact.distance = dot(rayToPlane, plane.normal) / denominator;
-		impact.position = ray.origin + ray.direction * impact.distance;
+		impact.position = rayAt(ray, impact.distance);
 		impact.normal = plane.normal;
 		impact.material = materials[i32(plane.materialIndex)];
 
@@ -75,7 +79,7 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	// TODO: - Calculate shading for this object
 
 	impact.distance = (-b - sqrt(discriminant)) / (2 * a);
-	impact.position = ray.origin + ray.direction * impact.distance;
+	impact.position = rayAt(ray, impact.distance);
 	impact.normal = normalize(impact.position - sphere.position);
 	impact.material = materials[u32(sphere.materialIndex)];
 
