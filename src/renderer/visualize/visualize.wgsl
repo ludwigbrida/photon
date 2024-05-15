@@ -3,37 +3,37 @@
 
 struct VertexOutput {
 	@builtin(position) position: vec4<f32>,
-	@location(0) texCoord: vec2<f32>,
+	@location(0) coordinate: vec2<f32>,
 }
 
 @vertex
 fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
 	let positions = array<vec2<f32>, 6>(
-		vec2<f32>(1, 1),
-		vec2<f32>(1, -1),
-		vec2<f32>(-1, -1),
-		vec2<f32>(1, 1),
-		vec2<f32>(-1, -1),
-		vec2<f32>(-1, 1),
+		vec2(1, 1),
+		vec2(1, -1),
+		vec2(-1, -1),
+		vec2(1, 1),
+		vec2(-1, -1),
+		vec2(-1, 1),
 	);
 
-	let texCoords = array<vec2<f32>, 6>(
-		vec2<f32>(1, 0),
-		vec2<f32>(1, 1),
-		vec2<f32>(0, 1),
-		vec2<f32>(1, 0),
-		vec2<f32>(0, 1),
-		vec2<f32>(0, 0),
+	let coordinates = array<vec2<f32>, 6>(
+		vec2(1, 0),
+		vec2(1, 1),
+		vec2(0, 1),
+		vec2(1, 0),
+		vec2(0, 1),
+		vec2(0, 0),
 	);
 
 	var output: VertexOutput;
-	output.position = vec4<f32>(positions[vertexIndex], 0, 1);
-	output.texCoord = texCoords[vertexIndex];
+	output.position = vec4(positions[vertexIndex], 0, 1);
+	output.coordinate = coordinates[vertexIndex];
 
 	return output;
 }
 
 @fragment
-fn fragmentMain(@location(0) texCoord: vec2<f32>) -> @location(0) vec4<f32> {
-	return textureSample(texture, textureSampler, texCoord);
+fn fragmentMain(@location(0) coordinate: vec2<f32>) -> @location(0) vec4<f32> {
+	return textureSample(texture, textureSampler, coordinate);
 }
