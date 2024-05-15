@@ -42,7 +42,7 @@ struct Camera {
 	position: vec3<f32>,
 }
 
-fn rayAt(ray: Ray, distance: f32) -> vec3f {
+fn rayAt(ray: Ray, distance: f32) -> vec3<f32> {
 	return ray.origin + ray.direction * distance;
 }
 
