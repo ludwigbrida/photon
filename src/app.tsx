@@ -36,20 +36,11 @@ export const App = () => {
 					camera.current,
 					new Float32Array([
 						// White
-						1,
-						1,
-						1,
-						NaN,
+						1, 1, 1, 0,
 						// Red
-						1,
-						0,
-						0,
-						NaN,
+						1, 0, 0, 0,
 						// Green
-						0,
-						1,
-						0,
-						NaN,
+						0, 1, 0, 0,
 					]),
 					new Float32Array([
 						// Back wall

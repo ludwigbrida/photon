@@ -12,6 +12,7 @@ struct Ray {
 
 struct Material {
 	diffuse: vec3<f32>,
+	metallic: f32,
 }
 
 struct Plane {
