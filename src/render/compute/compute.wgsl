@@ -104,6 +104,7 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 
 	var color = vec3(0.f);
 
+	// Gather samples around the target pixel for anti-aliasing.
 	for (var i = 0u; i < samples; i++) {}
 
 	var ray: Ray;
