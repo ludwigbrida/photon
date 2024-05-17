@@ -91,7 +91,7 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 @workgroup_size(1, 1, 1)
 fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 	let screenSize = textureDimensions(outputTexture);
-	let screenPosition = vec2(i32(pixel.x), i32(pixel.y));
+	let screenPosition = pixel.xy;
 
 	let horizontalCoefficient = (f32(screenPosition.x) - f32(screenSize.x) / 2) / f32(screenSize.x);
 	let verticalCoefficient = -((f32(screenPosition.y) - f32(screenSize.y) / 2) / f32(screenSize.x));
@@ -104,6 +104,7 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 
 	var color = vec3(0.f);
 
+	// Gather samples around the target pixel for anti-aliasing.
 	for (var i = 0u; i < samples; i++) {}
 
 	var ray: Ray;
@@ -138,5 +139,6 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 		}
 	}
 
-	textureStore(outputTexture, screenPosition, vec4<f32>(color, 1));
+	// Store the final pixel color back into the output texture.
+	textureStore(outputTexture, screenPosition, vec4(color, 1));
 }
