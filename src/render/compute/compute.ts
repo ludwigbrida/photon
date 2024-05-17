@@ -13,19 +13,62 @@ export const createComputeResources = (
 		code: computeShader,
 	});
 
-	const computePipeline = device.createComputePipeline({
-		label: "computePipeline",
-		layout: "auto",
-		compute: {
-			module: computeShaderModule,
-			entryPoint: "main",
-		},
+	const computeBindGroupLayout = device.createBindGroupLayout({
+		label: "computeBindGroupLayout",
+		entries: [
+			{
+				binding: 0,
+				visibility: GPUShaderStage.COMPUTE,
+				storageTexture: {
+					access: "write-only",
+					format: "rgba8unorm",
+					viewDimension: "2d",
+				},
+			},
+			{
+				binding: 1,
+				visibility: GPUShaderStage.COMPUTE,
+				storageTexture: {
+					access: "write-only",
+					format: "rgba8unorm",
+					viewDimension: "2d",
+				},
+			},
+			{
+				binding: 2,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "uniform",
+				},
+			},
+			{
+				binding: 3,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+			{
+				binding: 4,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+			{
+				binding: 5,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+		],
 	});
 
 	const computeBindGroups = [
 		device.createBindGroup({
 			label: "computeBindGroupA",
-			layout: computePipeline.getBindGroupLayout(0),
+			layout: computeBindGroupLayout,
 			entries: [
 				{
 					binding: 0,
@@ -63,7 +106,7 @@ export const createComputeResources = (
 		}),
 		device.createBindGroup({
 			label: "computeBindGroupB",
-			layout: computePipeline.getBindGroupLayout(0),
+			layout: computeBindGroupLayout,
 			entries: [
 				{
 					binding: 0,
@@ -101,8 +144,22 @@ export const createComputeResources = (
 		}),
 	];
 
+	const computePipelineLayout = device.createPipelineLayout({
+		label: "computePipelineLayout",
+		bindGroupLayouts: [computeBindGroupLayout],
+	});
+
+	const computePipeline = device.createComputePipeline({
+		label: "computePipeline",
+		layout: computePipelineLayout,
+		compute: {
+			module: computeShaderModule,
+			entryPoint: "main",
+		},
+	});
+
 	return {
-		computePipeline,
 		computeBindGroups,
+		computePipeline,
 	};
 };

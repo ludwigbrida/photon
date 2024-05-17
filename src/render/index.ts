@@ -77,7 +77,7 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
-	const { computePipeline, computeBindGroups } = createComputeResources(
+	const { computeBindGroups, computePipeline } = createComputeResources(
 		device,
 		textureViews,
 		cameraBuffer,
@@ -86,7 +86,7 @@ export const createRenderer = (
 		sphereBuffer,
 	);
 
-	const { visualizePipeline, visualizeBindGroups } = createVisualizeResources(
+	const { visualizeBindGroups, visualizePipeline } = createVisualizeResources(
 		device,
 		textureSampler,
 		textureViews,
