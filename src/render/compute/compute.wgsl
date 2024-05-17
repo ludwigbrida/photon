@@ -91,18 +91,25 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
  * Intersect a ray with the entire scene.
  */
 fn intersect(ray: Ray) -> Impact {
-	var impact: Impact;
-
 	// Keep track of the closest impact distance by initializing it with a very
 	// high value, reducing it with every new impact that occurs at a closer
 	// distance as we loop through the meshes.
 	var closestDistance = f32(1e8);
+
+	var impact: Impact;
 
 	// Loop through all planes in the scene.
 	for (var i = 0u; i < arrayLength(&planes); i++) {
 		let plane = planes[i];
 
 		let hit = intersectPlane(ray, plane, &impact);
+
+		// Check if the ray has hit a plane and whether the impact was closer than
+		// our current closest distance, effectively occluding objects that are
+		// further away.
+		if (hit && impact.distance < closestDistance) {
+
+		}
 	}
 
 	// Loop through all spheres in the scene.
