@@ -87,6 +87,39 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	return discriminant > 0 && impact.distance > 0;
 }
 
+/**
+ * Intersect a ray with the entire scene.
+ */
+fn intersect(ray: Ray) -> Impact {
+	var impact: Impact;
+
+	// Keep track of the closest impact distance by initializing it with a very
+	// high value, reducing it with every new impact that occurs at a closer
+	// distance as we loop through the meshes.
+	var closestDistance = f32(1e8);
+
+	// Loop through all planes in the scene.
+	for (var i = 0u; i < arrayLength(&planes); i++) {
+		let plane = planes[i];
+
+		let hit = intersectPlane(ray, plane, &impact);
+	}
+
+	// Loop through all spheres in the scene.
+	for (var i = 0u; i < arrayLength(&spheres); i++) {
+		let sphere = spheres[i];
+	}
+
+	return impact;
+}
+
+/**
+ * Calculate the color of a given ray.
+ */
+fn shade(ray: Ray) -> vec3<f32> {
+	return vec3(0);
+}
+
 @compute
 @workgroup_size(1, 1, 1)
 fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
