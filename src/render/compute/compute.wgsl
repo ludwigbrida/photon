@@ -136,7 +136,9 @@ fn intersect(ray: Ray) -> Impact {
 fn shade(incidentRay: Ray) -> vec3<f32> {
 	const bounces = 1u;
 
-	var color = vec3(0.f, 0.f, 0.f);
+	var color = vec3<f32>(0, 0, 0);
+	var bouncedColor = vec3<f32>(1, 1, 1);
+
 	var currentBounce = 0u;
 	var ray = incidentRay;
 	var impact: Impact;
@@ -151,13 +153,19 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	// Loop while there is an intersection occuring and we did not exceed the
 	// bounce limit.
 	while (impact.distance < f32(1e8) && currentBounce < bounces + 1) {
+		// Handle metallic surfaces by reflecting the ray.
 		if (impact.material.metallic > 0.f) {
 			ray.origin = impact.position;
 			ray.direction = reflect(ray.direction, impact.normal);
+			ray.direction = normalize(ray.direction);
+
+			// bouncedColor *= impact.material.diffuse;
 
 			currentBounce++;
 
 			impact = intersect(ray);
+
+		// The ray did hit a non-metallic material.
 		} else {
 			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
 			color = impact.material.diffuse * diffuseContribution;
@@ -166,6 +174,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	}
 
 	return color;
+	// return color * bouncedColor;
 }
 
 @compute
