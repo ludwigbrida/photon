@@ -95,12 +95,12 @@ fn intersect(ray: Ray) -> Impact {
 	// high value, reducing it with every new impact that occurs at a closer
 	// distance as we loop through the meshes.
 	var closestDistance = f32(1e8);
-
-	var impact: Impact;
+	var closestImpact: Impact;
 
 	// Loop through all planes in the scene.
 	for (var i = 0u; i < arrayLength(&planes); i++) {
 		let plane = planes[i];
+		var impact: Impact;
 
 		let hit = intersectPlane(ray, plane, &impact);
 
@@ -108,23 +108,64 @@ fn intersect(ray: Ray) -> Impact {
 		// our current closest distance, effectively occluding objects that are
 		// further away.
 		if (hit && impact.distance < closestDistance) {
-
+			// Update the current closest distance to the impact distance.
+			closestDistance = impact.distance;
+			closestImpact = impact;
 		}
 	}
 
 	// Loop through all spheres in the scene.
 	for (var i = 0u; i < arrayLength(&spheres); i++) {
 		let sphere = spheres[i];
+		var impact: Impact;
+
+		let hit = intersectSphere(ray, sphere, &impact);
+
+		if (hit && impact.distance < closestDistance) {
+			closestDistance = impact.distance;
+			closestImpact = impact;
+		}
 	}
 
-	return impact;
+	return closestImpact;
 }
 
 /**
  * Calculate the color of a given ray.
  */
-fn shade(ray: Ray) -> vec3<f32> {
-	return vec3(0);
+fn shade(incidentRay: Ray) -> vec3<f32> {
+	const bounces = 1u;
+
+	var color = vec3(0.f, 0.f, 0.f);
+	var currentBounce = 0u;
+	var ray = incidentRay;
+	var impact: Impact;
+
+	// TODO
+	var light: Light;
+	light.color = vec3<f32>(1, 1, 1);
+	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
+
+	impact = intersect(ray);
+
+	// Loop while there is an intersection occuring and we did not exceed the
+	// bounce limit.
+	while (impact.distance < f32(1e8) && currentBounce < bounces + 1) {
+		if (impact.material.metallic > 0.f) {
+			ray.origin = impact.position;
+			ray.direction = reflect(ray.direction, impact.normal);
+
+			currentBounce++;
+
+			impact = intersect(ray);
+		} else {
+			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
+			color = impact.material.diffuse * diffuseContribution;
+			break;
+		}
+	}
+
+	return color;
 }
 
 @compute
@@ -144,39 +185,13 @@ fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
 
 	var color = vec3(0.f);
 
-	// Gather samples around the target pixel for anti-aliasing.
-	for (var i = 0u; i < samples; i++) {}
-
 	var ray: Ray;
 	ray.origin = camera.position;
 	ray.direction = normalize(forward + horizontalCoefficient * right + verticalCoefficient * up);
 
-	var light: Light;
-	light.color = vec3<f32>(1, 1, 1);
-	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
-
-	var closestDistance = f32(1e8);
-
-	for (var i = 0u; i < arrayLength(&planes); i++) {
-		var impact: Impact;
-
-		if (intersectPlane(ray, planes[i], &impact) && impact.distance < closestDistance) {
-			closestDistance = impact.distance;
-			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			color = impact.material.diffuse * diffuseContribution;
-		}
-	}
-
-	// TODO: Continue by introducing the raytracing pipeline
-
-	for (var i: u32 = 0; i < arrayLength(&spheres); i++) {
-		var impact: Impact;
-
-		if (intersectSphere(ray, spheres[i], &impact) && impact.distance < closestDistance) {
-			closestDistance = impact.distance;
-			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			color = impact.material.diffuse * diffuseContribution;
-		}
+	// Gather samples around the target pixel for anti-aliasing.
+	for (var i = 0u; i < samples; i++) {
+		color = shade(ray);
 	}
 
 	// Store the final pixel color back into the output texture.
