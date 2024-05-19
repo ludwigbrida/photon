@@ -25,10 +25,10 @@ export const App = () => {
 			let previousTime = 0;
 			let step = 0;
 			const frame = async (elapsedTime = previousTime) => {
-				if (step > 100) {
+				/* if (step > 100) {
 					setFps(0);
 					return;
-				}
+				} */
 				const deltaTime = elapsedTime - previousTime;
 				const frameTime = await render(
 					deltaTime,
@@ -41,8 +41,10 @@ export const App = () => {
 						1, 0, 0, 0,
 						// Green
 						0, 1, 0, 0,
-						// Spheres
+						// Left Sphere
 						0, 0, 0, 1,
+						// Right Sphere
+						1, 1, 1, 0,
 					]),
 					new Float32Array([
 						// Back wall
@@ -106,7 +108,7 @@ export const App = () => {
 						0,
 						-8,
 						1,
-						3,
+						4,
 						NaN,
 						NaN,
 						NaN,
