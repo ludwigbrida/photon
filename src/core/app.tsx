@@ -1,9 +1,11 @@
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
-import { Vector3Input } from "./core/components/vector3-input.tsx";
-import { Device } from "./core/contexts/device.tsx";
-import { Scene } from "./core/contexts/scene.tsx";
-import { createRenderer } from "./render";
-import { Canvas } from "./shared/components/canvas/canvas.tsx";
+import { useContext, useEffect, useRef, useState } from "react";
+import { createRenderer } from "../render";
+import { Canvas } from "../shared/components/canvas/canvas.tsx";
+import { Panel } from "../shared/components/panel/panel.tsx";
+import classes from "./app.module.css";
+import { Vector3Input } from "./components/vector3-input.tsx";
+import { Device } from "./contexts/device.tsx";
+import { Scene } from "./contexts/scene.tsx";
 
 export const App = () => {
 	const { device } = useContext(Device);
@@ -124,10 +126,14 @@ export const App = () => {
 	}, [render]);
 
 	return (
-		<Fragment>
-			<Vector3Input value={camera.current} onChange={setCamera} />
-			{fps}
-			<Canvas width={512} height={512} ref={canvas} />
-		</Fragment>
+		<div className={classes.app}>
+			<Panel header="Scene" />
+			<Panel header="Render" footer={fps}>
+				<Canvas width={512} height={512} ref={canvas} />
+			</Panel>
+			<Panel header="Settings">
+				<Vector3Input value={camera.current} onChange={setCamera} />
+			</Panel>
+		</div>
 	);
 };

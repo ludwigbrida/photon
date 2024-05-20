@@ -1,7 +1,7 @@
 import "@fontsource-variable/inter";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { App } from "./app.tsx";
+import { App } from "./core/app.tsx";
 import { DeviceContext } from "./core/contexts/device.tsx";
 import { SceneContext } from "./core/contexts/scene.tsx";
 import "./main.css";

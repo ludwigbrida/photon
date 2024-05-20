@@ -1,16 +1,21 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import classes from "./panel.module.css";
 
 export type PanelProps = {
-	title: string;
+	header: string;
+	footer?: ReactNode;
 };
 
-export const Panel = ({ title, children }: PropsWithChildren<PanelProps>) => {
+export const Panel = ({
+	header,
+	footer,
+	children,
+}: PropsWithChildren<PanelProps>) => {
 	return (
 		<div className={classes.panel}>
-			<header>{title}</header>
-			<div>{children}</div>
-			<footer></footer>
+			<header>{header}</header>
+			<div className={classes.content}>{children}</div>
+			<footer>{footer}</footer>
 		</div>
 	);
 };
