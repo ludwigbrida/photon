@@ -1,6 +1,11 @@
 .panel {
 	display: flex;
 	flex-direction: column;
+	background: #2b2d30;
+}
+
+.header {
+	padding: 1em;
 }
 
 .content {

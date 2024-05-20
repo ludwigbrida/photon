@@ -13,7 +13,7 @@ export const Panel = ({
 }: PropsWithChildren<PanelProps>) => {
 	return (
 		<div className={classes.panel}>
-			<header>{header}</header>
+			<header className={classes.header}>{header}</header>
 			<div className={classes.content}>{children}</div>
 			<footer>{footer}</footer>
 		</div>

@@ -6,5 +6,6 @@ main {
 
 body {
 	margin: 0;
+	font-size: 14px;
 	font-family: "Inter Variable", sans-serif;
 }
