@@ -1,6 +1,6 @@
-import { Fragment } from "react";
-import { Input } from "../../shared/components/input/input.tsx";
-import { Vector3 } from "../../types/vector3.ts";
+import { Vector3 } from "../../../types/vector3.ts";
+import { Input } from "../input/input.tsx";
+import classes from "./vector3-input.module.css";
 
 export type Vector3InputProps = {
 	value: Vector3;
@@ -12,10 +12,10 @@ export const Vector3Input = ({
 	onChange,
 }: Vector3InputProps) => {
 	return (
-		<Fragment>
+		<div className={classes.vector3Input}>
 			<Input value={x} onChange={(x) => onChange([x, y, z])} />
 			<Input value={y} onChange={(y) => onChange([x, y, z])} />
 			<Input value={z} onChange={(z) => onChange([x, y, z])} />
-		</Fragment>
+		</div>
 	);
 };

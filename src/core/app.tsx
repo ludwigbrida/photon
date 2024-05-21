@@ -2,8 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { createRenderer } from "../render";
 import { Canvas } from "../shared/components/canvas/canvas.tsx";
 import { Panel } from "../shared/components/panel/panel.tsx";
+import { Vector3Input } from "../shared/components/vector3-input/vector3-input.tsx";
 import classes from "./app.module.css";
-import { Vector3Input } from "./components/vector3-input.tsx";
 import { Device } from "./contexts/device.tsx";
 import { Scene } from "./contexts/scene.tsx";
 
