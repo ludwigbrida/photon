@@ -12,10 +12,10 @@ export const Panel = ({
 	children,
 }: PropsWithChildren<PanelProps>) => {
 	return (
-		<div className={classes.panel}>
+		<section className={classes.panel}>
 			<header className={classes.header}>{header}</header>
 			<div className={classes.content}>{children}</div>
 			<footer>{footer}</footer>
-		</div>
+		</section>
 	);
 };
