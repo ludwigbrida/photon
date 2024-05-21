@@ -15,7 +15,7 @@ export const Panel = ({
 		<section className={classes.panel}>
 			<header className={classes.header}>{header}</header>
 			<div className={classes.content}>{children}</div>
-			<footer>{footer}</footer>
+			<footer className={classes.footer}>{footer}</footer>
 		</section>
 	);
 };
