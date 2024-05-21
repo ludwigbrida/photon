@@ -1,5 +1,31 @@
 .app {
 	display: grid;
+	grid-template-rows: 2fr 1fr 1fr;
 	grid-template-columns: auto 1fr auto;
+	grid-template-areas:
+		"scene render settings"
+		"materials render settings"
+		"meta render settings";
+	gap: 1px;
 	height: 100%;
+}
+
+.scene {
+	grid-area: scene;
+}
+
+.render {
+	grid-area: render;
+}
+
+.settings {
+	grid-area: settings;
+}
+
+.materials {
+	grid-area: materials;
+}
+
+.meta {
+	grid-area: meta;
 }
