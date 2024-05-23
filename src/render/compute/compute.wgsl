@@ -179,7 +179,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 		// The ray did hit a non-metallic material.
 		} else {
-			// Cast a new ray from the impact point to the light source
+			// Cast a new ray from the impact point towards the light source
 			// to determine whether it hits an object on the way.
 			var shadowRay: Ray;
 			shadowRay.origin = impact.position;
