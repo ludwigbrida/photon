@@ -6,7 +6,7 @@
 @group(0) @binding(5) var<storage, read> spheres: array<Sphere>;
 
 const INFINITY = 1e8f;
-const EPSILON = 0.00001f;
+const EPSILON = 1e-5f;
 const BOUNCES = 1u;
 
 struct Ray {
@@ -161,7 +161,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 	var pointLight: PointLight;
 	pointLight.color = vec3<f32>(1, 1, 1);
-	pointLight.position = vec3<f32>(0, 0, 2);
+	pointLight.position = vec3<f32>(-2, 1, 3);
 
 	impact = intersect(ray);
 
@@ -185,7 +185,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			// Cast a new ray from the impact point towards the light source
 			// to determine whether it hits an object on the way.
 			var shadowRay: Ray;
-			shadowRay.origin = impact.position;
+			shadowRay.origin = impact.position + impact.normal * EPSILON;
 			shadowRay.direction = normalize(-directionalLight.direction);
 
 			var shadowRay2: Ray;
@@ -198,8 +198,8 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			let shadowImpact2 = intersect(shadowRay2);
 
 			// If the shadow ray did not hit any target on its way.
-			if (shadowImpact.distance == INFINITY) {
-				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
+			if (shadowImpact2.distance == INFINITY) {
+				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0); // shadowRay2.direction
 				color = impact.material.diffuse * diffuseContribution;
 			}
 
