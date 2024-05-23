@@ -130,6 +130,9 @@ export const App = () => {
 			<div className={classes.scene}>
 				<Panel header="Scene" />
 			</div>
+			<div className={classes.materials}>
+				<Panel header="Materials" />
+			</div>
 			<div className={classes.render}>
 				<Panel header="Render" footer={fps}>
 					<Canvas width={512} height={512} ref={canvas} />
@@ -139,12 +142,6 @@ export const App = () => {
 				<Panel header="Settings">
 					<Vector3Input value={camera.current} onChange={setCamera} />
 				</Panel>
-			</div>
-			<div className={classes.materials}>
-				<Panel header="Materials" />
-			</div>
-			<div className={classes.meta}>
-				<Panel header="Meta" />
 			</div>
 		</div>
 	);

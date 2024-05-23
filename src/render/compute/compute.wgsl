@@ -167,8 +167,23 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 		// The ray did hit a non-metallic material.
 		} else {
-			let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
-			color = impact.material.diffuse * diffuseContribution;
+			// Cast a new ray from the impact point to the light source
+			// to determine whether it hits an object on the way.
+			var shadowRay: Ray;
+			shadowRay.origin = impact.position;
+			shadowRay.direction = normalize(-light.direction);
+
+			// Test whether the shadow ray hits an object in the scene.
+			let shadowImpact = intersect(shadowRay);
+
+			if (shadowImpact.distance < f32(1e8)) {
+				// TODO
+				color = vec3<f32>(0, 0, 0);
+			} else {
+				let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
+				color = impact.material.diffuse * diffuseContribution;
+			}
+
 			break;
 		}
 	}
