@@ -56,26 +56,30 @@ fn rayAt(ray: Ray, distance: f32) -> vec3<f32> {
 	return ray.origin + ray.direction * distance;
 }
 
-fn intersectPlane(ray: Ray, plane: Plane, impact: ptr<function, Impact>) -> bool {
+fn intersectPlane(ray: Ray, plane: Plane) -> Impact {
+	var impact: Impact;
+	impact.distance = INFINITY;
+
 	let denominator = dot(plane.normal, ray.direction);
+	let rayToPlane = plane.position - ray.origin;
+	let distance = dot(rayToPlane, plane.normal) / denominator;
 
-	if (denominator < 0) {
-		let rayToPlane = plane.position - ray.origin;
-
-		impact.distance = dot(rayToPlane, plane.normal) / denominator;
+	// Ensure that the plane is in front of the ray
+	// TODO: Should this be > 0 to ensure that e.g. shadow rays work?
+	if (denominator < 0 && distance >= 0) {
+		impact.distance = distance;
 		impact.position = rayAt(ray, impact.distance);
 		impact.normal = plane.normal;
 		impact.material = materials[i32(plane.materialIndex)];
-
-		// Ensure that the plane is in front of the ray
-		// TODO: Should this be > 0 to ensure that e.g. shadow rays work?
-		return impact.distance >= 0;
 	}
 
-	return false;
+	return impact;
 }
 
-fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> bool {
+fn intersectSphere(ray: Ray, sphere: Sphere) -> Impact {
+	var impact: Impact;
+	impact.distance = INFINITY;
+
 	let a = dot(ray.direction, ray.direction);
 	let b = dot(ray.direction, ray.origin - sphere.position) * 2;
 	let c = dot(ray.origin - sphere.position, ray.origin - sphere.position) - sphere.radius * sphere.radius;
@@ -88,12 +92,16 @@ fn intersectSphere(ray: Ray, sphere: Sphere, impact: ptr<function, Impact>) -> b
 	// TODO: - Do impact evaluation for closest object
 	// TODO: - Calculate shading for this object
 
-	impact.distance = (-b - sqrt(discriminant)) / (2 * a);
-	impact.position = rayAt(ray, impact.distance);
-	impact.normal = normalize(impact.position - sphere.position);
-	impact.material = materials[u32(sphere.materialIndex)];
+	let distance = (-b - sqrt(discriminant)) / (2 * a);
 
-	return discriminant > 0 && impact.distance > 0;
+	if (discriminant > 0 && distance > 0) {
+		impact.distance = distance;
+		impact.position = rayAt(ray, impact.distance);
+		impact.normal = normalize(impact.position - sphere.position);
+		impact.material = materials[u32(sphere.materialIndex)];
+	}
+
+	return impact;
 }
 
 /**
@@ -103,23 +111,20 @@ fn intersect(ray: Ray) -> Impact {
 	// Keep track of the closest impact distance by initializing it with a very
 	// high value, reducing it with every new impact that occurs at a closer
 	// distance as we loop through the meshes.
-	var closestDistance = INFINITY;
 	var closestImpact: Impact;
 	closestImpact.distance = INFINITY;
 
 	// Loop through all planes in the scene.
 	for (var i = 0u; i < arrayLength(&planes); i++) {
 		let plane = planes[i];
-		var impact: Impact;
 
-		let hit = intersectPlane(ray, plane, &impact);
+		let impact = intersectPlane(ray, plane);
 
 		// Check if the ray has hit a plane and whether the impact was closer than
 		// our current closest distance, effectively occluding objects that are
 		// further away.
-		if (hit && impact.distance < closestDistance) {
+		if (impact.distance < closestImpact.distance) {
 			// Update the current closest distance to the impact distance.
-			closestDistance = impact.distance;
 			closestImpact = impact;
 		}
 	}
@@ -127,12 +132,10 @@ fn intersect(ray: Ray) -> Impact {
 	// Loop through all spheres in the scene.
 	for (var i = 0u; i < arrayLength(&spheres); i++) {
 		let sphere = spheres[i];
-		var impact: Impact;
 
-		let hit = intersectSphere(ray, sphere, &impact);
+		let impact = intersectSphere(ray, sphere);
 
-		if (hit && impact.distance < closestDistance) {
-			closestDistance = impact.distance;
+		if (impact.distance < closestImpact.distance) {
 			closestImpact = impact;
 		}
 	}
@@ -195,7 +198,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			let shadowImpact2 = intersect(shadowRay2);
 
 			// If the shadow ray did not hit any target on its way.
-			if (shadowImpact2.distance == INFINITY) {
+			if (shadowImpact.distance == INFINITY) {
 				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
 				color = impact.material.diffuse * diffuseContribution;
 			}
