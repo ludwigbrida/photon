@@ -96,6 +96,7 @@ fn intersect(ray: Ray) -> Impact {
 	// distance as we loop through the meshes.
 	var closestDistance = f32(1e8);
 	var closestImpact: Impact;
+	closestImpact.distance = f32(1e8);
 
 	// Loop through all planes in the scene.
 	for (var i = 0u; i < arrayLength(&planes); i++) {
@@ -176,10 +177,8 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			// Test whether the shadow ray hits an object in the scene.
 			let shadowImpact = intersect(shadowRay);
 
-			if (shadowImpact.distance < f32(1e8)) {
-				// TODO
-				color = vec3<f32>(0, 0, 0);
-			} else {
+			// If the shadow ray did not hit any target on its way.
+			if (shadowImpact.distance == f32(1e8)) {
 				let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
 				color = impact.material.diffuse * diffuseContribution;
 			}

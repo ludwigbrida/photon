@@ -16,7 +16,7 @@ export type SceneProps = {
 export const Scene = createContext(null as unknown as SceneProps);
 
 export const SceneContext = ({ children }: PropsWithChildren) => {
-	const [camera, setCamera] = useRefState<Vector3>([0, 0, 0]);
+	const [camera, setCamera] = useRefState<Vector3>([0, 0, 8]);
 
 	return (
 		<Scene.Provider
