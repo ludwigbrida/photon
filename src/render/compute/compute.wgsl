@@ -39,6 +39,11 @@ struct DirectionalLight {
 	direction: vec3<f32>,
 }
 
+struct PointLight {
+	color: vec3<f32>,
+	position: vec3<f32>,
+}
+
 struct Camera {
 	position: vec3<f32>,
 }
@@ -149,6 +154,10 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	directionalLight.color = vec3<f32>(1, 1, 1);
 	directionalLight.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
+	var pointLight: PointLight;
+	pointLight.color = vec3<f32>(1, 1, 1);
+	pointLight.position = vec3<f32>(0, 0, 2);
+
 	impact = intersect(ray);
 
 	// Loop while there is an intersection occuring and we did not exceed the
@@ -174,11 +183,17 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			shadowRay.origin = impact.position;
 			shadowRay.direction = normalize(-directionalLight.direction);
 
+			var shadowRay2: Ray;
+			shadowRay2.origin = impact.position + impact.normal * 0.01;
+			shadowRay2.direction = normalize(pointLight.position - impact.position);
+
 			// Test whether the shadow ray hits an object in the scene.
 			let shadowImpact = intersect(shadowRay);
 
+			let shadowImpact2 = intersect(shadowRay2);
+
 			// If the shadow ray did not hit any target on its way.
-			if (shadowImpact.distance == f32(1e8)) {
+			if (shadowImpact2.distance == f32(1e8)) {
 				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
 				color = impact.material.diffuse * diffuseContribution;
 			}
