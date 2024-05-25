@@ -34,7 +34,7 @@ struct Impact {
 	material: Material,
 }
 
-struct Light {
+struct DirectionalLight {
 	color: vec3<f32>,
 	direction: vec3<f32>,
 }
@@ -145,9 +145,9 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	var impact: Impact;
 
 	// TODO
-	var light: Light;
-	light.color = vec3<f32>(1, 1, 1);
-	light.direction = normalize(vec3<f32>(0.5, -0.75, -1));
+	var directionalLight: DirectionalLight;
+	directionalLight.color = vec3<f32>(1, 1, 1);
+	directionalLight.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
 	impact = intersect(ray);
 
@@ -172,14 +172,14 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			// to determine whether it hits an object on the way.
 			var shadowRay: Ray;
 			shadowRay.origin = impact.position;
-			shadowRay.direction = normalize(-light.direction);
+			shadowRay.direction = normalize(-directionalLight.direction);
 
 			// Test whether the shadow ray hits an object in the scene.
 			let shadowImpact = intersect(shadowRay);
 
 			// If the shadow ray did not hit any target on its way.
 			if (shadowImpact.distance == f32(1e8)) {
-				let diffuseContribution = max(dot(-light.direction, impact.normal), 0);
+				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
 				color = impact.material.diffuse * diffuseContribution;
 			}
 
