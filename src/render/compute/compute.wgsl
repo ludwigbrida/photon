@@ -5,6 +5,9 @@
 @group(0) @binding(4) var<storage, read> planes: array<Plane>;
 @group(0) @binding(5) var<storage, read> spheres: array<Sphere>;
 
+const INFINITY = 1e8f;
+const EPSILON = 0.00001f;
+
 struct Ray {
 	origin: vec3<f32>,
 	direction: vec3<f32>,
@@ -99,9 +102,9 @@ fn intersect(ray: Ray) -> Impact {
 	// Keep track of the closest impact distance by initializing it with a very
 	// high value, reducing it with every new impact that occurs at a closer
 	// distance as we loop through the meshes.
-	var closestDistance = f32(1e8);
+	var closestDistance = INFINITY;
 	var closestImpact: Impact;
-	closestImpact.distance = f32(1e8);
+	closestImpact.distance = INFINITY;
 
 	// Loop through all planes in the scene.
 	for (var i = 0u; i < arrayLength(&planes); i++) {
@@ -162,7 +165,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 	// Loop while there is an intersection occuring and we did not exceed the
 	// bounce limit.
-	while (impact.distance < f32(1e8) && currentBounce < bounces + 1) {
+	while (impact.distance < INFINITY && currentBounce < bounces + 1) {
 		// Handle metallic surfaces by reflecting the ray.
 		if (impact.material.metallic > 0.f) {
 			ray.origin = impact.position;
@@ -184,7 +187,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			shadowRay.direction = normalize(-directionalLight.direction);
 
 			var shadowRay2: Ray;
-			shadowRay2.origin = impact.position + impact.normal * 0.01;
+			shadowRay2.origin = impact.position + impact.normal * EPSILON;
 			shadowRay2.direction = normalize(pointLight.position - impact.position);
 
 			// Test whether the shadow ray hits an object in the scene.
@@ -193,7 +196,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 			let shadowImpact2 = intersect(shadowRay2);
 
 			// If the shadow ray did not hit any target on its way.
-			if (shadowImpact2.distance == f32(1e8)) {
+			if (shadowImpact2.distance == INFINITY) {
 				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
 				color = impact.material.diffuse * diffuseContribution;
 			}
