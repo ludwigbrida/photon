@@ -7,6 +7,7 @@
 
 const INFINITY = 1e8f;
 const EPSILON = 0.00001f;
+const BOUNCES = 1u;
 
 struct Ray {
 	origin: vec3<f32>,
@@ -143,8 +144,6 @@ fn intersect(ray: Ray) -> Impact {
  * Calculate the color of a given ray.
  */
 fn shade(incidentRay: Ray) -> vec3<f32> {
-	const bounces = 1u;
-
 	var color = vec3<f32>(0, 0, 0);
 	var bouncedColor = vec3<f32>(1, 1, 1);
 
@@ -165,7 +164,7 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 	// Loop while there is an intersection occuring and we did not exceed the
 	// bounce limit.
-	while (impact.distance < INFINITY && currentBounce < bounces + 1) {
+	while (impact.distance < INFINITY && currentBounce < BOUNCES + 1) {
 		// Handle metallic surfaces by reflecting the ray.
 		if (impact.material.metallic > 0.f) {
 			ray.origin = impact.position;
