@@ -7,6 +7,8 @@ export const createComputeResources = (
 	materialBuffer: GPUBuffer,
 	planeBuffer: GPUBuffer,
 	sphereBuffer: GPUBuffer,
+	directionalLightBuffer: GPUBuffer,
+	pointLightBuffer: GPUBuffer,
 ) => {
 	const computeShaderModule = device.createShaderModule({
 		label: "computeShaderModule",
@@ -16,6 +18,7 @@ export const createComputeResources = (
 	const computeBindGroupLayout = device.createBindGroupLayout({
 		label: "computeBindGroupLayout",
 		entries: [
+			// Output Texture
 			{
 				binding: 0,
 				visibility: GPUShaderStage.COMPUTE,
@@ -25,6 +28,7 @@ export const createComputeResources = (
 					viewDimension: "2d",
 				},
 			},
+			// Input Texture
 			{
 				binding: 1,
 				visibility: GPUShaderStage.COMPUTE,
@@ -34,6 +38,7 @@ export const createComputeResources = (
 					viewDimension: "2d",
 				},
 			},
+			// Camera
 			{
 				binding: 2,
 				visibility: GPUShaderStage.COMPUTE,
@@ -41,6 +46,7 @@ export const createComputeResources = (
 					type: "uniform",
 				},
 			},
+			// Materials
 			{
 				binding: 3,
 				visibility: GPUShaderStage.COMPUTE,
@@ -48,6 +54,7 @@ export const createComputeResources = (
 					type: "read-only-storage",
 				},
 			},
+			// Planes
 			{
 				binding: 4,
 				visibility: GPUShaderStage.COMPUTE,
@@ -55,8 +62,25 @@ export const createComputeResources = (
 					type: "read-only-storage",
 				},
 			},
+			// Spheres
 			{
 				binding: 5,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+			// Directional Lights
+			{
+				binding: 6,
+				visibility: GPUShaderStage.COMPUTE,
+				buffer: {
+					type: "read-only-storage",
+				},
+			},
+			// Point Lights
+			{
+				binding: 7,
 				visibility: GPUShaderStage.COMPUTE,
 				buffer: {
 					type: "read-only-storage",
@@ -102,6 +126,18 @@ export const createComputeResources = (
 						buffer: sphereBuffer,
 					},
 				},
+				{
+					binding: 6,
+					resource: {
+						buffer: directionalLightBuffer,
+					},
+				},
+				{
+					binding: 7,
+					resource: {
+						buffer: pointLightBuffer,
+					},
+				},
 			],
 		}),
 		device.createBindGroup({
@@ -138,6 +174,18 @@ export const createComputeResources = (
 					binding: 5,
 					resource: {
 						buffer: sphereBuffer,
+					},
+				},
+				{
+					binding: 6,
+					resource: {
+						buffer: directionalLightBuffer,
+					},
+				},
+				{
+					binding: 7,
+					resource: {
+						buffer: pointLightBuffer,
 					},
 				},
 			],

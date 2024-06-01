@@ -115,6 +115,28 @@ export const App = () => {
 						NaN,
 						NaN,
 					]),
+					new Float32Array([
+						// Directional Light 1
+						1,
+						1,
+						1,
+						NaN,
+						0.5,
+						-0.75,
+						-1,
+						NaN,
+					]),
+					new Float32Array([
+						// Point Light 1
+						1,
+						1,
+						1,
+						NaN,
+						-2,
+						1,
+						3,
+						NaN,
+					]),
 				);
 				setFps(Math.floor(1000 / frameTime));
 				previousTime = elapsedTime;

@@ -77,6 +77,20 @@ export const createRenderer = (
 		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 	});
 
+	const directionalLightCount = 4;
+	const directionalLightBuffer = device.createBuffer({
+		label: "directionLightBuffer",
+		size: 6 * 4 * directionalLightCount,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+	});
+
+	const pointLightCount = 8;
+	const pointLightBuffer = device.createBuffer({
+		label: "pointLightBuffer",
+		size: 6 * 4 * pointLightCount,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+	});
+
 	const { computeBindGroups, computePipeline } = createComputeResources(
 		device,
 		textureViews,
@@ -84,6 +98,8 @@ export const createRenderer = (
 		materialBuffer,
 		planeBuffer,
 		sphereBuffer,
+		directionalLightBuffer,
+		pointLightBuffer,
 	);
 
 	const { visualizeBindGroups, visualizePipeline } = createVisualizeResources(
@@ -99,6 +115,8 @@ export const createRenderer = (
 		materials: Float32Array,
 		planes: Float32Array,
 		spheres: Float32Array,
+		directionalLights: Float32Array,
+		pointLights: Float32Array,
 	) => {
 		const begin = performance.now();
 
@@ -107,6 +125,8 @@ export const createRenderer = (
 		device.queue.writeBuffer(materialBuffer, 0, materials);
 		device.queue.writeBuffer(planeBuffer, 0, planes);
 		device.queue.writeBuffer(sphereBuffer, 0, spheres);
+		device.queue.writeBuffer(directionalLightBuffer, 0, directionalLights);
+		device.queue.writeBuffer(pointLightBuffer, 0, pointLights);
 
 		const commandEncoder = device.createCommandEncoder({
 			label: "commandEncoder",

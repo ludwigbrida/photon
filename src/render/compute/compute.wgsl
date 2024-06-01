@@ -4,6 +4,8 @@
 @group(0) @binding(3) var<storage, read> materials: array<Material>;
 @group(0) @binding(4) var<storage, read> planes: array<Plane>;
 @group(0) @binding(5) var<storage, read> spheres: array<Sphere>;
+@group(0) @binding(6) var<storage, read> directionalLights: array<DirectionalLight>;
+@group(0) @binding(7) var<storage, read> pointLights: array<PointLight>;
 
 const INFINITY = 1e8f;
 const EPSILON = 1e-5f;
@@ -155,9 +157,9 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	var impact: Impact;
 
 	// TODO
-	var directionalLight: DirectionalLight;
-	directionalLight.color = vec3<f32>(1, 1, 1);
-	directionalLight.direction = normalize(vec3<f32>(0.5, -0.75, -1));
+	// var directionalLight: DirectionalLight;
+	// directionalLight.color = vec3<f32>(1, 1, 1);
+	// directionalLight.direction = normalize(vec3<f32>(0.5, -0.75, -1));
 
 	var pointLight: PointLight;
 	pointLight.color = vec3<f32>(1, 1, 1);
@@ -182,25 +184,42 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 		// The ray did hit a non-metallic material.
 		} else {
-			// Cast a new ray from the impact point towards the light source
-			// to determine whether it hits an object on the way.
-			var shadowRay: Ray;
-			shadowRay.origin = impact.position + impact.normal * EPSILON;
-			shadowRay.direction = normalize(-directionalLight.direction);
+			// Calculate light contribution for all directional lights
+			for (var i = 0u; i < arrayLength(&directionalLights); i++) {
+				var directionalLight = directionalLights[i];
+				directionalLight.direction = normalize(directionalLight.direction);
 
-			var shadowRay2: Ray;
-			shadowRay2.origin = impact.position + impact.normal * EPSILON;
-			shadowRay2.direction = normalize(pointLight.position - impact.position);
+				// Cast a new ray from the impact point towards the light source
+				// to determine whether it hits an object on the way.
+				var shadowRay: Ray;
+				shadowRay.origin = impact.position + impact.normal * EPSILON;
+				shadowRay.direction = normalize(-directionalLight.direction);
 
-			// Test whether the shadow ray hits an object in the scene.
-			let shadowImpact = intersect(shadowRay);
+				// Test whether the shadow ray hits an object in the scene.
+				let shadowImpact = intersect(shadowRay);
 
-			let shadowImpact2 = intersect(shadowRay2);
+				// If the shadow ray did not hit any target on its way.
+				if (shadowImpact.distance == INFINITY) {
+					let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0);
+					color += impact.material.diffuse * diffuseContribution;
+				}
+			}
 
-			// If the shadow ray did not hit any target on its way.
-			if (shadowImpact2.distance == INFINITY) {
-				let diffuseContribution = max(dot(-directionalLight.direction, impact.normal), 0); // shadowRay2.direction
-				color = impact.material.diffuse * diffuseContribution;
+			// Calculate light contribution for all point lights
+			for (var i = 0u; i < arrayLength(&pointLights); i++) {
+				var pointLight = pointLights[i];
+
+				var shadowRay: Ray;
+				shadowRay.origin = impact.position + impact.normal * EPSILON;
+				shadowRay.direction = normalize(pointLight.position - impact.position);
+
+				let shadowImpact = intersect(shadowRay);
+
+				// If the shadow ray did not hit any target on its way.
+				if (shadowImpact.distance == INFINITY) {
+					let diffuseContribution = max(dot(shadowRay.direction, impact.normal), 0);
+					color += impact.material.diffuse * diffuseContribution;
+				}
 			}
 
 			break;
