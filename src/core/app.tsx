@@ -129,8 +129,8 @@ export const App = () => {
 					new Float32Array([
 						// Point Light 1
 						1,
-						1,
-						1,
+						0,
+						0,
 						NaN,
 						-2,
 						1,
