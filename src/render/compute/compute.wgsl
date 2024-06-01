@@ -11,6 +11,9 @@ const INFINITY = 1e8f;
 const EPSILON = 1e-5f;
 const BOUNCES = 1u;
 
+var<private> seed = 0.f;
+var<private> pixel: vec2<f32>;
+
 struct Ray {
 	origin: vec3<f32>,
 	direction: vec3<f32>,
@@ -147,6 +150,14 @@ fn intersect(ray: Ray) -> Impact {
 	return closestImpact;
 }
 
+
+fn random() -> f32 {
+  let result = fract(sin(seed / 100.0 * dot(pixel, vec2(12.9898, 78.233))) * 43758.5453);
+  seed += 1.0;
+  return result;
+}
+
+
 /**
  * Calculate the color of a given ray.
  */
@@ -164,12 +175,12 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 	// bounce limit.
 	while (impact.distance < INFINITY && currentBounce < BOUNCES + 1) {
 		// Handle metallic surfaces by reflecting the ray.
-		if (impact.material.metallic > 0.f) {
+		if (impact.material.metallic > random()) {
 			ray.origin = impact.position;
 			ray.direction = reflect(ray.direction, impact.normal);
 			ray.direction = normalize(ray.direction);
 
-			// bouncedColor *= impact.material.diffuse;
+			bouncedColor *= impact.material.diffuse;
 
 			currentBounce++;
 
@@ -225,9 +236,11 @@ fn shade(incidentRay: Ray) -> vec3<f32> {
 
 @compute
 @workgroup_size(1, 1, 1)
-fn main(@builtin(global_invocation_id) pixel: vec3<u32>) {
+fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
 	let screenSize = textureDimensions(outputTexture);
-	let screenPosition = pixel.xy;
+	let screenPosition = globalInvocationId.xy;
+
+	pixel = vec2<f32>(screenPosition) / vec2<f32>(screenSize);
 
 	let horizontalCoefficient = (f32(screenPosition.x) - f32(screenSize.x) / 2) / f32(screenSize.x);
 	let verticalCoefficient = -((f32(screenPosition.y) - f32(screenSize.y) / 2) / f32(screenSize.x));
