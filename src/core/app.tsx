@@ -124,7 +124,7 @@ export const App = () => {
 						0.5,
 						-0.75,
 						-1,
-						NaN,
+						1,
 					]),
 					new Float32Array([
 						// Point Light 1
@@ -135,7 +135,7 @@ export const App = () => {
 						-2,
 						1,
 						3,
-						NaN,
+						1,
 					]),
 				);
 				setFps(Math.floor(1000 / frameTime));
