@@ -41,14 +41,14 @@ struct Impact {
 }
 
 struct DirectionalLight {
-	color: vec3<f32>,
 	direction: vec3<f32>,
+	color: vec3<f32>,
 	intensity: f32,
 }
 
 struct PointLight {
-	color: vec3<f32>,
 	position: vec3<f32>,
+	color: vec3<f32>,
 	intensity: f32,
 }
 
