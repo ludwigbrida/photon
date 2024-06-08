@@ -8,24 +8,24 @@ import {
 import { useRefState } from "../../shared/hooks/use-ref-state.ts";
 import { Vector3 } from "../../types/vector3.ts";
 
-export type SceneProps = {
+export type SettingsProps = {
 	camera: MutableRefObject<Vector3>;
 	setCamera: Dispatch<SetStateAction<Vector3>>;
 };
 
-export const Scene = createContext(null as unknown as SceneProps);
+export const Settings = createContext(null as unknown as SettingsProps);
 
-export const SceneContext = ({ children }: PropsWithChildren) => {
+export const SettingsContext = ({ children }: PropsWithChildren) => {
 	const [camera, setCamera] = useRefState<Vector3>([0, 0, 8]);
 
 	return (
-		<Scene.Provider
+		<Settings.Provider
 			value={{
 				camera,
 				setCamera,
 			}}
 		>
 			{children}
-		</Scene.Provider>
+		</Settings.Provider>
 	);
 };

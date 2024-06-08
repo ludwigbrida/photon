@@ -7,11 +7,11 @@ import { Vector3Input } from "../shared/components/vector3-input/vector3-input.t
 import classes from "./app.module.css";
 import { Device } from "./contexts/device.tsx";
 import { MaterialContext } from "./contexts/material.tsx";
-import { Scene } from "./contexts/scene.tsx";
+import { Settings } from "./contexts/settings.tsx";
 
 export const App = () => {
 	const { device } = useContext(Device);
-	const { camera, setCamera } = useContext(Scene);
+	const { camera, setCamera } = useContext(Settings);
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
 
