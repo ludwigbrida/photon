@@ -20,27 +20,27 @@ export const MaterialContext = createContext(
 export const MaterialProvider = ({ children }: PropsWithChildren) => {
 	const [materials, setMaterials] = useState<Material[]>([
 		{
-			// White
+			name: "White",
 			diffuse: [1, 1, 1],
 			metallic: 0,
 		},
 		{
-			// Red
+			name: "Red",
 			diffuse: [1, 0, 0],
 			metallic: 0,
 		},
 		{
-			// Green
+			name: "Green",
 			diffuse: [0, 1, 0],
 			metallic: 0,
 		},
 		{
-			// Left Sphere
+			name: "Left Sphere",
 			diffuse: [0, 0, 0],
 			metallic: 1,
 		},
 		{
-			// Right Sphere
+			name: "Right Sphere",
 			diffuse: [1, 1, 1],
 			metallic: 0,
 		},

@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { createRenderer } from "../render";
 import { Canvas } from "../shared/components/canvas/canvas.tsx";
 import { Panel } from "../shared/components/panel/panel.tsx";
+import { Select } from "../shared/components/select/select.tsx";
 import { Vector3Input } from "../shared/components/vector3-input/vector3-input.tsx";
 import classes from "./app.module.css";
 import { Device } from "./contexts/device.tsx";
@@ -14,7 +15,7 @@ export const App = () => {
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
 
-	const { serializedMaterials } = useContext(MaterialContext);
+	const { materials, serializedMaterials } = useContext(MaterialContext);
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -145,7 +146,9 @@ export const App = () => {
 				<Panel header="Scene" />
 			</div>
 			<div className={classes.materials}>
-				<Panel header="Materials" />
+				<Panel header="Materials" footer={materials.length}>
+					<Select items={materials.map((material) => material.name)} />
+				</Panel>
 			</div>
 			<div className={classes.render}>
 				<Panel header="Render" footer={fps}>
