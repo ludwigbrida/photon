@@ -6,6 +6,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
+import { black, green, red, white } from "../../types/color.ts";
 
 type MaterialContextProps = {
 	materials: Material[];
@@ -21,27 +22,27 @@ export const MaterialProvider = ({ children }: PropsWithChildren) => {
 	const [materials, setMaterials] = useState<Material[]>([
 		{
 			name: "White",
-			diffuse: [1, 1, 1],
+			diffuse: white,
 			metallic: 0,
 		},
 		{
 			name: "Red",
-			diffuse: [1, 0, 0],
+			diffuse: red,
 			metallic: 0,
 		},
 		{
 			name: "Green",
-			diffuse: [0, 1, 0],
+			diffuse: green,
 			metallic: 0,
 		},
 		{
 			name: "Left Sphere",
-			diffuse: [0, 0, 0],
+			diffuse: black,
 			metallic: 1,
 		},
 		{
 			name: "Right Sphere",
-			diffuse: [1, 1, 1],
+			diffuse: white,
 			metallic: 0,
 		},
 	]);
