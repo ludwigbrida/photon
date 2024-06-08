@@ -5,6 +5,7 @@ import { Panel } from "../shared/components/panel/panel.tsx";
 import { Vector3Input } from "../shared/components/vector3-input/vector3-input.tsx";
 import classes from "./app.module.css";
 import { Device } from "./contexts/device.tsx";
+import { MaterialContext } from "./contexts/material.tsx";
 import { Scene } from "./contexts/scene.tsx";
 
 export const App = () => {
@@ -12,6 +13,8 @@ export const App = () => {
 	const { camera, setCamera } = useContext(Scene);
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
+
+	const { serializedMaterials } = useContext(MaterialContext);
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -36,18 +39,7 @@ export const App = () => {
 					deltaTime,
 					step,
 					camera.current,
-					new Float32Array([
-						// White
-						1, 1, 1, 0,
-						// Red
-						1, 0, 0, 0,
-						// Green
-						0, 1, 0, 0,
-						// Left Sphere
-						0, 0, 0, 1,
-						// Right Sphere
-						1, 1, 1, 0,
-					]),
+					serializedMaterials,
 					new Float32Array([
 						// Back wall
 						0,
@@ -145,7 +137,7 @@ export const App = () => {
 			};
 			requestAnimationFrame(frame);
 		}
-	}, [render]);
+	}, [render, serializedMaterials]);
 
 	return (
 		<div className={classes.app}>
