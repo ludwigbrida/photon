@@ -5,8 +5,8 @@ export type SelectProps = {
 export const Select = ({ items }: SelectProps) => {
 	return (
 		<select size={items.length}>
-			{items.map((item) => (
-				<option>{item}</option>
+			{items.map((item, index) => (
+				<option key={index}>{item}</option>
 			))}
 		</select>
 	);

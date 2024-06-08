@@ -7,6 +7,7 @@ import { Vector3Input } from "../shared/components/vector3-input/vector3-input.t
 import classes from "./app.module.css";
 import { Device } from "./contexts/device.tsx";
 import { MaterialContext } from "./contexts/material.tsx";
+import { Scene } from "./contexts/scene.tsx";
 import { Settings } from "./contexts/settings.tsx";
 
 export const App = () => {
@@ -16,6 +17,7 @@ export const App = () => {
 	const [fps, setFps] = useState(0);
 
 	const { materials, serializedMaterials } = useContext(MaterialContext);
+	const { planes, serializedPlanes } = useContext(Scene);
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -41,53 +43,7 @@ export const App = () => {
 					step,
 					camera.current,
 					serializedMaterials,
-					new Float32Array([
-						// Back wall
-						0,
-						0,
-						-3,
-						NaN,
-						0,
-						0,
-						1,
-						0,
-						// Top wall
-						//0,
-						//25,
-						//0,
-						//NaN,
-						//0,
-						//-1,
-						//0,
-						//0,
-						// Bottom wall
-						0,
-						-3,
-						0,
-						NaN,
-						0,
-						1,
-						0,
-						0,
-						// Left wall
-						//-25,
-						//0,
-						//0,
-						//NaN,
-						//1,
-						//0,
-						//0,
-						//1,
-						// Right wall
-						3,
-						0,
-						0,
-						NaN,
-						-1,
-						0,
-						0,
-						2,
-					]),
+					serializedPlanes,
 					new Float32Array([
 						// Sphere 1
 						-1,
@@ -143,7 +99,13 @@ export const App = () => {
 	return (
 		<div className={classes.app}>
 			<div className={classes.scene}>
-				<Panel header="Scene" />
+				<Panel header="Scene" footer={planes.length}>
+					<Select
+						items={planes
+							.filter((plane) => plane.active)
+							.map((plane) => plane.name)}
+					/>
+				</Panel>
 			</div>
 			<div className={classes.materials}>
 				<Panel header="Materials" footer={materials.length}>

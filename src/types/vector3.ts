@@ -30,3 +30,15 @@ const add = (vector1: Vector3, vector2: Vector3): Vector3 => {
 export const vector3 = {
 	add,
 };
+
+export const right: Vector3 = [1, 0, 0];
+
+export const left: Vector3 = [-1, 0, 0];
+
+export const up: Vector3 = [0, 1, 0];
+
+export const down: Vector3 = [0, -1, 0];
+
+export const backward: Vector3 = [0, 0, 1];
+
+export const forward: Vector3 = [0, 0, -1];
