@@ -6,19 +6,21 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { Plane } from "../../types/plane.ts";
+import { Entity } from "../../types/entity.ts";
 import { backward, down, left, right, up } from "../../types/vector3.ts";
 
 export type SceneProps = {
-	planes: Plane[];
+	entities: Entity[];
+	setEntities: Dispatch<SetStateAction<Entity[]>>;
+
 	serializedPlanes: Float32Array;
-	setPlanes: Dispatch<SetStateAction<Plane[]>>;
+	serializedSpheres: Float32Array;
 };
 
 export const Scene = createContext(null as unknown as SceneProps);
 
 export const SceneProvider = ({ children }: PropsWithChildren) => {
-	const [planes, setPlanes] = useState<Plane[]>([
+	const [entities, setEntities] = useState<Entity[]>([
 		{
 			name: "Rear Wall",
 			type: "plane",
@@ -59,23 +61,56 @@ export const SceneProvider = ({ children }: PropsWithChildren) => {
 			materialIndex: 2,
 			active: true,
 		},
+		{
+			name: "Left Sphere",
+			type: "sphere",
+			position: [-1, 0, 0],
+			radius: 1,
+			materialIndex: 3,
+			active: true,
+		},
+		{
+			name: "Right Sphere",
+			type: "sphere",
+			position: [1, 0, 0],
+			radius: 1,
+			materialIndex: 4,
+			active: true,
+		},
 	]);
 
 	const serializedPlanes = useMemo(() => {
 		return Float32Array.from(
-			planes
-				.filter((plane) => plane.active)
-				.flatMap((plane) => [
+			entities
+				.filter((entity) => entity.active && entity.type === "plane")
+				.flatMap((plane: any) => [
 					...plane.position,
 					NaN,
 					...plane.normal,
 					plane.materialIndex,
 				]),
 		);
-	}, [planes]);
+	}, [entities]);
+
+	const serializedSpheres = useMemo(() => {
+		return Float32Array.from(
+			entities
+				.filter((entity) => entity.active && entity.type === "sphere")
+				.flatMap((sphere: any) => [
+					...sphere.position,
+					sphere.radius,
+					sphere.materialIndex,
+					NaN,
+					NaN,
+					NaN,
+				]),
+		);
+	}, [entities]);
 
 	return (
-		<Scene.Provider value={{ planes, serializedPlanes, setPlanes }}>
+		<Scene.Provider
+			value={{ entities, setEntities, serializedPlanes, serializedSpheres }}
+		>
 			{children}
 		</Scene.Provider>
 	);

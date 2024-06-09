@@ -1,7 +1,7 @@
-export type EntityType = "plane";
+import { Plane } from "./plane.ts";
+import { Sphere } from "./sphere.ts";
 
 export type Entity = {
 	name: string;
-	type: EntityType;
 	active: boolean;
-};
+} & (Plane | Sphere);

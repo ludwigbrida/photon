@@ -14,7 +14,7 @@ export const App = () => {
 	const { device } = useContext(Device);
 	const { camera, setCamera } = useContext(Config);
 	const { materials, serializedMaterials } = useContext(Material);
-	const { planes, serializedPlanes } = useContext(Scene);
+	const { entities, serializedPlanes, serializedSpheres } = useContext(Scene);
 
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
@@ -44,26 +44,7 @@ export const App = () => {
 					camera.current,
 					serializedMaterials,
 					serializedPlanes,
-					new Float32Array([
-						// Sphere 1
-						-1,
-						0,
-						0,
-						1,
-						3,
-						NaN,
-						NaN,
-						NaN,
-						// Sphere 2
-						1,
-						0,
-						0,
-						1,
-						4,
-						NaN,
-						NaN,
-						NaN,
-					]),
+					serializedSpheres,
 					new Float32Array([
 						// Directional Light 1
 						0.5,
@@ -99,11 +80,11 @@ export const App = () => {
 	return (
 		<div className={classes.app}>
 			<div className={classes.scene}>
-				<Panel header="Scene" footer={planes.length}>
+				<Panel header="Scene" footer={entities.length}>
 					<Select
-						items={planes
-							.filter((plane) => plane.active)
-							.map((plane) => plane.name)}
+						items={entities
+							.filter((entity) => entity.active)
+							.map((entity) => entity.name)}
 					/>
 				</Panel>
 			</div>
