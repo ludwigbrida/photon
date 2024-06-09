@@ -80,7 +80,10 @@ export const App = () => {
 	return (
 		<div className={classes.app}>
 			<div className={classes.scene}>
-				<Panel header="Scene" footer={entities.length}>
+				<Panel
+					header="Scene"
+					footer={entities.filter((entity) => entity.active).length}
+				>
 					<Select
 						items={entities
 							.filter((entity) => entity.active)
