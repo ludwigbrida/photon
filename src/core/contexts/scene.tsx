@@ -7,6 +7,8 @@ import {
 	useState,
 } from "react";
 import { Entity } from "../../types/entity.ts";
+import { Plane } from "../../types/plane.ts";
+import { Sphere } from "../../types/sphere.ts";
 import { backward, down, left, right, up } from "../../types/vector3.ts";
 
 export type SceneProps = {
@@ -79,11 +81,14 @@ export const SceneProvider = ({ children }: PropsWithChildren) => {
 		},
 	]);
 
+	const isPlane = (entity: Entity): entity is Plane =>
+		entity.active && entity.type === "plane";
+
 	const serializedPlanes = useMemo(() => {
 		return Float32Array.from(
 			entities
-				.filter((entity) => entity.active && entity.type === "plane")
-				.flatMap((plane: any) => [
+				.filter(isPlane)
+				.flatMap((plane: Plane) => [
 					...plane.position,
 					NaN,
 					...plane.normal,
@@ -92,10 +97,13 @@ export const SceneProvider = ({ children }: PropsWithChildren) => {
 		);
 	}, [entities]);
 
+	const isSphere = (entity: Entity): entity is Sphere =>
+		entity.active && entity.type === "sphere";
+
 	const serializedSpheres = useMemo(() => {
 		return Float32Array.from(
 			entities
-				.filter((entity) => entity.active && entity.type === "sphere")
+				.filter(isSphere)
 				.flatMap((sphere: any) => [
 					...sphere.position,
 					sphere.radius,
