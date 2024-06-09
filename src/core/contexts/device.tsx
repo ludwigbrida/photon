@@ -7,7 +7,7 @@ export type DeviceProps = {
 
 export const Device = createContext(null as unknown as DeviceProps);
 
-export const DeviceContext = ({ children }: PropsWithChildren) => {
+export const DeviceProvider = ({ children }: PropsWithChildren) => {
 	const [device, setDevice] = useState<GPUDevice>();
 
 	useEffect(() => {

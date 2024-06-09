@@ -8,15 +8,13 @@ import {
 } from "react";
 import { black, green, red, white } from "../../types/color.ts";
 
-type MaterialContextProps = {
+type MaterialProps = {
 	materials: Material[];
 	serializedMaterials: Float32Array;
 	setMaterials: Dispatch<SetStateAction<Material[]>>;
 };
 
-export const MaterialContext = createContext(
-	null as unknown as MaterialContextProps,
-);
+export const Material = createContext(null as unknown as MaterialProps);
 
 export const MaterialProvider = ({ children }: PropsWithChildren) => {
 	const [materials, setMaterials] = useState<Material[]>([
@@ -54,10 +52,8 @@ export const MaterialProvider = ({ children }: PropsWithChildren) => {
 	}, [materials]);
 
 	return (
-		<MaterialContext.Provider
-			value={{ materials, serializedMaterials, setMaterials }}
-		>
+		<Material.Provider value={{ materials, serializedMaterials, setMaterials }}>
 			{children}
-		</MaterialContext.Provider>
+		</Material.Provider>
 	);
 };

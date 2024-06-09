@@ -17,7 +17,7 @@ export type SceneProps = {
 
 export const Scene = createContext(null as unknown as SceneProps);
 
-export const SceneContext = ({ children }: PropsWithChildren) => {
+export const SceneProvider = ({ children }: PropsWithChildren) => {
 	const [planes, setPlanes] = useState<Plane[]>([
 		{
 			name: "Rear Wall",

@@ -5,19 +5,19 @@ import { Panel } from "../shared/components/panel/panel.tsx";
 import { Select } from "../shared/components/select/select.tsx";
 import { Vector3Input } from "../shared/components/vector3-input/vector3-input.tsx";
 import classes from "./app.module.css";
+import { Config } from "./contexts/config.tsx";
 import { Device } from "./contexts/device.tsx";
-import { MaterialContext } from "./contexts/material.tsx";
+import { Material } from "./contexts/material.tsx";
 import { Scene } from "./contexts/scene.tsx";
-import { Settings } from "./contexts/settings.tsx";
 
 export const App = () => {
 	const { device } = useContext(Device);
-	const { camera, setCamera } = useContext(Settings);
+	const { camera, setCamera } = useContext(Config);
+	const { materials, serializedMaterials } = useContext(Material);
+	const { planes, serializedPlanes } = useContext(Scene);
+
 	const [render, setRender] = useState<ReturnType<typeof createRenderer>>();
 	const [fps, setFps] = useState(0);
-
-	const { materials, serializedMaterials } = useContext(MaterialContext);
-	const { planes, serializedPlanes } = useContext(Scene);
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -118,7 +118,7 @@ export const App = () => {
 				</Panel>
 			</div>
 			<div className={classes.settings}>
-				<Panel header="Settings">
+				<Panel header="Config">
 					<Vector3Input value={camera.current} onChange={setCamera} />
 				</Panel>
 			</div>
