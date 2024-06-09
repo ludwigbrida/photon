@@ -65,13 +65,12 @@ export const SceneContext = ({ children }: PropsWithChildren) => {
 		return Float32Array.from(
 			planes
 				.filter((plane) => plane.active)
-				.map((plane) => [
+				.flatMap((plane) => [
 					...plane.position,
 					NaN,
 					...plane.normal,
 					plane.materialIndex,
-				])
-				.flat(),
+				]),
 		);
 	}, [planes]);
 

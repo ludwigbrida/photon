@@ -49,9 +49,7 @@ export const MaterialProvider = ({ children }: PropsWithChildren) => {
 
 	const serializedMaterials = useMemo(() => {
 		return Float32Array.from(
-			materials
-				.map((material) => [...material.diffuse, material.metallic])
-				.flat(),
+			materials.flatMap((material) => [...material.diffuse, material.metallic]),
 		);
 	}, [materials]);
 
