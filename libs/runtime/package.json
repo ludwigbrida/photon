@@ -1,0 +1,9 @@
+{
+  "name": "@photon/runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/main.ts"
+  }
+}
