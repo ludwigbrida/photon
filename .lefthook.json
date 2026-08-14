@@ -1,1 +1,11 @@
-{}
+{
+  "pre-commit": {
+    "jobs": [
+      {
+        "name": "format",
+        "run": "npm run -s prettier -- -wu {staged_files}",
+        "stage_fixed": true
+      }
+    ]
+  }
+}
