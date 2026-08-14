@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/main.ts"
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@webgpu/types": "0.1.71"
   }
 }
