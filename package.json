@@ -19,5 +19,9 @@
     "prettier-plugin-css-order": "2.2.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=24.19.0",
+    "npm": ">=11.17.0"
   }
 }
