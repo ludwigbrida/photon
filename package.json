@@ -1,4 +1,7 @@
 {
   "name": "@ludwigbrida/photon",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "prettier": "3.9.6"
+  }
 }
