@@ -2,6 +2,7 @@
   "name": "@ludwigbrida/photon",
   "private": true,
   "scripts": {
+    "commitlint": "commitlint",
     "prettier": "prettier"
   },
   "devDependencies": {
