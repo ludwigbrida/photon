@@ -1,3 +1,4 @@
+import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
 
@@ -13,6 +14,8 @@ export type Runtime = {
 export const createRuntime = async (options: RuntimeOptions): Promise<Runtime> => {
   const device = await createDevice();
   const context = createContext(options.canvas, device);
+
+  const [accumulationViewA, accumulationViewB] = createAccumulation(device, context);
 
   let running = false;
   let sample = 0;
