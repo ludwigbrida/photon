@@ -2,6 +2,7 @@
   "name": "@ludwigbrida/photon",
   "private": true,
   "devDependencies": {
+    "lefthook": "2.1.10",
     "prettier": "3.9.6",
     "prettier-plugin-css-order": "2.2.0",
     "prettier-plugin-organize-imports": "4.3.0"
