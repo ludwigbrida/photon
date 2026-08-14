@@ -7,5 +7,12 @@
         "stage_fixed": true
       }
     ]
+  },
+  "commit-msg": {
+    "commands": {
+      "validate": {
+        "run": "npm run -s commitlint -- -e {1}"
+      }
+    }
   }
 }
