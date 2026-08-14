@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "commitlint": "commitlint",
+    "knip": "knip",
     "prettier": "prettier"
   },
   "devDependencies": {
