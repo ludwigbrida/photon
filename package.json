@@ -1,6 +1,9 @@
 {
   "name": "@ludwigbrida/photon",
   "private": true,
+  "scripts": {
+    "prettier": "prettier"
+  },
   "devDependencies": {
     "lefthook": "2.1.10",
     "prettier": "3.9.6",
