@@ -1,6 +1,9 @@
 {
   "name": "@ludwigbrida/photon",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "commitlint": "commitlint",
     "knip": "knip",
