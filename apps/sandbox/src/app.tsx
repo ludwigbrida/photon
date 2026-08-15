@@ -12,6 +12,8 @@ export const App = () => {
 
   const compiled = compile(scene);
 
+  console.log(compiled);
+
   useEffect(() => {
     const canvas = canvasRef.current;
 
