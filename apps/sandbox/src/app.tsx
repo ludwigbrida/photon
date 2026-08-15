@@ -12,8 +12,6 @@ export const App = () => {
 
   const compiled = compile(scene);
 
-  console.log(compiled);
-
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -23,7 +21,7 @@ export const App = () => {
     let disposed = false;
 
     void (async () => {
-      const nextRenderer = await createRuntime({ canvas });
+      const nextRenderer = await createRuntime({ canvas, scene: compiled });
 
       if (disposed) {
         nextRenderer.stop();

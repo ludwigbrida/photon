@@ -1,10 +1,13 @@
+import { createComputePass } from "./compute/compute.ts";
 import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
+import { SceneInput } from "./types.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
 export type RuntimeOptions = {
   canvas: HTMLCanvasElement;
+  scene: SceneInput;
 };
 
 export type Runtime = {
@@ -17,6 +20,14 @@ export const createRuntime = async (options: RuntimeOptions): Promise<Runtime> =
   const context = createContext(options.canvas, device);
 
   const [accumulationViewA, accumulationViewB] = createAccumulation(device, context);
+
+  const computePass = createComputePass(
+    device,
+    context,
+    accumulationViewA,
+    accumulationViewB,
+    options.scene,
+  );
 
   const visualizePass = createVisualizePass(device, context, accumulationViewA, accumulationViewB);
 
@@ -32,6 +43,8 @@ export const createRuntime = async (options: RuntimeOptions): Promise<Runtime> =
     const commandEncoder = device.createCommandEncoder({
       label: "commandEncoder",
     });
+
+    computePass.run(commandEncoder, sample);
 
     visualizePass.run(commandEncoder, sample);
 
