@@ -2,6 +2,53 @@ struct Material {
 	color: vec4f,
 };
 
+struct Ray {
+  origin: vec3f,
+  direction: vec3f,
+};
+
+fn intersectsAabb(
+  ray: Ray,
+  minBounds: vec3f,
+  maxBounds: vec3f,
+) -> bool {
+  let inverseDirection = 1.0 / ray.direction;
+
+  let t0 = (minBounds - ray.origin) * inverseDirection;
+  let t1 = (maxBounds - ray.origin) * inverseDirection;
+
+  let tMin = min(t0, t1);
+  let tMax = max(t0, t1);
+
+  let near = max(tMin.x, max(tMin.y, tMin.z));
+  let far = min(tMax.x, min(tMax.y, tMax.z));
+
+  return far >= max(near, 0.0);
+}
+
+fn createCameraRay(
+  pixel: vec2u,
+  resolution: vec2u,
+) -> Ray {
+  let uv = (vec2f(pixel) + vec2f(0.5)) / vec2f(resolution);
+
+  let screen = uv * 2.0 - 1.0;
+
+  let aspect = f32(resolution.x) / f32(resolution.y);
+
+  let direction = normalize(vec3f(screen.x * aspect, -screen.y, 1.0));
+
+  return Ray(vec3f(1.0, 1.0, -4.0), direction);
+}
+
+fn childMinFromIndex(index: u32) -> vec3f {
+  let x = f32(index & 1u);
+  let y = f32((index >> 1u) & 1u);
+  let z = f32((index >> 2u) & 1u);
+
+  return vec3f(x, y, z);
+}
+
 override WORKGROUP_SIZE: u32;
 override IMAGE_WIDTH: u32;
 override IMAGE_HEIGHT: u32;
@@ -25,16 +72,28 @@ var<storage, read> materials: array<Material>;
 @compute
 @workgroup_size(WORKGROUP_SIZE, WORKGROUP_SIZE)
 fn main(@builtin(global_invocation_id) pixel: vec3u) {
+  let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
+
+  let ray = createCameraRay(pixel.xy, resolution);
+
   var color = vec4f(0);
 
   let root = voxels[0];
+  let firstChild = root & 0x3fffffffu;
 
-  let nodeType = root >> 30u;
+  for (var i = 0u; i < 8u; i++) {
+    let node = voxels[firstChild + i];
+    let nodeType = node >> 30u;
 
-  if nodeType == 1u {
-    color = vec4f(1.0, 0.0, 0.0, 1.0);
-  } else {
-    color = vec4f(0.0, 0.0, 0.0, 1.0);
+    if nodeType == 2u {
+      let childMin = childMinFromIndex(i);
+      let childMax = childMin + vec3f(1.0);
+
+      if intersectsAabb(ray, childMin, childMax) {
+        let materialIndex = node & 0x3fffffffu;
+        color = materials[materialIndex].color;
+      }
+    }
   }
 
   textureStore(outputTexture, pixel.xy, color);
