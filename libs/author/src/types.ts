@@ -7,3 +7,12 @@ export type Voxel = {
   readonly position: Vec3;
   readonly color: Color;
 };
+
+export type CompileOptions = {
+  readonly depth: number;
+};
+
+export type CompiledScene = {
+  readonly voxels: Uint32Array;
+  readonly materials: Float32Array;
+};

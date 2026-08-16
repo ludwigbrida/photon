@@ -1,4 +1,5 @@
-import { compile, voxel } from "@photon/author";
+import { voxel } from "@photon/author";
+import { compile } from "@photon/compiler";
 import { createRuntime, type Runtime } from "@photon/runtime";
 import { useEffect, useRef } from "react";
 
@@ -10,7 +11,7 @@ export const App = () => {
     color: [1, 0, 0],
   });
 
-  const compiled = compile(scene);
+  const compiled = compile(scene, { depth: 1 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
