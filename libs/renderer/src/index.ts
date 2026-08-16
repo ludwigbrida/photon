@@ -2,21 +2,21 @@ import { createComputePass } from "./compute/compute.ts";
 import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
-import { Camera, SceneInput } from "./types.ts";
+import { Camera, Scene } from "./types.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
-export type RuntimeOptions = {
-  canvas: HTMLCanvasElement;
-  scene: SceneInput;
+export type RendererOptions = {
+  readonly canvas: HTMLCanvasElement;
   readonly camera: Camera;
+  readonly scene: Scene;
 };
 
-export type Runtime = {
+export type Renderer = {
   start: () => void;
   stop: () => void;
 };
 
-export const createRuntime = async (options: RuntimeOptions): Promise<Runtime> => {
+export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
   const device = await createDevice();
   const context = createContext(options.canvas, device);
 

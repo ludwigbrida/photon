@@ -1,4 +1,4 @@
-import { Camera, createCameraUniform, SceneInput } from "../types.ts";
+import { Camera, createCameraUniform, Scene } from "../types.ts";
 import shaderCode from "./compute.wgsl?raw";
 
 export const createComputePass = (
@@ -7,7 +7,7 @@ export const createComputePass = (
   accumulationViewA: GPUTextureView,
   accumulationViewB: GPUTextureView,
   camera: Camera,
-  scene: SceneInput,
+  scene: Scene,
 ) => {
   const workgroupSize = 8;
   const imageWidth = context.canvas.width;

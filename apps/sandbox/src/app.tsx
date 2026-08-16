@@ -1,6 +1,6 @@
 import { voxel } from "@photon/author";
 import { compile } from "@photon/compiler";
-import { createRuntime, type Runtime } from "@photon/runtime";
+import { createRenderer, type Renderer } from "@photon/renderer";
 import { useEffect, useRef } from "react";
 
 export const App = () => {
@@ -18,11 +18,11 @@ export const App = () => {
 
     if (!canvas) return;
 
-    let renderer: Runtime | undefined;
+    let renderer: Renderer | undefined;
     let disposed = false;
 
     void (async () => {
-      const nextRenderer = await createRuntime({
+      const nextRenderer = await createRenderer({
         canvas,
         scene: compiled,
         camera: {

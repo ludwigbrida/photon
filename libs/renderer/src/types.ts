@@ -1,4 +1,4 @@
-export type SceneInput = {
+export type Scene = {
   readonly voxels: Uint32Array;
   readonly materials: Float32Array;
 };
