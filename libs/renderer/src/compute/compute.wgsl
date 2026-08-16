@@ -107,6 +107,7 @@ fn childMinFromIndex(index: u32) -> vec3f {
 override WORKGROUP_SIZE: u32;
 override IMAGE_WIDTH: u32;
 override IMAGE_HEIGHT: u32;
+override OCTREE_DEPTH: u32;
 
 @group(0)
 @binding(0)

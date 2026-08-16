@@ -8,6 +8,7 @@ export const compile = (root: Voxel, { depth }: CompileOptions): CompiledScene =
   const materials = new Float32Array([root.color[0], root.color[1], root.color[2], 1]);
 
   return {
+    depth,
     voxels: flattenOctree(octree),
     materials,
   };

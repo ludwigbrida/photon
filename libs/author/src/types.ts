@@ -13,6 +13,7 @@ export type CompileOptions = {
 };
 
 export type CompiledScene = {
+  readonly depth: number;
   readonly voxels: Uint32Array;
   readonly materials: Float32Array;
 };

@@ -12,6 +12,7 @@ export const createComputePass = (
   const workgroupSize = 8;
   const imageWidth = context.canvas.width;
   const imageHeight = context.canvas.height;
+  const octreeDepth = scene.depth;
 
   const shaderModule = device.createShaderModule({
     label: "computeShaderModule",
@@ -163,6 +164,7 @@ export const createComputePass = (
         WORKGROUP_SIZE: workgroupSize,
         IMAGE_WIDTH: imageWidth,
         IMAGE_HEIGHT: imageHeight,
+        OCTREE_DEPTH: octreeDepth,
       },
     },
   });
