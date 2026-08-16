@@ -36,9 +36,26 @@ fn createCameraRay(
 
   let aspect = f32(resolution.x) / f32(resolution.y);
 
-  let direction = normalize(vec3f(screen.x * aspect, -screen.y, 1.0));
+  let cameraPosition = vec3f(4.0, 4.0, -4.0);
 
-  return Ray(vec3f(1.0, 1.0, -4.0), direction);
+  let forward = normalize(vec3f(-1.0, -1.0, 1.0));
+
+  let worldUp = vec3f(0.0, 1.0, 0.0);
+
+  let right = normalize(cross(forward, worldUp));
+  let up = cross(right, forward);
+
+  let scale = 3.0;
+
+  let origin =
+    cameraPosition +
+    right * screen.x * aspect * scale +
+    up * -screen.y * scale;
+
+  return Ray(
+    origin,
+    forward,
+  );
 }
 
 fn childMinFromIndex(index: u32) -> vec3f {
