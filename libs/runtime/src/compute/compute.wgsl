@@ -14,6 +14,18 @@ struct Ray {
   direction: vec3f,
 };
 
+const NODE_TYPE_EMPTY = 0u;
+const NODE_TYPE_BRANCH = 1u;
+const NODE_TYPE_LEAF = 2u;
+
+fn nodeType(node: u32) -> u32 {
+  return node >> 30u;
+}
+
+fn nodePayload(node: u32) -> u32 {
+  return node & 0x3fffffffu;
+}
+
 fn intersectsAabb(
   ray: Ray,
   minBounds: vec3f,
@@ -126,18 +138,17 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
   var color = vec4f(0);
 
   let root = voxels[0];
-  let firstChild = root & 0x3fffffffu;
+  let firstChild = nodePayload(root);
 
   for (var i = 0u; i < 8u; i++) {
     let node = voxels[firstChild + i];
-    let nodeType = node >> 30u;
 
-    if nodeType == 2u {
+    if nodeType(node) == NODE_TYPE_LEAF {
       let childMin = childMinFromIndex(i);
       let childMax = childMin + vec3f(1.0);
 
       if intersectsAabb(ray, childMin, childMax) {
-        let materialIndex = node & 0x3fffffffu;
+        let materialIndex = nodePayload(node);
         color = materials[materialIndex].color;
       }
     }

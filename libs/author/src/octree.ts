@@ -1,11 +1,13 @@
-const TYPE_SHIFT = 30;
+const NODE_TYPE_SHIFT = 30;
 
-const EMPTY = 0b00 << TYPE_SHIFT;
-const BRANCH = 0b01 << TYPE_SHIFT;
-const LEAF = 0b10 << TYPE_SHIFT;
+const NODE_TYPE_EMPTY = 0b00;
+const NODE_TYPE_BRANCH = 0b01;
+const NODE_TYPE_LEAF = 0b10;
 
-export const encodeEmpty = (): number => EMPTY;
+export const encodeEmpty = (): number => NODE_TYPE_EMPTY << NODE_TYPE_SHIFT;
 
-export const encodeBranch = (firstChild: number): number => BRANCH | firstChild;
+export const encodeBranch = (firstChild: number): number =>
+  (NODE_TYPE_BRANCH << NODE_TYPE_SHIFT) | firstChild;
 
-export const encodeLeaf = (material: number): number => LEAF | material;
+export const encodeLeaf = (materialIndex: number): number =>
+  (NODE_TYPE_LEAF << NODE_TYPE_SHIFT) | materialIndex;
