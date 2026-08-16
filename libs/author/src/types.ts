@@ -1,3 +1,5 @@
+import { Group } from "./group.ts";
+
 export type Vec3 = readonly [number, number, number];
 
 export type Color = readonly [number, number, number];
@@ -17,3 +19,5 @@ export type CompiledScene = {
   readonly voxels: Uint32Array;
   readonly materials: Float32Array;
 };
+
+export type AuthorNode = Voxel | Group;

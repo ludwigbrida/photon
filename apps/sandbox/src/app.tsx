@@ -1,4 +1,4 @@
-import { voxel } from "@photon/author";
+import { group, voxel } from "@photon/author";
 import { compile } from "@photon/compiler";
 import { createRenderer, type Renderer } from "@photon/renderer";
 import { useEffect, useRef } from "react";
@@ -6,10 +6,16 @@ import { useEffect, useRef } from "react";
 export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const scene = voxel({
-    position: [0, 0, 0],
-    color: [1, 0, 0],
-  });
+  const scene = group(
+    voxel({
+      position: [0, 0, 0],
+      color: [1, 0, 0],
+    }),
+    voxel({
+      position: [1, 0, 0],
+      color: [0, 1, 0],
+    }),
+  );
 
   const compiled = compile(scene, { depth: 1 });
 
