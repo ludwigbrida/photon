@@ -2,12 +2,13 @@ import { createComputePass } from "./compute/compute.ts";
 import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
-import { SceneInput } from "./types.ts";
+import { Camera, SceneInput } from "./types.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
 export type RuntimeOptions = {
   canvas: HTMLCanvasElement;
   scene: SceneInput;
+  readonly camera: Camera;
 };
 
 export type Runtime = {
@@ -26,6 +27,7 @@ export const createRuntime = async (options: RuntimeOptions): Promise<Runtime> =
     context,
     accumulationViewA,
     accumulationViewB,
+    options.camera,
     options.scene,
   );
 

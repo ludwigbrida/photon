@@ -1,3 +1,10 @@
+struct Camera {
+  position: vec3f,
+  mode: f32,
+  cameraTarget: vec3f,
+  parameter: f32,
+};
+
 struct Material {
 	color: vec4f,
 };
@@ -36,16 +43,16 @@ fn createCameraRay(
 
   let aspect = f32(resolution.x) / f32(resolution.y);
 
-  let cameraPosition = vec3f(4.0, 4.0, -4.0);
+  let cameraPosition = camera.position;
+  let cameraTarget = camera.cameraTarget;
+  let scale = camera.parameter;
 
-  let forward = normalize(vec3f(-1.0, -1.0, 1.0));
+  let forward = normalize(cameraTarget - cameraPosition);
 
   let worldUp = vec3f(0.0, 1.0, 0.0);
 
   let right = normalize(cross(forward, worldUp));
-  let up = cross(right, forward);
-
-  let scale = 3.0;
+  let up = normalize(cross(right, forward));
 
   let origin =
     cameraPosition +
@@ -80,9 +87,13 @@ var outputTexture: texture_storage_2d<rgba8unorm, write>;
 
 @group(1)
 @binding(0)
+var<uniform> camera: Camera;
+
+@group(2)
+@binding(0)
 var<storage, read> voxels: array<u32>;
 
-@group(1)
+@group(2)
 @binding(1)
 var<storage, read> materials: array<Material>;
 

@@ -21,7 +21,18 @@ export const App = () => {
     let disposed = false;
 
     void (async () => {
-      const nextRenderer = await createRuntime({ canvas, scene: compiled });
+      const nextRenderer = await createRuntime({
+        canvas,
+        scene: compiled,
+        camera: {
+          mode: "orthographic",
+          position: [0, 0, 0],
+          target: [1, 1, 1],
+          scale: 2,
+        },
+      });
+
+      console.log("Rebuilding...");
 
       if (disposed) {
         nextRenderer.stop();
@@ -37,7 +48,7 @@ export const App = () => {
       disposed = true;
       renderer?.stop();
     };
-  }, [canvasRef.current]);
+  }, [canvasRef.current, compiled]);
 
   return <canvas ref={canvasRef} width={640} height={480} />;
 };

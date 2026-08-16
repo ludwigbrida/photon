@@ -1,4 +1,4 @@
-import { SceneInput } from "../types.ts";
+import { Camera, createCameraUniform, SceneInput } from "../types.ts";
 import shaderCode from "./compute.wgsl?raw";
 
 export const createComputePass = (
@@ -6,6 +6,7 @@ export const createComputePass = (
   context: GPUCanvasContext,
   accumulationViewA: GPUTextureView,
   accumulationViewB: GPUTextureView,
+  camera: Camera,
   scene: SceneInput,
 ) => {
   const workgroupSize = 8;
@@ -68,6 +69,38 @@ export const createComputePass = (
     }),
   ] as const;
 
+  const cameraBindGroupLayout = device.createBindGroupLayout({
+    label: "computeCameraBindGroupLayout",
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "uniform",
+        },
+      },
+    ],
+  });
+
+  const cameraUniform = createCameraUniform(camera);
+
+  const cameraBuffer = device.createBuffer({
+    label: "computeCameraBuffer",
+    size: cameraUniform.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const cameraBindGroup = device.createBindGroup({
+    label: "computeCameraBindGroup",
+    layout: cameraBindGroupLayout,
+    entries: [
+      {
+        binding: 0,
+        resource: cameraBuffer,
+      },
+    ],
+  });
+
   const sceneBindGroupLayout = device.createBindGroupLayout({
     label: "computeSceneBindGroupLayout",
     entries: [
@@ -117,7 +150,7 @@ export const createComputePass = (
 
   const pipelineLayout = device.createPipelineLayout({
     label: "computePipelineLayout",
-    bindGroupLayouts: [accumulationBindGroupLayout, sceneBindGroupLayout],
+    bindGroupLayouts: [accumulationBindGroupLayout, cameraBindGroupLayout, sceneBindGroupLayout],
   });
 
   const pipeline = device.createComputePipeline({
@@ -134,6 +167,7 @@ export const createComputePass = (
     },
   });
 
+  device.queue.writeBuffer(cameraBuffer, 0, cameraUniform);
   device.queue.writeBuffer(voxelBuffer, 0, scene.voxels);
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);
 
@@ -143,7 +177,8 @@ export const createComputePass = (
     });
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, accumulationBindGroups[sample % 2]);
-    passEncoder.setBindGroup(1, sceneBindGroup);
+    passEncoder.setBindGroup(1, cameraBindGroup);
+    passEncoder.setBindGroup(2, sceneBindGroup);
     passEncoder.dispatchWorkgroups(imageWidth / workgroupSize, imageHeight / workgroupSize);
     passEncoder.end();
   };
