@@ -44,8 +44,9 @@ fn createCameraRay(
   let aspect = f32(resolution.x) / f32(resolution.y);
 
   let cameraPosition = camera.position;
+  let mode = u32(camera.mode);
   let cameraTarget = camera.cameraTarget;
-  let scale = camera.parameter;
+  let parameter = camera.parameter;
 
   let forward = normalize(cameraTarget - cameraPosition);
 
@@ -54,14 +55,32 @@ fn createCameraRay(
   let right = normalize(cross(forward, worldUp));
   let up = normalize(cross(right, forward));
 
-  let origin =
-    cameraPosition +
-    right * screen.x * aspect * scale +
-    up * -screen.y * scale;
+  if mode == 0u {
+    let scale = parameter;
+
+    let origin =
+      cameraPosition +
+      right * screen.x * aspect * scale +
+      up * -screen.y * scale;
+
+    return Ray(
+      origin,
+      forward,
+    );
+  }
+
+  let fov = parameter;
+  let halfHeight = tan(fov * 0.5);
+
+  let direction = normalize(
+    forward +
+    right * screen.x * aspect * halfHeight +
+    up * -screen.y * halfHeight,
+  );
 
   return Ray(
-    origin,
-    forward,
+    cameraPosition,
+    direction,
   );
 }
 

@@ -20,8 +20,8 @@ export type OrthographicCamera = {
 export type Camera = PerspectiveCamera | OrthographicCamera;
 
 const cameraMode = {
-  perspective: 1,
   orthographic: 0,
+  perspective: 1,
 } as const;
 
 export const createCameraUniform = (camera: Camera): Float32Array => {
