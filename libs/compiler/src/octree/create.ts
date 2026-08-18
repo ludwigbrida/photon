@@ -2,13 +2,15 @@ import { Voxel } from "@photon/author";
 import { BranchNode, createBranchNode, createLeafNode, Node } from "./node.ts";
 import { getChildIndex } from "./position.ts";
 
-export const createOctree = (voxels: readonly Voxel[], depth: number): Node => {
+export const createOctree = (
+  voxels: readonly Voxel[],
+  materialIndices: readonly number[],
+  depth: number,
+): Node => {
   const root = createBranchNode();
 
-  for (let materialIndex = 0; materialIndex < voxels.length; materialIndex++) {
-    const voxel = voxels[materialIndex];
-
-    insertVoxel(root, voxel, materialIndex, depth);
+  for (let voxelIndex = 0; voxelIndex < voxels.length; voxelIndex++) {
+    insertVoxel(root, voxels[voxelIndex], materialIndices[voxelIndex], depth);
   }
 
   return root;

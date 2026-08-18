@@ -1,12 +1,19 @@
-import { Color, Vec3, Voxel } from "./types.ts";
+import { type Vector3 } from "@photon/core";
+import { type Material } from "./material.ts";
 
 export type VoxelOptions = {
-  readonly position: Vec3;
-  readonly color: Color;
+  readonly position: Vector3;
+  readonly material: Material;
 };
 
-export const voxel = ({ position, color }: VoxelOptions): Voxel => ({
+export type Voxel = {
+  readonly type: "voxel";
+  readonly position: Vector3;
+  readonly material: Material;
+};
+
+export const voxel = ({ position, material }: VoxelOptions): Voxel => ({
   type: "voxel",
   position,
-  color,
+  material,
 });
