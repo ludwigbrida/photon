@@ -1,8 +1,14 @@
+struct AabbHit {
+  found: bool,
+  distance: f32,
+  normal: vec3f,
+};
+
 fn intersectAabb(
   ray: Ray,
   minBounds: vec3f,
   maxBounds: vec3f,
-) -> f32 {
+) -> AabbHit {
   let inverseDirection = 1.0 / ray.direction;
 
   let t0 = (minBounds - ray.origin) * inverseDirection;
@@ -15,8 +21,18 @@ fn intersectAabb(
   let far = min(tMax.x, min(tMax.y, tMax.z));
 
   if far < max(near, 0.0) {
-    return -1.0;
+    return AabbHit(false, -1.0, vec3f(0));
   }
 
-  return max(near, 0.0);
+  var normal = vec3f(0);
+
+  if near == tMin.x {
+    normal = vec3f(-sign(ray.direction.x), 0, 0);
+  } else if near == tMin.y {
+    normal = vec3f(0, -sign(ray.direction.y), 0);
+  } else {
+    normal = vec3f(0, 0, -sign(ray.direction.z));
+  }
+
+  return AabbHit(true, max(near, 0), normal);
 }

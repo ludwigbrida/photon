@@ -51,6 +51,7 @@ struct ChildHit {
   found: bool,
   index: u32,
   octant: u32,
+  normal: vec3f,
 }
 
 fn findNearestChild(
@@ -64,6 +65,7 @@ fn findNearestChild(
   var nearestDistance = 1e30;
   var nearestChildIndex = 0u;
   var nearestChildOctant = 0u;
+  var nearestNormal = vec3f(0);
   var foundChild = false;
 
   for (var i = 0u; i < 8u; i++) {
@@ -80,16 +82,17 @@ fn findNearestChild(
       i,
     );
 
-    let distance = intersectAabb(
+    let hit = intersectAabb(
       ray,
       bounds[0],
       bounds[1],
     );
 
-    if distance >= 0.0 && distance < nearestDistance {
-      nearestDistance = distance;
+    if hit.found && hit.distance < nearestDistance {
+      nearestDistance = hit.distance;
       nearestChildIndex = childIndex;
       nearestChildOctant = i;
+      nearestNormal = hit.normal;
       foundChild = true;
     }
   }
@@ -98,6 +101,7 @@ fn findNearestChild(
     foundChild,
     nearestChildIndex,
     nearestChildOctant,
+    nearestNormal,
   );
 }
 
@@ -129,7 +133,18 @@ fn traceRay(ray: Ray) -> vec4f {
 
     if nodeType(childNode) == NODE_TYPE_LEAF {
       let materialIndex = nodePayload(childNode);
-      return materials[materialIndex].color;
+      let baseColor = materials[materialIndex].color;
+
+      let viewDirection = -ray.direction;
+      let cameraFacing = max(dot(child.normal, viewDirection), 0);
+      let orientationFacing = max(
+        dot(child.normal, normalize(vec3f(0.3, 1.0, 0))),
+        0.0,
+      );
+
+      let brightness = 0.2 + 0.55 * cameraFacing + 0.25 * orientationFacing;
+
+      return vec4f(baseColor.rgb * brightness, baseColor.a);
     }
 
     let bounds = childBounds(

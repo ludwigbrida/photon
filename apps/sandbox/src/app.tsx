@@ -47,8 +47,6 @@ export const App = () => {
         },
       });
 
-      console.log("Rebuilding...");
-
       if (disposed) {
         nextRenderer.stop();
         return;
