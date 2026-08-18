@@ -1,4 +1,4 @@
-import shaderCode from "./visualize.wgsl?raw";
+import visualizeShader from "./visualize.wgsl?raw";
 
 export const createVisualizePass = (
   device: GPUDevice,
@@ -8,7 +8,7 @@ export const createVisualizePass = (
 ) => {
   const shaderModule = device.createShaderModule({
     label: "visualizeShaderModule",
-    code: shaderCode,
+    code: visualizeShader,
   });
 
   const sampler = device.createSampler({
