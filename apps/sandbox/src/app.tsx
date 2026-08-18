@@ -12,12 +12,20 @@ export const App = () => {
       color: [1, 0, 0],
     }),
     voxel({
-      position: [1, 0, 0],
+      position: [0, 0, 1],
       color: [0, 1, 0],
+    }),
+    voxel({
+      position: [1, 0, 0],
+      color: [0, 0, 1],
+    }),
+    voxel({
+      position: [1, 0, 1],
+      color: [1, 0, 1],
     }),
   );
 
-  const compiled = compile(scene, { depth: 1 });
+  const compiled = compile(scene, { depth: 2 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,7 +41,7 @@ export const App = () => {
         scene: compiled,
         camera: {
           mode: "orthographic",
-          position: [0, 0, 0],
+          position: [5, 5, -3],
           target: [1, 1, 1],
           scale: 2,
         },

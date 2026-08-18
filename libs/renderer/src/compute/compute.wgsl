@@ -26,11 +26,11 @@ fn nodePayload(node: u32) -> u32 {
   return node & 0x3fffffffu;
 }
 
-fn intersectsAabb(
+fn intersectAabb(
   ray: Ray,
   minBounds: vec3f,
   maxBounds: vec3f,
-) -> bool {
+) -> f32 {
   let inverseDirection = 1.0 / ray.direction;
 
   let t0 = (minBounds - ray.origin) * inverseDirection;
@@ -42,7 +42,11 @@ fn intersectsAabb(
   let near = max(tMin.x, max(tMin.y, tMin.z));
   let far = min(tMax.x, min(tMax.y, tMax.z));
 
-  return far >= max(near, 0.0);
+  if far < max(near, 0.0) {
+    return -1.0;
+  }
+
+  return max(near, 0.0);
 }
 
 fn createCameraRay(
@@ -181,6 +185,9 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
 
     let firstChild = nodePayload(node);
 
+    var nearestDistance = 1e30;
+    var nearestChildIndex = 0u;
+    var nearestChildOctant = 0u;
     var foundChild = false;
 
     for (var i = 0u; i < 8u; i++) {
@@ -197,35 +204,44 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
         i,
       );
 
-      let childMin = bounds[0];
-      let childMax = bounds[1];
-
-      if !intersectsAabb(
+      let distance = intersectAabb(
         ray,
-        childMin,
-        childMax,
-      ) {
-        continue;
-      }
+        bounds[0],
+        bounds[1],
+      );
 
-      if nodeType(child) == NODE_TYPE_LEAF {
-        let materialIndex = nodePayload(child);
-        color = materials[materialIndex].color;
+      if distance >= 0.0 && distance < nearestDistance {
+        nearestDistance = distance;
+        nearestChildIndex = childIndex;
+        nearestChildOctant = i;
         foundChild = true;
-        break;
       }
-
-      nodeIndex = childIndex;
-      nodeMin = childMin;
-      nodeMax = childMax;
-
-      foundChild = true;
-      break;
     }
 
     if !foundChild {
       break;
     }
+
+    let child = voxels[nearestChildIndex];
+
+    let bounds = childBounds(
+      nodeMin,
+      nodeMax,
+      nearestChildOctant,
+    );
+
+    let childMin = bounds[0];
+    let childMax = bounds[1];
+
+    if nodeType(child) == NODE_TYPE_LEAF {
+      let materialIndex = nodePayload(child);
+      color = materials[materialIndex].color;
+      break;
+    }
+
+    nodeIndex = nearestChildIndex;
+    nodeMin = childMin;
+    nodeMax = childMax;
   }
 
   textureStore(outputTexture, pixel.xy, color);
