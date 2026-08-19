@@ -58,8 +58,9 @@ struct TraversalEntry {
 };
 
 fn traceRay(ray: Ray) -> vec4f {
-  let rootMin = vec3f(0);
-  let rootMax = vec3(f32(1u << OCTREE_DEPTH));
+  let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
+  let rootMin = vec3(-halfExtent - 0.5);
+  let rootMax = vec3(halfExtent - 0.5);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
   if !rootHit.found {

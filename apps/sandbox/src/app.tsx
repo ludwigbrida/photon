@@ -18,10 +18,10 @@ export const App = () => {
     pyramid({
       position: [0, 0, 0],
       material: stone,
-      height: 5,
+      height: 10,
     }),
     voxel({
-      position: [0, 4, 0],
+      position: [0, 3, -7],
       material: red,
     }),
   );
@@ -42,9 +42,9 @@ export const App = () => {
         scene: compiled,
         camera: {
           mode: "orthographic",
-          position: [5, 5, -3],
-          target: [1, 1, 1],
-          scale: 5,
+          position: [16, 16, -16],
+          target: [0, 0, 0],
+          scale: 10,
         },
       });
 

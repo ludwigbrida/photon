@@ -24,8 +24,16 @@ const insertVoxel = (
 ): void => {
   let branch = root;
 
+  const halfExtent = 1 << (depth - 1);
+
+  const octreePosition = [
+    voxel.position[0] + halfExtent,
+    voxel.position[1] + halfExtent,
+    voxel.position[2] + halfExtent,
+  ] as const;
+
   for (let level = depth - 1; level >= 0; level--) {
-    const childIndex = getChildIndex(voxel.position, level);
+    const childIndex = getChildIndex(octreePosition, level);
 
     if (level === 0) {
       branch.children[childIndex] = createLeafNode(materialIndex);
