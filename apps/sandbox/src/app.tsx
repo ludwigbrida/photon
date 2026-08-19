@@ -18,15 +18,15 @@ export const App = () => {
     pyramid({
       position: [0, 0, 0],
       material: stone,
-      height: 2,
+      height: 5,
     }),
     voxel({
-      position: [0, 0, 0],
+      position: [0, 4, 0],
       material: red,
     }),
   );
 
-  const compiled = compile(scene, { depth: 4 });
+  const compiled = compile(scene, { depth: 10 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -44,7 +44,7 @@ export const App = () => {
           mode: "orthographic",
           position: [5, 5, -3],
           target: [1, 1, 1],
-          scale: 2,
+          scale: 5,
         },
       });
 

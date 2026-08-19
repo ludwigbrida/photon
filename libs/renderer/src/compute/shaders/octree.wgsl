@@ -47,116 +47,106 @@ fn childBounds(
   );
 }
 
-struct ChildHit {
-  found: bool,
-  index: u32,
-  octant: u32,
-  normal: vec3f,
-}
+const MAX_TRAVERSAL_STACK = 128u;
 
-fn findNearestChild(
-  ray: Ray,
+struct TraversalEntry {
   nodeIndex: u32,
-  nodeMin: vec3f,
-  nodeMax: vec3f,
-) -> ChildHit {
-  let firstChild = nodePayload(voxels[nodeIndex]);
-
-  var nearestDistance = 1e30;
-  var nearestChildIndex = 0u;
-  var nearestChildOctant = 0u;
-  var nearestNormal = vec3f(0);
-  var foundChild = false;
-
-  for (var i = 0u; i < 8u; i++) {
-    let childIndex = firstChild + i;
-    let child = voxels[childIndex];
-
-    if nodeType(child) == NODE_TYPE_EMPTY {
-      continue;
-    }
-
-    let bounds = childBounds(
-      nodeMin,
-      nodeMax,
-      i,
-    );
-
-    let hit = intersectAabb(
-      ray,
-      bounds[0],
-      bounds[1],
-    );
-
-    if hit.found && hit.distance < nearestDistance {
-      nearestDistance = hit.distance;
-      nearestChildIndex = childIndex;
-      nearestChildOctant = i;
-      nearestNormal = hit.normal;
-      foundChild = true;
-    }
-  }
-
-  return ChildHit(
-    foundChild,
-    nearestChildIndex,
-    nearestChildOctant,
-    nearestNormal,
-  );
-}
+  minBounds: vec3f,
+  maxBounds: vec3f,
+  distance: f32,
+  normal: vec3f,
+};
 
 fn traceRay(ray: Ray) -> vec4f {
-  var nodeIndex = 0u;
+  let rootMin = vec3f(0);
+  let rootMax = vec3(f32(1u << OCTREE_DEPTH));
+  let rootHit = intersectAabb(ray, rootMin, rootMax);
 
-  var nodeMin = vec3f(0.0);
-  var nodeMax = vec3f(f32(1u << OCTREE_DEPTH));
+  if !rootHit.found {
+    return vec4f(0);
+  }
 
-  for (var level = 0u; level < OCTREE_DEPTH; level++) {
-    let node = voxels[nodeIndex];
+  var stack: array<TraversalEntry, 128>;
+  var stackSize = 1u;
 
-    if nodeType(node) != NODE_TYPE_BRANCH {
+  stack[0] = TraversalEntry(
+    0u,
+    rootMin,
+    rootMax,
+    rootHit.distance,
+    rootHit.normal,
+  );
+
+  loop {
+    if stackSize == 0u {
       break;
     }
 
-    let child = findNearestChild(
-      ray,
-      nodeIndex,
-      nodeMin,
-      nodeMax,
-    );
+    var nearestIndex = 0u;
+    var nearestDistance = stack[0].distance;
 
-    if !child.found {
-      break;
+    for (var i = 1u; i < stackSize; i++) {
+      if stack[i].distance < nearestDistance {
+        nearestIndex = i;
+        nearestDistance = stack[i].distance;
+      }
     }
 
-    let childNode = voxels[child.index];
+    let current = stack[nearestIndex];
+    stackSize -= 1u;
+    stack[nearestIndex] = stack[stackSize];
 
-    if nodeType(childNode) == NODE_TYPE_LEAF {
-      let materialIndex = nodePayload(childNode);
+    let node = voxels[current.nodeIndex];
+
+    if nodeType(node) == NODE_TYPE_LEAF {
+      let materialIndex = nodePayload(node);
       let baseColor = materials[materialIndex].color;
 
       let viewDirection = -ray.direction;
-      let cameraFacing = max(dot(child.normal, viewDirection), 0);
-      let orientationFacing = max(
-        dot(child.normal, normalize(vec3f(0.3, 1.0, 0))),
-        0.0,
-      );
+      let cameraFacing = max(dot(current.normal, viewDirection), 0);
+      let orientationFacing = max(dot(current.normal, normalize(vec3f(0.3, 1.0, 0.0))), 0);
 
       let brightness = 0.2 + 0.55 * cameraFacing + 0.25 * orientationFacing;
 
       return vec4f(baseColor.rgb * brightness, baseColor.a);
     }
 
-    let bounds = childBounds(
-      nodeMin,
-      nodeMax,
-      child.octant,
-    );
+    if nodeType(node) != NODE_TYPE_BRANCH {
+      continue;
+    }
 
-    nodeIndex = child.index;
-    nodeMin = bounds[0];
-    nodeMax = bounds[1];
+    let firstChild = nodePayload(node);
+
+    for (var i = 0u; i < 8u; i++) {
+      let childIndex = firstChild + i;
+      let childNode = voxels[childIndex];
+
+      if nodeType(childNode) == NODE_TYPE_EMPTY {
+        continue;
+      }
+
+      let bounds = childBounds(current.minBounds, current.maxBounds, i);
+      let hit = intersectAabb(ray, bounds[0], bounds[1]);
+
+      if !hit.found {
+        continue;
+      }
+
+      if stackSize >= MAX_TRAVERSAL_STACK {
+        return vec4f(1, 0, 1, 1);
+      }
+
+      stack[stackSize] = TraversalEntry(
+        childIndex,
+        bounds[0],
+        bounds[1],
+        hit.distance,
+        hit.normal,
+      );
+
+      stackSize += 1u;
+    }
   }
 
-  return vec4f(0.0);
+  return vec4f(0);
 }
