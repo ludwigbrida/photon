@@ -28,6 +28,15 @@ The authoring layer provides composable building blocks for procedural scene cre
 Photon's goal is to make modeling feel more like programming than traditional 3D authoring:
 define rules, compose them, and let the scene emerge from code.
 
+## Rendering 🎨
+
+### Capabilities
+
+- ⚡ **GPU-accelerated** path tracing
+- 🔄 **Progressive accumulation** for converging renders
+- 💡 **Physically based light transport** including global illumination
+- 📷 **Perspective and orthographic** cameras
+
 ## License
 
 This software is provided under the [MIT license](./LICENSE.md).
