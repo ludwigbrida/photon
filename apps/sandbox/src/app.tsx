@@ -39,13 +39,21 @@ export const App = () => {
     void (async () => {
       const nextRenderer = await createRenderer({
         canvas,
-        scene: compiled,
         camera: {
           mode: "orthographic",
           position: [16, 16, -16],
           target: [0, 0, 0],
           scale: 10,
         },
+        environment: {
+          sun: {
+            azimuthDegrees: 35,
+            elevationDegrees: 45,
+            intensity: 1,
+            color: [1, 0.95, 0.82],
+          },
+        },
+        scene: compiled,
       });
 
       if (disposed) {

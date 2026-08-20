@@ -2,12 +2,13 @@ import { createComputePass } from "./compute/compute.ts";
 import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
-import { Camera, Scene } from "./types.ts";
+import { Camera, Environment, Scene } from "./types.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
 export type RendererOptions = {
   readonly canvas: HTMLCanvasElement;
   readonly camera: Camera;
+  readonly environment: Environment;
   readonly scene: Scene;
 };
 
@@ -28,6 +29,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     accumulationViewA,
     accumulationViewB,
     options.camera,
+    options.environment,
     options.scene,
   );
 

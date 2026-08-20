@@ -4,21 +4,25 @@ override IMAGE_HEIGHT: u32;
 override OCTREE_DEPTH: u32;
 
 @group(0) @binding(0) var inputTexture: texture_2d<f32>;
-
 @group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
 
 @group(1) @binding(0) var<uniform> camera: Camera;
 
-@group(2) @binding(0) var<storage, read> voxels: array<u32>;
+@group(2) @binding(0) var<uniform> environment: Environment;
 
-@group(2) @binding(1) var<storage, read> materials: array<Material>;
+@group(3) @binding(0) var<storage, read> voxels: array<u32>;
+@group(3) @binding(1) var<storage, read> materials: array<Material>;
 
 @compute @workgroup_size(WORKGROUP_SIZE, WORKGROUP_SIZE)
 fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
   let ray = createCameraRay(pixel.xy, resolution);
+  let hit = traceRay(ray);
 
-  let color = traceRay(ray);
+  if hit.found {
+    textureStore(outputTexture, pixel.xy, shadeHit(hit, ray));
+    return;
+  }
 
-  textureStore(outputTexture, pixel.xy, color);
+  textureStore(outputTexture, pixel.xy, shadeMiss(ray));
 }

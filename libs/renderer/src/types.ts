@@ -39,3 +39,51 @@ export const createCameraUniform = (camera: Camera): Float32Array => {
     parameter,
   ]);
 };
+
+export type Sun = {
+  readonly azimuthDegrees: number;
+  readonly elevationDegrees: number;
+  readonly intensity: number;
+  readonly color: readonly [number, number, number];
+};
+
+export type Environment = {
+  readonly sun: Sun;
+};
+
+const degreesToRadians = (degrees: number): number => {
+  return (degrees * Math.PI) / 180;
+};
+
+export const createSunDirection = (
+  azimuthDegrees: number,
+  elevationDegrees: number,
+): readonly [number, number, number] => {
+  const azimuth = degreesToRadians(azimuthDegrees);
+  const elevation = degreesToRadians(elevationDegrees);
+
+  const horizontalLength = Math.cos(elevation);
+
+  return [
+    horizontalLength * Math.sin(azimuth),
+    Math.sin(elevation),
+    horizontalLength * Math.cos(azimuth),
+  ];
+};
+
+export const createEnvironmentUniform = (environment: Environment): Float32Array => {
+  const sunDirection = createSunDirection(
+    environment.sun.azimuthDegrees,
+    environment.sun.elevationDegrees,
+  );
+
+  return new Float32Array([
+    sunDirection[0],
+    sunDirection[1],
+    sunDirection[2],
+    environment.sun.intensity,
+    environment.sun.color[0],
+    environment.sun.color[1],
+    environment.sun.color[2],
+  ]);
+};

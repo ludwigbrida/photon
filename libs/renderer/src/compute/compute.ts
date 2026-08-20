@@ -1,11 +1,19 @@
-import { Camera, createCameraUniform, Scene } from "../types.ts";
+import {
+  Camera,
+  createCameraUniform,
+  createEnvironmentUniform,
+  Environment,
+  Scene,
+} from "../types.ts";
 import computeShader from "./compute.wgsl?raw";
 import cameraShader from "./shaders/camera.wgsl?raw";
 import constantsShader from "./shaders/constants.wgsl?raw";
+import environmentShader from "./shaders/environment.wgsl?raw";
 import geometryShader from "./shaders/geometry.wgsl?raw";
 import materialShader from "./shaders/material.wgsl?raw";
 import octreeShader from "./shaders/octree.wgsl?raw";
 import rayShader from "./shaders/ray.wgsl?raw";
+import shadeShader from "./shaders/shade.wgsl?raw";
 
 export const createComputePass = (
   device: GPUDevice,
@@ -13,6 +21,7 @@ export const createComputePass = (
   accumulationViewA: GPUTextureView,
   accumulationViewB: GPUTextureView,
   camera: Camera,
+  environment: Environment,
   scene: Scene,
 ) => {
   const workgroupSize = 8;
@@ -27,7 +36,9 @@ export const createComputePass = (
       rayShader,
       materialShader,
       cameraShader,
+      environmentShader,
       geometryShader,
+      shadeShader,
       octreeShader,
       computeShader,
     ].join("\n"),
@@ -116,6 +127,38 @@ export const createComputePass = (
     ],
   });
 
+  const environmentBindGroupLayout = device.createBindGroupLayout({
+    label: "computeEnvironmentBindGroupLayout",
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "uniform",
+        },
+      },
+    ],
+  });
+
+  const environmentUniform = createEnvironmentUniform(environment);
+
+  const environmentBuffer = device.createBuffer({
+    label: "computeEnvironmentBuffer",
+    size: 32, // environmentUniform.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const environmentBindGroup = device.createBindGroup({
+    label: "computeEnvironmentBindGroup",
+    layout: environmentBindGroupLayout,
+    entries: [
+      {
+        binding: 0,
+        resource: environmentBuffer,
+      },
+    ],
+  });
+
   const sceneBindGroupLayout = device.createBindGroupLayout({
     label: "computeSceneBindGroupLayout",
     entries: [
@@ -165,7 +208,12 @@ export const createComputePass = (
 
   const pipelineLayout = device.createPipelineLayout({
     label: "computePipelineLayout",
-    bindGroupLayouts: [accumulationBindGroupLayout, cameraBindGroupLayout, sceneBindGroupLayout],
+    bindGroupLayouts: [
+      accumulationBindGroupLayout,
+      cameraBindGroupLayout,
+      environmentBindGroupLayout,
+      sceneBindGroupLayout,
+    ],
   });
 
   const pipeline = device.createComputePipeline({
@@ -184,6 +232,7 @@ export const createComputePass = (
   });
 
   device.queue.writeBuffer(cameraBuffer, 0, cameraUniform);
+  device.queue.writeBuffer(environmentBuffer, 0, environmentUniform);
   device.queue.writeBuffer(voxelBuffer, 0, scene.voxels);
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);
 
@@ -194,7 +243,8 @@ export const createComputePass = (
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, accumulationBindGroups[sample % 2]);
     passEncoder.setBindGroup(1, cameraBindGroup);
-    passEncoder.setBindGroup(2, sceneBindGroup);
+    passEncoder.setBindGroup(2, environmentBindGroup);
+    passEncoder.setBindGroup(3, sceneBindGroup);
     passEncoder.dispatchWorkgroups(imageWidth / workgroupSize, imageHeight / workgroupSize);
     passEncoder.end();
   };

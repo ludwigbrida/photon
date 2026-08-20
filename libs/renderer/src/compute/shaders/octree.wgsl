@@ -52,17 +52,32 @@ struct TraversalEntry {
   normal: vec3f,
 }
 
-fn traceRay(ray: Ray) -> vec4f {
+/*
+ * Represents a geometric ray-tracing result.
+ */
+struct Hit {
+  // Whether the ray intersected a leaf voxel.
+  found: bool,
+  // Outward direction of the voxel face through which the ray entered.
+  normal: vec3f,
+  // Material buffer index of the voxel that was hit.
+  materialIndex: u32,
+}
+
+/**
+ * Traverses the voxel octree and returns the closest leaf hit.
+ */
+fn traceRay(ray: Ray) -> Hit {
   let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
   let rootMin = vec3(-halfExtent - 0.5);
   let rootMax = vec3(halfExtent - 0.5);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
   if !rootHit.found {
-    return vec4f(0);
+    return Hit(false, vec3f(0), 0u);
   }
 
-  var stack: array<TraversalEntry, 128>;
+  var stack: array<TraversalEntry, MAX_TRAVERSAL_STACK>;
   var stackSize = 1u;
 
   stack[0] = TraversalEntry(0u, rootMin, rootMax, rootHit.distance, rootHit.normal);
@@ -89,16 +104,7 @@ fn traceRay(ray: Ray) -> vec4f {
     let node = voxels[current.nodeIndex];
 
     if nodeType(node) == NODE_TYPE_LEAF {
-      let materialIndex = nodePayload(node);
-      let baseColor = materials[materialIndex].color;
-
-      let viewDirection = -ray.direction;
-      let cameraFacing = max(dot(current.normal, viewDirection), 0);
-      let orientationFacing = max(dot(current.normal, normalize(vec3f(0.3, 1.0, 0.0))), 0);
-
-      let brightness = 0.2 + 0.55 * cameraFacing + 0.25 * orientationFacing;
-
-      return vec4f(baseColor.rgb * brightness, baseColor.a);
+      return Hit(true, current.normal, nodePayload(node));
     }
 
     if nodeType(node) != NODE_TYPE_BRANCH {
@@ -123,7 +129,7 @@ fn traceRay(ray: Ray) -> vec4f {
       }
 
       if stackSize >= MAX_TRAVERSAL_STACK {
-        return vec4f(1, 0, 1, 1);
+        return Hit(false, vec3f(1, 0, 1), 0u);
       }
 
       stack[stackSize] = TraversalEntry(childIndex, bounds[0], bounds[1], hit.distance, hit.normal);
@@ -132,5 +138,5 @@ fn traceRay(ray: Ray) -> vec4f {
     }
   }
 
-  return vec4f(0);
+  return Hit(false, vec3f(0), 0u);
 }
