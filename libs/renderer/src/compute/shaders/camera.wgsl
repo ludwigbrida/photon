@@ -3,12 +3,9 @@ struct Camera {
   mode: f32,
   cameraTarget: vec3f,
   parameter: f32,
-};
+}
 
-fn createCameraRay(
-  pixel: vec2u,
-  resolution: vec2u,
-) -> Ray {
+fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
   let uv = (vec2f(pixel) + vec2f(0.5)) / vec2f(resolution);
 
   let screen = uv * 2.0 - 1.0;
@@ -30,28 +27,16 @@ fn createCameraRay(
   if mode == 0u {
     let scale = parameter;
 
-    let origin =
-      cameraPosition +
-      right * screen.x * aspect * scale +
-      up * -screen.y * scale;
+    let origin = cameraPosition + right * screen.x * aspect * scale + up * -screen.y * scale;
 
-    return Ray(
-      origin,
-      forward,
-    );
+    return Ray(origin, forward);
   }
 
   let fov = parameter;
   let halfHeight = tan(fov * 0.5);
 
-  let direction = normalize(
-    forward +
-    right * screen.x * aspect * halfHeight +
-    up * -screen.y * halfHeight,
-  );
+  let direction =
+    normalize(forward + right * screen.x * aspect * halfHeight + up * -screen.y * halfHeight);
 
-  return Ray(
-    cameraPosition,
-    direction,
-  );
+  return Ray(cameraPosition, direction);
 }

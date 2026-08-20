@@ -2,13 +2,9 @@ struct AabbHit {
   found: bool,
   distance: f32,
   normal: vec3f,
-};
+}
 
-fn intersectAabb(
-  ray: Ray,
-  minBounds: vec3f,
-  maxBounds: vec3f,
-) -> AabbHit {
+fn intersectAabb(ray: Ray, minBounds: vec3f, maxBounds: vec3f) -> AabbHit {
   let inverseDirection = 1.0 / ray.direction;
 
   let t0 = (minBounds - ray.origin) * inverseDirection;

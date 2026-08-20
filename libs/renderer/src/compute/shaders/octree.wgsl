@@ -18,33 +18,28 @@ fn childMinFromIndex(index: u32) -> vec3f {
   return vec3f(x, y, z);
 }
 
-fn childBounds(
-  parentMin: vec3f,
-  parentMax: vec3f,
-  childIndex: u32,
-) -> array<vec3f, 2> {
+fn childBounds(parentMin: vec3f, parentMax: vec3f, childIndex: u32) -> array<vec3f, 2> {
   let center = (parentMin + parentMax) * 0.5;
 
   let xHigh = (childIndex & 1u) != 0u;
   let yHigh = (childIndex & 2u) != 0u;
   let zHigh = (childIndex & 4u) != 0u;
 
-  let childMin = vec3f(
-    select(parentMin.x, center.x, xHigh),
-    select(parentMin.y, center.y, yHigh),
-    select(parentMin.z, center.z, zHigh),
-  );
+  let childMin =
+    vec3f(
+      select(parentMin.x, center.x, xHigh),
+      select(parentMin.y, center.y, yHigh),
+      select(parentMin.z, center.z, zHigh),
+    );
 
-  let childMax = vec3f(
-    select(center.x, parentMax.x, xHigh),
-    select(center.y, parentMax.y, yHigh),
-    select(center.z, parentMax.z, zHigh),
-  );
+  let childMax =
+    vec3f(
+      select(center.x, parentMax.x, xHigh),
+      select(center.y, parentMax.y, yHigh),
+      select(center.z, parentMax.z, zHigh),
+    );
 
-  return array<vec3f, 2>(
-    childMin,
-    childMax,
-  );
+  return array<vec3f, 2>(childMin, childMax);
 }
 
 const MAX_TRAVERSAL_STACK = 128u;
@@ -55,7 +50,7 @@ struct TraversalEntry {
   maxBounds: vec3f,
   distance: f32,
   normal: vec3f,
-};
+}
 
 fn traceRay(ray: Ray) -> vec4f {
   let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
@@ -70,13 +65,7 @@ fn traceRay(ray: Ray) -> vec4f {
   var stack: array<TraversalEntry, 128>;
   var stackSize = 1u;
 
-  stack[0] = TraversalEntry(
-    0u,
-    rootMin,
-    rootMax,
-    rootHit.distance,
-    rootHit.normal,
-  );
+  stack[0] = TraversalEntry(0u, rootMin, rootMax, rootHit.distance, rootHit.normal);
 
   loop {
     if stackSize == 0u {
@@ -137,13 +126,7 @@ fn traceRay(ray: Ray) -> vec4f {
         return vec4f(1, 0, 1, 1);
       }
 
-      stack[stackSize] = TraversalEntry(
-        childIndex,
-        bounds[0],
-        bounds[1],
-        hit.distance,
-        hit.normal,
-      );
+      stack[stackSize] = TraversalEntry(childIndex, bounds[0], bounds[1], hit.distance, hit.normal);
 
       stackSize += 1u;
     }
