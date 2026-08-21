@@ -6,14 +6,6 @@ import {
   Scene,
 } from "../types.ts";
 import computeShader from "./compute.wgsl?raw";
-import cameraShader from "./shaders/camera.wgsl?raw";
-import constantsShader from "./shaders/constants.wgsl?raw";
-import environmentShader from "./shaders/environment.wgsl?raw";
-import geometryShader from "./shaders/geometry.wgsl?raw";
-import materialShader from "./shaders/material.wgsl?raw";
-import octreeShader from "./shaders/octree.wgsl?raw";
-import rayShader from "./shaders/ray.wgsl?raw";
-import shadeShader from "./shaders/shade.wgsl?raw";
 
 export const createComputePass = (
   device: GPUDevice,
@@ -31,17 +23,7 @@ export const createComputePass = (
 
   const shaderModule = device.createShaderModule({
     label: "computeShaderModule",
-    code: [
-      constantsShader,
-      rayShader,
-      materialShader,
-      cameraShader,
-      environmentShader,
-      geometryShader,
-      shadeShader,
-      octreeShader,
-      computeShader,
-    ].join("\n"),
+    code: computeShader,
   });
 
   const accumulationBindGroupLayout = device.createBindGroupLayout({

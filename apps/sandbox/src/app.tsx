@@ -40,10 +40,10 @@ export const App = () => {
       const nextRenderer = await createRenderer({
         canvas,
         camera: {
-          mode: "orthographic",
+          projection: "orthographic",
           position: [16, 16, -16],
           target: [0, 0, 0],
-          scale: 10,
+          orthographicScale: 10,
         },
         environment: {
           sun: {

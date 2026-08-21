@@ -1,42 +1,86 @@
+import { cross, normalize, subtract, type Vector3 } from "@photon/core";
+
 export type Scene = {
   readonly depth: number;
   readonly voxels: Uint32Array;
   readonly materials: Float32Array;
 };
 
-export type PerspectiveCamera = {
-  readonly mode: "perspective";
-  readonly position: readonly [number, number, number];
-  readonly target: readonly [number, number, number];
-  readonly fov: number;
+export type CameraTransform = {
+  readonly position: Vector3;
+  readonly target: Vector3;
+  readonly up?: Vector3;
 };
 
-export type OrthographicCamera = {
-  readonly mode: "orthographic";
-  readonly position: readonly [number, number, number];
-  readonly target: readonly [number, number, number];
-  readonly scale: number;
+export type PerspectiveCamera = CameraTransform & {
+  readonly projection: "perspective";
+  readonly verticalFov: number;
+};
+
+export type OrthographicCamera = CameraTransform & {
+  readonly projection: "orthographic";
+  readonly orthographicScale: number;
 };
 
 export type Camera = PerspectiveCamera | OrthographicCamera;
 
-const cameraMode = {
+const cameraProjection = {
   orthographic: 0,
   perspective: 1,
 } as const;
 
-export const createCameraUniform = (camera: Camera): Float32Array => {
-  const parameter = camera.mode === "perspective" ? (camera.fov * Math.PI) / 180 : camera.scale;
+const DEFAULT_CAMERA_UP: Vector3 = [0, 1, 0];
 
+const createCameraBasis = (position: Vector3, target: Vector3, up: Vector3) => {
+  // TODO: Handle zero-length (camera target must differ from position)
+  const forward = normalize(subtract(target, position));
+  const normalizedUp = normalize(up);
+
+  // TODO: Check that abs(dot(forward, normalizedUp)) is > certain threshold.
+  // TODO: If the user chooses an up-vector parallel to forward, reject it, as their cross product
+  // TODO: has no direction.
+  const right = normalize(cross(forward, normalizedUp));
+
+  // Re-compute up, so the three basis vectors are perfectly perpendicular.
+  const newUp = cross(right, forward);
+
+  return { right, up: newUp, forward };
+};
+
+export const createCameraUniform = (camera: Camera): Float32Array => {
+  const { right, up, forward } = createCameraBasis(
+    camera.position,
+    camera.target,
+    camera.up ?? DEFAULT_CAMERA_UP,
+  );
+
+  const orthographicScale = camera.projection === "orthographic" ? camera.orthographicScale : 0;
+
+  const verticalFov =
+    camera.projection === "perspective" ? degreesToRadians(camera.verticalFov) : 0;
+
+  // TODO: Check that verticalFov is between 0 and 180 degrees.
+  // TODO: Check that orthographicScale is greater than 0.
+
+  // TODO: Should be implemented through an ArrayBuffer(64) and a Float32 and Uint32 view
+  // TODO: as both types are mixed throughout this buffer.
   return new Float32Array([
     camera.position[0],
     camera.position[1],
     camera.position[2],
-    cameraMode[camera.mode],
-    camera.target[0],
-    camera.target[1],
-    camera.target[2],
-    parameter,
+    cameraProjection[camera.projection],
+    right[0],
+    right[1],
+    right[2],
+    orthographicScale,
+    up[0],
+    up[1],
+    up[2],
+    verticalFov,
+    forward[0],
+    forward[1],
+    forward[2],
+    0,
   ]);
 };
 

@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "@photon/core": "*"
+  },
   "devDependencies": {
     "@webgpu/types": "0.1.71",
     "vite": "8.2.1"
