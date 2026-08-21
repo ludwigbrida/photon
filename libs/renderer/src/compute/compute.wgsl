@@ -1,24 +1,4 @@
 // -------------------------------------------------------------------------------------------------
-// Configuration
-// -------------------------------------------------------------------------------------------------
-
-override WORKGROUP_SIZE: u32;
-override IMAGE_WIDTH: u32;
-override IMAGE_HEIGHT: u32;
-override OCTREE_DEPTH: u32;
-
-// -------------------------------------------------------------------------------------------------
-// Constants
-// -------------------------------------------------------------------------------------------------
-
-const PROJECTION_ORTHOGRAPHIC = 0u;
-const PROJECTION_PERSPECTIVE = 1u;
-
-const OCTREE_NODE_EMPTY = 0u;
-const OCTREE_NODE_BRANCH = 1u;
-const OCTREE_NODE_LEAF = 2u;
-
-// -------------------------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------------------------
 
@@ -95,18 +75,38 @@ struct Hit {
 }
 
 // -------------------------------------------------------------------------------------------------
+// Configuration
+// -------------------------------------------------------------------------------------------------
+
+override WORKGROUP_SIZE: u32;
+override IMAGE_WIDTH: u32;
+override IMAGE_HEIGHT: u32;
+override OCTREE_DEPTH: u32;
+
+// -------------------------------------------------------------------------------------------------
+// Constants
+// -------------------------------------------------------------------------------------------------
+
+const PROJECTION_ORTHOGRAPHIC = 0u;
+const PROJECTION_PERSPECTIVE = 1u;
+
+const OCTREE_NODE_EMPTY = 0u;
+const OCTREE_NODE_BRANCH = 1u;
+const OCTREE_NODE_LEAF = 2u;
+
+// -------------------------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------------------------
 
-@group(0) @binding(0) var inputTexture: texture_2d<f32>;
-@group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
+@group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba8unorm, write>;
 
-@group(1) @binding(0) var<uniform> camera: Camera;
+@group(1) @binding(0) var<uniform> CAMERA: Camera;
 
-@group(2) @binding(0) var<uniform> environment: Environment;
+@group(2) @binding(0) var<uniform> ENVIRONMENT: Environment;
 
-@group(3) @binding(0) var<storage, read> voxels: array<u32>;
-@group(3) @binding(1) var<storage, read> materials: array<Material>;
+@group(3) @binding(0) var<storage, read> VOXELS: array<u32>;
+@group(3) @binding(1) var<storage, read> MATERIALS: array<Material>;
 
 // -------------------------------------------------------------------------------------------------
 // Functions (split into domains)
@@ -137,26 +137,26 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
   let aspectRatio = f32(resolution.x) / f32(resolution.y);
   let imagePlane = vec2f(screen.x * aspectRatio, -screen.y);
 
-  switch (camera.projection) {
+  switch (CAMERA.projection) {
     case PROJECTION_ORTHOGRAPHIC: {
       let origin =
-        camera.position
-          + camera.right * imagePlane.x * camera.orthographicScale
-          + camera.up * imagePlane.y * camera.orthographicScale;
+        CAMERA.position
+          + CAMERA.right * imagePlane.x * CAMERA.orthographicScale
+          + CAMERA.up * imagePlane.y * CAMERA.orthographicScale;
 
-      return Ray(origin, camera.forward);
+      return Ray(origin, CAMERA.forward);
     }
     default: {
-      let imagePlaneHalfHeight = tan(camera.verticalFov * 0.5);
+      let imagePlaneHalfHeight = tan(CAMERA.verticalFov * 0.5);
 
       let direction =
         normalize(
-          camera.forward
-            + camera.right * imagePlane.x * imagePlaneHalfHeight
-            + camera.up * imagePlane.y * imagePlaneHalfHeight,
+          CAMERA.forward
+            + CAMERA.right * imagePlane.x * imagePlaneHalfHeight
+            + CAMERA.up * imagePlane.y * imagePlaneHalfHeight,
         );
 
-      return Ray(camera.position, direction);
+      return Ray(CAMERA.position, direction);
     }
   }
 }
@@ -259,7 +259,7 @@ fn traceRay(ray: Ray) -> Hit {
     stackSize -= 1u;
     stack[nearestIndex] = stack[stackSize];
 
-    let node = voxels[current.nodeIndex];
+    let node = VOXELS[current.nodeIndex];
 
     if octreeNodeType(node) == OCTREE_NODE_LEAF {
       return Hit(true, current.normal, octreeNodePayload(node));
@@ -273,7 +273,7 @@ fn traceRay(ray: Ray) -> Hit {
 
     for (var i = 0u; i < 8u; i++) {
       let childIndex = firstChild + i;
-      let childNode = voxels[childIndex];
+      let childNode = VOXELS[childIndex];
 
       if octreeNodeType(childNode) == OCTREE_NODE_EMPTY {
         continue;
@@ -303,13 +303,13 @@ fn traceRay(ray: Ray) -> Hit {
  * Calculates simple Lambert diffuse lighting for a surface.
  */
 fn shadeSurface(baseColor: vec3f, surfaceNormal: vec3f) -> vec3f {
-  let lightDirection = normalize(environment.sunDirection);
+  let lightDirection = normalize(ENVIRONMENT.sunDirection);
 
   let sunFacing = max(dot(surfaceNormal, lightDirection), 0);
 
   let ambientLight = vec3f(0.25);
 
-  let directLight = environment.sunColor * environment.sunIntensity * sunFacing;
+  let directLight = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunFacing;
 
   return baseColor * (ambientLight + directLight);
 }
@@ -319,8 +319,8 @@ fn shadeSurface(baseColor: vec3f, surfaceNormal: vec3f) -> vec3f {
  *
  * TODO: shading modes (unlit, debug, lambert, etc.)
  */
-fn shadeHit(hit: Hit, ray: Ray) -> vec4f {
-  let material = materials[hit.materialIndex];
+fn shadeHit(hit: Hit) -> vec4f {
+  let material = MATERIALS[hit.materialIndex];
   let shadedColor = shadeSurface(material.color.rgb, hit.normal);
 
   return vec4(shadedColor, material.color.a);
@@ -331,7 +331,7 @@ fn shadeHit(hit: Hit, ray: Ray) -> vec4f {
  *
  * TODO: procedural sky, atmospheric scattering, cloud raymarching
  */
-fn shadeMiss(ray: Ray) -> vec4f {
+fn shadeMiss() -> vec4f {
   return vec4(0);
 }
 
@@ -346,9 +346,9 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let hit = traceRay(ray);
 
   if hit.found {
-    textureStore(outputTexture, pixel.xy, shadeHit(hit, ray));
+    textureStore(OUTPUT_TEXTURE, pixel.xy, shadeHit(hit));
     return;
   }
 
-  textureStore(outputTexture, pixel.xy, shadeMiss(ray));
+  textureStore(OUTPUT_TEXTURE, pixel.xy, shadeMiss());
 }
