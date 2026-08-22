@@ -36,6 +36,12 @@ struct Camera {
   forward: vec3f,
 }
 
+struct Sky {
+  horizonColor: vec3f,
+  horizonFalloff: f32,
+  zenithColor: vec3f,
+}
+
 /**
  * Describes the scene-wide surroundings of the world.
  */
@@ -46,6 +52,7 @@ struct Environment {
   sunIntensity: f32,
   // Color tint of direct sun illumination.
   sunColor: vec3f,
+  sky: Sky,
 }
 
 struct AabbHit {
@@ -354,12 +361,27 @@ fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
 }
 
 /**
+ * Evaluates the color of the procedural sky, based on the ray direction.
+ */
+fn skyColor(direction: vec3f) -> vec3f {
+  // A normalized direction's y component is its vertical elevation:
+  // -1 points straight down, 0 lies on the horizon and 1 points up.
+  // Since the sky gradient excludes values below the horizon, this value needs to be clamped.
+  let elevation = clamp(direction.y, 0, 1);
+
+  let zenithWeight = pow(elevation, ENVIRONMENT.sky.horizonFalloff);
+
+  return mix(ENVIRONMENT.sky.horizonColor, ENVIRONMENT.sky.zenithColor, zenithWeight);
+}
+
+/**
  * Calculates the color for a ray that missed all voxel geometry.
  *
  * TODO: procedural sky, atmospheric scattering, cloud raymarching
  */
-fn shadeMiss() -> vec4f {
-  return vec4(0);
+fn shadeMiss(ray: Ray) -> vec4f {
+  let sky = skyColor(ray.direction);
+  return vec4f(sky, 1);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -377,5 +399,5 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
     return;
   }
 
-  textureStore(OUTPUT_TEXTURE, pixel.xy, shadeMiss());
+  textureStore(OUTPUT_TEXTURE, pixel.xy, shadeMiss(ray));
 }

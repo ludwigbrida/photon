@@ -43,7 +43,7 @@ export const App = () => {
           projection: "orthographic",
           position: [16, 16, -16],
           target: [0, 0, 0],
-          orthographicScale: 10,
+          orthographicScale: 11,
         },
         environment: {
           sun: {
@@ -51,6 +51,11 @@ export const App = () => {
             elevationDegrees: 45,
             intensity: 1,
             color: [1, 0.95, 0.82],
+          },
+          sky: {
+            horizonColor: [0.72, 0.84, 1.0],
+            zenithColor: [0.12, 0.35, 0.82],
+            horizonFalloff: 1.6,
           },
         },
         scene: compiled,

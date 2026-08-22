@@ -1,4 +1,4 @@
-import { cross, normalize, subtract, type Vector3 } from "@photon/core";
+import { Color, cross, normalize, subtract, type Vector3 } from "@photon/core";
 import { f32, pack, u32, vec3f } from "./helpers/wgsl.ts";
 
 export type Scene = {
@@ -78,11 +78,18 @@ export type Sun = {
   readonly azimuthDegrees: number;
   readonly elevationDegrees: number;
   readonly intensity: number;
-  readonly color: readonly [number, number, number];
+  readonly color: Color;
+};
+
+export type Sky = {
+  readonly horizonColor: Color;
+  readonly zenithColor: Color;
+  readonly horizonFalloff: number;
 };
 
 export type Environment = {
   readonly sun: Sun;
+  readonly sky: Sky;
 };
 
 const degreesToRadians = (degrees: number): number => {
@@ -111,5 +118,12 @@ export const createEnvironmentUniform = (environment: Environment): ArrayBuffer 
     environment.sun.elevationDegrees,
   );
 
-  return pack(vec3f(sunDirection), f32(environment.sun.intensity), vec3f(environment.sun.color));
+  return pack(
+    vec3f(sunDirection),
+    f32(environment.sun.intensity),
+    vec3f(environment.sun.color),
+    vec3f(environment.sky.horizonColor),
+    f32(environment.sky.horizonFalloff),
+    vec3f(environment.sky.zenithColor),
+  );
 };
