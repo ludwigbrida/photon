@@ -126,7 +126,7 @@ export const createComputePass = (
 
   const environmentBuffer = device.createBuffer({
     label: "computeEnvironmentBuffer",
-    size: 32, // environmentUniform.byteLength,
+    size: environmentUniform.byteLength,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 

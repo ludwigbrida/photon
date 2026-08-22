@@ -94,6 +94,8 @@ const OCTREE_NODE_EMPTY = 0u;
 const OCTREE_NODE_BRANCH = 1u;
 const OCTREE_NODE_LEAF = 2u;
 
+const RAY_INVALID = Ray();
+
 // -------------------------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
   let aspectRatio = f32(resolution.x) / f32(resolution.y);
   let imagePlane = vec2f(screen.x * aspectRatio, -screen.y);
 
-  switch (CAMERA.projection) {
+  switch CAMERA.projection {
     case PROJECTION_ORTHOGRAPHIC: {
       let origin =
         CAMERA.position
@@ -146,7 +148,7 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
 
       return Ray(origin, CAMERA.forward);
     }
-    default: {
+    case PROJECTION_PERSPECTIVE: {
       let imagePlaneHalfHeight = tan(CAMERA.verticalFov * 0.5);
 
       let direction =
@@ -157,6 +159,9 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
         );
 
       return Ray(CAMERA.position, direction);
+    }
+    default: {
+      return RAY_INVALID;
     }
   }
 }

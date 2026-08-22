@@ -1,4 +1,5 @@
 import { cross, normalize, subtract, type Vector3 } from "@photon/core";
+import { f32, pack, u32, vec3f } from "./helpers/wgsl.ts";
 
 export type Scene = {
   readonly depth: number;
@@ -47,7 +48,7 @@ const createCameraBasis = (position: Vector3, target: Vector3, up: Vector3) => {
   return { right, up: newUp, forward };
 };
 
-export const createCameraUniform = (camera: Camera): Float32Array => {
+export const createCameraUniform = (camera: Camera): ArrayBuffer => {
   const { right, up, forward } = createCameraBasis(
     camera.position,
     camera.target,
@@ -62,26 +63,15 @@ export const createCameraUniform = (camera: Camera): Float32Array => {
   // TODO: Check that verticalFov is between 0 and 180 degrees.
   // TODO: Check that orthographicScale is greater than 0.
 
-  // TODO: Should be implemented through an ArrayBuffer(64) and a Float32 and Uint32 view
-  // TODO: as both types are mixed throughout this buffer.
-  return new Float32Array([
-    camera.position[0],
-    camera.position[1],
-    camera.position[2],
-    cameraProjection[camera.projection],
-    right[0],
-    right[1],
-    right[2],
-    orthographicScale,
-    up[0],
-    up[1],
-    up[2],
-    verticalFov,
-    forward[0],
-    forward[1],
-    forward[2],
-    0,
-  ]);
+  return pack(
+    vec3f(camera.position),
+    u32(cameraProjection[camera.projection]),
+    vec3f(right),
+    f32(orthographicScale),
+    vec3f(up),
+    f32(verticalFov),
+    vec3f(forward),
+  );
 };
 
 export type Sun = {
@@ -115,19 +105,11 @@ export const createSunDirection = (
   ];
 };
 
-export const createEnvironmentUniform = (environment: Environment): Float32Array => {
+export const createEnvironmentUniform = (environment: Environment): ArrayBuffer => {
   const sunDirection = createSunDirection(
     environment.sun.azimuthDegrees,
     environment.sun.elevationDegrees,
   );
 
-  return new Float32Array([
-    sunDirection[0],
-    sunDirection[1],
-    sunDirection[2],
-    environment.sun.intensity,
-    environment.sun.color[0],
-    environment.sun.color[1],
-    environment.sun.color[2],
-  ]);
+  return pack(vec3f(sunDirection), f32(environment.sun.intensity), vec3f(environment.sun.color));
 };
