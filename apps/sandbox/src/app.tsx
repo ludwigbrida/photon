@@ -69,6 +69,7 @@ export const App = () => {
           sun: {
             azimuthDegrees: 35,
             elevationDegrees: 45,
+            angularRadiusDegrees: 2,
             intensity: 3.14,
             color: [1, 0.98, 0.92],
           },

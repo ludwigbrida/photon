@@ -77,6 +77,11 @@ export const createCameraUniform = (camera: Camera): ArrayBuffer => {
 export type Sun = {
   readonly azimuthDegrees: number;
   readonly elevationDegrees: number;
+  // Apparent angular radius of the sun.
+  // 0 creates an infinitesimal directional light and hard shadows.
+  // The real sun is about 0.27 degrees.
+  // Larger values produce intentionally legible, stylized soft shadows.
+  readonly angularRadiusDegrees: number;
   readonly intensity: number;
   readonly color: Color;
 };
@@ -118,10 +123,13 @@ export const createEnvironmentUniform = (environment: Environment): ArrayBuffer 
     environment.sun.elevationDegrees,
   );
 
+  const sunAngularRadiusRadians = degreesToRadians(environment.sun.angularRadiusDegrees);
+
   return pack(
     vec3f(sunDirection),
     f32(environment.sun.intensity),
     vec3f(environment.sun.color),
+    f32(sunAngularRadiusRadians),
     vec3f(environment.sky.horizonColor),
     f32(environment.sky.horizonFalloff),
     vec3f(environment.sky.zenithColor),
