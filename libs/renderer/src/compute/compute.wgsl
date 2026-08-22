@@ -68,6 +68,8 @@ struct TraversalEntry {
 struct Hit {
   // Whether the ray intersected a leaf voxel.
   found: bool,
+  // Distance along the traced ray at which the ray entered the voxel.
+  distance: f32,
   // Outward direction of the voxel face through which the ray entered.
   normal: vec3f,
   // Material buffer index of the voxel that was hit.
@@ -95,6 +97,8 @@ const OCTREE_NODE_BRANCH = 1u;
 const OCTREE_NODE_LEAF = 2u;
 
 const RAY_INVALID = Ray();
+
+const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
 
 // -------------------------------------------------------------------------------------------------
 // Resources
@@ -237,7 +241,7 @@ fn traceRay(ray: Ray) -> Hit {
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
   if !rootHit.found {
-    return Hit(false, vec3f(0), 0u);
+    return HIT_MISS;
   }
 
   var stack: array<TraversalEntry, 128u>;
@@ -267,7 +271,7 @@ fn traceRay(ray: Ray) -> Hit {
     let node = VOXELS[current.nodeIndex];
 
     if octreeNodeType(node) == OCTREE_NODE_LEAF {
-      return Hit(true, current.normal, octreeNodePayload(node));
+      return Hit(true, current.distance, current.normal, octreeNodePayload(node));
     }
 
     if octreeNodeType(node) != OCTREE_NODE_BRANCH {
@@ -292,7 +296,7 @@ fn traceRay(ray: Ray) -> Hit {
       }
 
       if stackSize >= 128u {
-        return Hit(false, vec3f(1, 0, 1), 0u);
+        return HIT_MISS;
       }
 
       stack[stackSize] = TraversalEntry(childIndex, bounds[0], bounds[1], hit.distance, hit.normal);
@@ -301,7 +305,7 @@ fn traceRay(ray: Ray) -> Hit {
     }
   }
 
-  return Hit(false, vec3f(0), 0u);
+  return HIT_MISS;
 }
 
 /**
