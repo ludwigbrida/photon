@@ -6,14 +6,14 @@ export const createAccumulation = (device: GPUDevice, context: GPUCanvasContext)
   const accumulationTextureA = device.createTexture({
     label: "accumulationTextureA",
     size: [context.canvas.width, context.canvas.height],
-    format: "rgba16float",
+    format: "rgba32float",
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.STORAGE_BINDING,
   });
 
   const accumulationTextureB = device.createTexture({
     label: "accumulationTextureB",
     size: [context.canvas.width, context.canvas.height],
-    format: "rgba16float",
+    format: "rgba32float",
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.STORAGE_BINDING,
   });
 

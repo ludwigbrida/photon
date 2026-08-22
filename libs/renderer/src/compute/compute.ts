@@ -33,14 +33,16 @@ export const createComputePass = (
       {
         binding: 0,
         visibility: GPUShaderStage.COMPUTE,
-        texture: {},
+        texture: {
+          sampleType: "unfilterable-float",
+        },
       },
       {
         binding: 1,
         visibility: GPUShaderStage.COMPUTE,
         storageTexture: {
           access: "write-only",
-          format: "rgba16float",
+          format: "rgba32float",
           viewDimension: "2d",
         },
       },

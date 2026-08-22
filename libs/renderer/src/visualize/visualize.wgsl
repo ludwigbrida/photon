@@ -3,9 +3,7 @@ struct VertexOutput {
   @location(0) coordinate: vec2f,
 }
 
-@group(0) @binding(0) var inputTexture: texture_2d<f32>;
-
-@group(1) @binding(0) var textureSampler: sampler;
+@group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
 
 /**
  * Converts unbounded linear HDR radiance into the displayable [0, 1] range.
@@ -35,8 +33,9 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
 }
 
 @fragment
-fn fragmentMain(@location(0) coordinate: vec2f) -> @location(0) vec4f {
-  let accumulatedSample = textureSample(inputTexture, textureSampler, coordinate);
+fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
+  let pixel = vec2i(position.xy);
+  let accumulatedSample = textureLoad(INPUT_TEXTURE, pixel, 0);
 
   let displayColor = toneMapReinhard(accumulatedSample.rgb);
 

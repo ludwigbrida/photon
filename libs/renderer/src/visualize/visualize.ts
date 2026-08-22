@@ -11,19 +11,15 @@ export const createVisualizePass = (
     code: visualizeShader,
   });
 
-  const sampler = device.createSampler({
-    label: "visualizeSampler",
-    magFilter: "linear",
-    minFilter: "linear",
-  });
-
   const accumulationBindGroupLayout = device.createBindGroupLayout({
     label: "visualizeAccumulationBindGroupLayout",
     entries: [
       {
         binding: 0,
         visibility: GPUShaderStage.FRAGMENT,
-        texture: {},
+        texture: {
+          sampleType: "unfilterable-float",
+        },
       },
     ],
   });
@@ -51,31 +47,9 @@ export const createVisualizePass = (
     }),
   ] as const;
 
-  const samplerBindGroupLayout = device.createBindGroupLayout({
-    label: "visualizeSamplerBindGroupLayout",
-    entries: [
-      {
-        binding: 0,
-        visibility: GPUShaderStage.FRAGMENT,
-        sampler: {},
-      },
-    ],
-  });
-
-  const samplerBindGroup = device.createBindGroup({
-    label: "visualizeSamplerBindGroup",
-    layout: samplerBindGroupLayout,
-    entries: [
-      {
-        binding: 0,
-        resource: sampler,
-      },
-    ],
-  });
-
   const pipelineLayout = device.createPipelineLayout({
     label: "visualizePipelineLayout",
-    bindGroupLayouts: [accumulationBindGroupLayout, samplerBindGroupLayout],
+    bindGroupLayouts: [accumulationBindGroupLayout],
   });
 
   const pipeline = device.createRenderPipeline({
@@ -116,7 +90,6 @@ export const createVisualizePass = (
     });
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, accumulationBindGroups[sample % 2]);
-    passEncoder.setBindGroup(1, samplerBindGroup);
     passEncoder.draw(6);
     passEncoder.end();
   };

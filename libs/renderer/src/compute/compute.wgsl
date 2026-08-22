@@ -137,7 +137,7 @@ const TWO_PI = 6.283185307179586;
 // -------------------------------------------------------------------------------------------------
 
 @group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
-@group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba16float, write>;
+@group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba32float, write>;
 @group(0) @binding(2) var<uniform> FRAME: Frame;
 
 @group(1) @binding(0) var<uniform> CAMERA: Camera;
