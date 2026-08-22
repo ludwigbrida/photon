@@ -466,6 +466,18 @@ fn shadeMiss(ray: Ray) -> vec4f {
   return vec4f(sky, 1);
 }
 
+fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
+  if FRAME.sampleIndex == 0u {
+    return currentSample;
+  }
+
+  let previousAverage = textureLoad(INPUT_TEXTURE, vec2i(pixel), 0);
+
+  let newSampleCount = f32(FRAME.sampleIndex) + 1;
+
+  return previousAverage + (currentSample - previousAverage) / newSampleCount;
+}
+
 // -------------------------------------------------------------------------------------------------
 // Main
 // -------------------------------------------------------------------------------------------------
@@ -476,10 +488,15 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let ray = createCameraRay(pixel.xy, resolution);
   let hit = traceRay(ray);
 
+  var radiance: vec4f;
+
   if hit.found {
-    textureStore(OUTPUT_TEXTURE, pixel.xy, shadeHit(ray, hit));
-    return;
+    radiance = shadeHit(ray, hit);
+  } else {
+    radiance = shadeMiss(ray);
   }
 
-  textureStore(OUTPUT_TEXTURE, pixel.xy, shadeMiss(ray));
+  let accumulatedRadiance = accumulateRadiance(pixel.xy, radiance);
+
+  textureStore(OUTPUT_TEXTURE, pixel.xy, accumulatedRadiance);
 }
