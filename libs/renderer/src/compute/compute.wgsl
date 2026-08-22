@@ -3,6 +3,14 @@
 // -------------------------------------------------------------------------------------------------
 
 /**
+ * Values that change for every accumulation dispatch.
+ */
+struct Frame {
+  // Progressive sample number supplied by the CPU (zero-based).
+  sampleIndex: u32,
+}
+
+/**
  * Represents a ray traveling through the scene.
  */
 struct Ray {
@@ -97,6 +105,7 @@ override WORKGROUP_SIZE: u32;
 override IMAGE_WIDTH: u32;
 override IMAGE_HEIGHT: u32;
 override OCTREE_DEPTH: u32;
+
 // Maximum number of diffuse continuation rays spawned after the primary ray.
 override MAX_BOUNCES: u32;
 
@@ -123,6 +132,7 @@ const BIAS = 0.001f;
 
 @group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
 @group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(2) var<uniform> FRAME: Frame;
 
 @group(1) @binding(0) var<uniform> CAMERA: Camera;
 

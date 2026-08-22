@@ -44,7 +44,20 @@ export const createComputePass = (
           viewDimension: "2d",
         },
       },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "uniform",
+        },
+      },
     ],
+  });
+
+  const frameBuffer = device.createBuffer({
+    label: "computeFrameBuffer",
+    size: Uint32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.UNIFORM,
   });
 
   const accumulationBindGroups = [
@@ -60,6 +73,10 @@ export const createComputePass = (
           binding: 1,
           resource: accumulationViewB,
         },
+        {
+          binding: 2,
+          resource: frameBuffer,
+        },
       ],
     }),
     device.createBindGroup({
@@ -73,6 +90,10 @@ export const createComputePass = (
         {
           binding: 1,
           resource: accumulationViewA,
+        },
+        {
+          binding: 2,
+          resource: frameBuffer,
         },
       ],
     }),
@@ -221,6 +242,8 @@ export const createComputePass = (
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);
 
   const run = (commandEncoder: GPUCommandEncoder, sample: number) => {
+    device.queue.writeBuffer(frameBuffer, 0, new Uint32Array([sample]));
+
     const passEncoder = commandEncoder.beginComputePass({
       label: "computePassEncoder",
     });
