@@ -573,6 +573,64 @@ fn shadeMiss(ray: Ray) -> vec4f {
   return vec4f(sky, 1);
 }
 
+/**
+ * Estimates the radiance along one camera ray through opaque Lambert voxel surfaces.
+ *
+ * Direct sunlight is sampled deterministically at every surface. Diffuse continuation is sampled
+ * stochastically, so repeated frames must be averaged by the accumulated radiance.
+ */
+fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
+  var radiance = vec3f(0);
+  var throughput = vec3f(1);
+  var ray = primaryRay;
+
+  // Count only continuation rays after the primary ray:
+  // 0u: evaluate only the primary visible surface
+  // 1u: evaluate one indirect diffuse bounce
+  for (var bounce = 0u; bounce <= MAX_BOUNCES; bounce++) {
+    let hit = traceRay(ray);
+
+    if !hit.found {
+      // The sky is effectively emitted radiance from the environment. It is attenuated by every
+      // diffuse surface the path reflected from before reaching it.
+      radiance += throughput * skyColor(ray.direction);
+      break;
+    }
+
+    let material = MATERIALS[hit.materialIndex];
+    let surfacePosition = rayAtDistance(ray, hit.distance);
+
+    // Next-event estimation of the directional sun at this path vertex.
+    // esestimateDirectSun already includes this material's Lambert BRDF.
+    radiance += throughput * estimateDirectSun(material.color.rgb, surfacePosition, hit.normal);
+
+    // Reaching the continuation limit still allows direct lighting at this final vertex, but does not spawn another
+    // ray.
+    if bounce == MAX_BOUNCES {
+      break;
+    }
+
+    // Cosing-weighted Lambert sampling:
+    // (baseColor / pi) * cosine / (cosing / pi) = baseColor
+    // Therefore the path throughput is the material base colr.
+    throughput *= material.color.rgb;
+
+    // Dimensions 0 and 1 belong to camera jitter.
+    // Allocate two dimensions per diffuse bounce for the hemisphere sample.
+    let randomDimension = 2u + bounce * 2u;
+
+    ray =
+      scatterDiffuse(
+        surfacePosition,
+        hit.normal,
+        sampleRandom(pixel, FRAME.sampleIndex, randomDimension),
+        sampleRandom(pixel, FRAME.sampleIndex, randomDimension + 1u),
+      );
+  }
+
+  return radiance;
+}
+
 fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
   if FRAME.sampleIndex == 0u {
     return currentSample;
@@ -601,17 +659,10 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
       sampleRandom(pixel.xy, FRAME.sampleIndex, 1u),
     );
   let ray = createCameraRay(pixel.xy, resolution, sampleOffset);
-  let hit = traceRay(ray);
 
-  var radiance: vec4f;
+  let radiance = tracePath(ray, pixel.xy);
 
-  if hit.found {
-    radiance = shadeHit(ray, hit);
-  } else {
-    radiance = shadeMiss(ray);
-  }
-
-  let accumulatedRadiance = accumulateRadiance(pixel.xy, radiance);
+  let accumulatedRadiance = accumulateRadiance(pixel.xy, vec4f(radiance, 1));
 
   textureStore(OUTPUT_TEXTURE, pixel.xy, accumulatedRadiance);
 }
