@@ -97,6 +97,8 @@ override WORKGROUP_SIZE: u32;
 override IMAGE_WIDTH: u32;
 override IMAGE_HEIGHT: u32;
 override OCTREE_DEPTH: u32;
+// Maximum number of diffuse continuation rays spawned after the primary ray.
+override MAX_BOUNCES: u32;
 
 // -------------------------------------------------------------------------------------------------
 // Constants
