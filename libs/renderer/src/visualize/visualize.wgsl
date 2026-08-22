@@ -7,6 +7,18 @@ struct VertexOutput {
 
 @group(1) @binding(0) var textureSampler: sampler;
 
+/**
+ * Converts unbounded linear HDR radiance into the displayable [0, 1] range.
+ *
+ * Tone mapping effectively protects highlights.
+ *
+ * This is deliberately a presentation operation: The compute shader continues
+ * to accumulate the original linear radiance in rgba16float textures.
+ */
+fn toneMapReinhard(radiance: vec3f) -> vec3f {
+  return radiance / (vec3f(1) + radiance);
+}
+
 @vertex
 fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
   let positions =
@@ -24,5 +36,9 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
 
 @fragment
 fn fragmentMain(@location(0) coordinate: vec2f) -> @location(0) vec4f {
-  return textureSample(inputTexture, textureSampler, coordinate);
+  let accumulatedSample = textureSample(inputTexture, textureSampler, coordinate);
+
+  let displayColor = toneMapReinhard(accumulatedSample.rgb);
+
+  return vec4f(displayColor, accumulatedSample.a);
 }
