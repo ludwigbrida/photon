@@ -129,6 +129,9 @@ const BIAS = 0.001f;
 // Reciprocal approximation of pi, used by the energy-conserving Lambert diffuse BRDF.
 const INV_PI = 0.3183098861837907;
 
+// Full rotation in radians, used to sample an azimuth angle.
+const TWO_PI = 6.283185307179586;
+
 // -------------------------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------------------------
@@ -186,6 +189,44 @@ fn sampleRandom(pixel: vec2u, sampleIndex: u32, dimension: u32) -> f32 {
   // Keep the upper 24 random bits, which fit exactly in f32's mantissa.
   // This guarantees a value below 1.0 even after integer-to-float conversion.
   return f32(seed >> 8u) * (1.0 / 16777216.0);
+}
+
+/**
+ * Samples a unit direction over the hemisphere above surfaceNormal.
+ *
+ * The distribution is cosine-weighted: Directions near the normal are chosen more often than
+ * adjacent directions. This matches Lambert diffuse reflection and gives lower noise indirect
+ * lighting than simple uniform sampling.
+ */
+fn sampleCosineHemisphere(surfaceNormal: vec3f, randomU: f32, randomV: f32) -> vec3f {
+  // Convert two uniform random values into a cosine-weighted local direction.
+  let radius = sqrt(randomU);
+  let azimuth = TWO_PI * randomV;
+
+  let localDirection = vec3f(radius * cos(azimuth), radius * sin(azimuth), sqrt(1.0 - randomU));
+
+  // Construct a stable tangent frame around the axis-aligned voxel face normal. Choose a reference
+  // vector that is not nearly parallel to it.
+  let referenceAxis =
+    select(vec3f(0.0, 0.0, 1.0), vec3f(0.0, 1.0, 0.0), abs(surfaceNormal.z) > 0.999);
+
+  let tangent = normalize(cross(referenceAxis, surfaceNormal));
+  let bitangent = cross(surfaceNormal, tangent);
+
+  // Local +z points along the surface normal.
+  return
+    tangent * localDirection.x + bitangent * localDirection.y + surfaceNormal * localDirection.z;
+}
+
+/**
+ * Creates a diffuse continuation ray from a surface.
+ */
+fn scatterDiffuse(surfacePosition: vec3f, surfaceNormal: vec3f, randomU: f32, randomV: f32) -> Ray {
+  // Offset from the normal to prevent self-intersection.
+  let origin = surfacePosition + surfaceNormal * BIAS;
+  let direction = sampleCosineHemisphere(surfaceNormal, randomU, randomV);
+
+  return Ray(origin, direction);
 }
 
 /**
