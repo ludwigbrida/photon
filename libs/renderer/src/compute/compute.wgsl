@@ -69,6 +69,12 @@ struct TraversalEntry {
   normal: vec3f,
 }
 
+struct AnyHitTraversalEntry {
+  nodeIndex: u32,
+  minBounds: vec3f,
+  maxBounds: vec3f,
+}
+
 /**
  * Represents a geometric ray-tracing result.
  */
@@ -317,13 +323,77 @@ fn traceRay(ray: Ray) -> Hit {
   return HIT_MISS;
 }
 
+fn traceAny(ray: Ray) -> bool {
+  let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
+  let rootMin = vec3f(-halfExtent - 0.5);
+  let rootMax = vec3f(halfExtent - 0.5);
+  let rootHit = intersectAabb(ray, rootMin, rootMax);
+
+  if !rootHit.found {
+    return false;
+  }
+
+  var stack: array<AnyHitTraversalEntry, 128u>;
+  var stackSize = 1u;
+
+  stack[0] = AnyHitTraversalEntry(0u, rootMin, rootMax);
+
+  loop {
+    if stackSize == 0u {
+      break;
+    }
+
+    stackSize -= 1u;
+    let current = stack[stackSize];
+
+    let node = VOXELS[current.nodeIndex];
+
+    if octreeNodeType(node) == OCTREE_NODE_LEAF {
+      return true;
+    }
+
+    if octreeNodeType(node) != OCTREE_NODE_BRANCH {
+      continue;
+    }
+
+    let firstChild = octreeNodePayload(node);
+
+    for (var i = 0u; i < 8u; i++) {
+      let childIndex = firstChild + i;
+      let childNode = VOXELS[childIndex];
+
+      if octreeNodeType(childNode) == OCTREE_NODE_EMPTY {
+        continue;
+      }
+
+      let bounds = childBounds(current.minBounds, current.maxBounds, i);
+      let childHit = intersectAabb(ray, bounds[0], bounds[1]);
+
+      if !childHit.found {
+        continue;
+      }
+
+      if stackSize >= 128u {
+        // An overflow here means traversal cannot prove that the light is visible.
+        // Treat it as occluded to avoid a potentially incorrect light leak.
+        return true;
+      }
+
+      stack[stackSize] = AnyHitTraversalEntry(childIndex, bounds[0], bounds[1]);
+
+      stackSize += 1u;
+    }
+  }
+
+  return false;
+}
+
 fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f) -> bool {
   let shadowOrigin = surfacePosition + surfaceNormal * BIAS;
 
   let shadowRay = Ray(shadowOrigin, ENVIRONMENT.sunDirection);
 
-  // TODO: replace with more efficient any-hit query
-  return traceRay(shadowRay).found;
+  return traceAny(shadowRay);
 }
 
 /**
