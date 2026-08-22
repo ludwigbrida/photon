@@ -238,6 +238,28 @@ fn scatterDiffuse(surfacePosition: vec3f, surfaceNormal: vec3f, randomU: f32, ra
 }
 
 /**
+ * Samples one direction uniformly across the apparent solar disc.
+ *
+ * The result is a direction from a shaded surface toward one point on the sun.
+ * At a zero angular radius it returns the exact central direction, resulting in a hard shadow.
+ */
+fn sampleSunDirection(randomU: f32, randomV: f32) -> vec3f {
+  if ENVIRONMENT.sunAngularRadius == 0.0 {
+    return ENVIRONMENT.sunDirection;
+  }
+
+  // Uniformly sample a solid angle inside a cone around the central direction.
+  let cosRadius = cos(ENVIRONMENT.sunAngularRadius);
+  let cosTheta = 1.0 - randomU * (1.0 - cosRadius);
+  let sinTheta = sqrt(max(0.0, 1.0 - cosTheta * cosTheta));
+  let azimuth = TWO_PI * randomV;
+
+  let localDirection = vec3f(sinTheta * cos(azimuth), sinTheta * sin(azimuth), cosTheta);
+
+  return orientAroundAxis(localDirection, ENVIRONMENT.sunDirection);
+}
+
+/**
  * Creates the primary world-space ray for one output pixel.
  *
  * The pixel is sampled at its center, so every pixel maps to a symmetric region of the camera image plane.
@@ -490,10 +512,10 @@ fn traceAny(ray: Ray) -> bool {
   return false;
 }
 
-fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f) -> bool {
+fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec3f) -> bool {
   let shadowOrigin = surfacePosition + surfaceNormal * BIAS;
 
-  let shadowRay = Ray(shadowOrigin, ENVIRONMENT.sunDirection);
+  let shadowRay = Ray(shadowOrigin, sunDirection);
 
   return traceAny(shadowRay);
 }
@@ -510,7 +532,8 @@ fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) 
     return baseColor * ambientLight;
   }
 
-  let sunVisibility = select(1f, 0f, isSunOccluded(surfacePosition, surfaceNormal));
+  let sunVisibility =
+    select(1f, 0f, isSunOccluded(surfacePosition, surfaceNormal, ENVIRONMENT.sunDirection));
 
   let directLight = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunFacing * sunVisibility;
 
@@ -520,22 +543,29 @@ fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) 
 /**
  * Estimates direct radiance from the directional sun at one diffuse surface.
  */
-fn estimateDirectSun(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) -> vec3f {
-  let sunFacing = max(dot(surfaceNormal, ENVIRONMENT.sunDirection), 0);
+fn estimateDirectSun(
+  baseColor: vec3f,
+  surfacePosition: vec3f,
+  surfaceNormal: vec3f,
+  sunDirection: vec3f,
+) -> vec3f {
+  let sunFacing = max(dot(surfaceNormal, sunDirection), 0);
 
   // Back-facing surfaces receive no direct light and need no shadow ray.
   if sunFacing == 0.0 {
     return vec3f(0);
   }
 
-  if isSunOccluded(surfacePosition, surfaceNormal) {
+  if isSunOccluded(surfacePosition, surfaceNormal, sunDirection) {
     return vec3f(0);
   }
+
+  let sunSampleWeight = 2.0 / (1.0 + cos(ENVIRONMENT.sunAngularRadius));
 
   // Lambert's BRDF is baseColor / pi. The cosing term converts incoming directional radiance into
   // irradiance on this oriented surface.
   let diffuseBrdf = baseColor * INV_PI;
-  let sunRadiance = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity;
+  let sunRadiance = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunSampleWeight;
 
   return diffuseBrdf * sunRadiance * sunFacing;
 }
@@ -550,7 +580,8 @@ fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
 
   let surfacePosition = rayAtDistance(ray, hit.distance);
 
-  let radiance = estimateDirectSun(material.color.rgb, surfacePosition, hit.normal);
+  let radiance =
+    estimateDirectSun(material.color.rgb, surfacePosition, hit.normal, ENVIRONMENT.sunDirection);
 
   // let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
 
@@ -608,9 +639,23 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     let material = MATERIALS[hit.materialIndex];
     let surfacePosition = rayAtDistance(ray, hit.distance);
 
+    let vertexRandomDimension = 2u + bounce * 4u;
+
+    let sampledSunDirection =
+      sampleSunDirection(
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 1u),
+      );
+
     // Next-event estimation of the directional sun at this path vertex.
-    // esestimateDirectSun already includes this material's Lambert BRDF.
-    radiance += throughput * estimateDirectSun(material.color.rgb, surfacePosition, hit.normal);
+    // estimateDirectSun already includes this material's Lambert BRDF.
+    radiance +=
+      throughput * estimateDirectSun(
+        material.color.rgb,
+        surfacePosition,
+        hit.normal,
+        sampledSunDirection,
+      );
 
     // Reaching the continuation limit still allows direct lighting at this final vertex, but does not spawn another
     // ray.
@@ -620,19 +665,15 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
 
     // Cosing-weighted Lambert sampling:
     // (baseColor / pi) * cosine / (cosing / pi) = baseColor
-    // Therefore the path throughput is the material base colr.
+    // Therefore the path throughput is the material base color.
     throughput *= material.color.rgb;
-
-    // Dimensions 0 and 1 belong to camera jitter.
-    // Allocate two dimensions per diffuse bounce for the hemisphere sample.
-    let randomDimension = 2u + bounce * 2u;
 
     ray =
       scatterDiffuse(
         surfacePosition,
         hit.normal,
-        sampleRandom(pixel, FRAME.sampleIndex, randomDimension),
-        sampleRandom(pixel, FRAME.sampleIndex, randomDimension + 1u),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 2u),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u),
       );
   }
 
