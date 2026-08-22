@@ -126,6 +126,9 @@ const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
 
 const BIAS = 0.001f;
 
+// Reciprocal approximation of pi, used by the energy-conserving Lambert diffuse BRDF.
+const INV_PI = 0.3183098861837907;
+
 // -------------------------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------------------------
@@ -466,6 +469,29 @@ fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) 
 }
 
 /**
+ * Estimates direct radiance from the directional sun at one diffuse surface.
+ */
+fn estimateDirectSun(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) -> vec3f {
+  let sunFacing = max(dot(surfaceNormal, ENVIRONMENT.sunDirection), 0);
+
+  // Back-facing surfaces receive no direct light and need no shadow ray.
+  if sunFacing == 0.0 {
+    return vec3f(0);
+  }
+
+  if isSunOccluded(surfacePosition, surfaceNormal) {
+    return vec3f(0);
+  }
+
+  // Lambert's BRDF is baseColor / pi. The cosing term converts incoming directional radiance into
+  // irradiance on this oriented surface.
+  let diffuseBrdf = baseColor * INV_PI;
+  let sunRadiance = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity;
+
+  return diffuseBrdf * sunRadiance * sunFacing;
+}
+
+/**
  * Converts a geometric hit into a display color.
  *
  * TODO: shading modes (unlit, debug, lambert, etc.)
@@ -475,9 +501,11 @@ fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
 
   let surfacePosition = rayAtDistance(ray, hit.distance);
 
-  let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
+  let radiance = estimateDirectSun(material.color.rgb, surfacePosition, hit.normal);
 
-  return vec4(shadedColor, material.color.a);
+  // let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
+
+  return vec4(radiance, material.color.a);
 }
 
 /**
