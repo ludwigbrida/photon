@@ -60,6 +60,8 @@ struct Environment {
   sunIntensity: f32,
   // Color tint of direct sun illumination.
   sunColor: vec3f,
+  // Apparent radius of the directional sun disc.
+  sunAngularRadius: f32,
   sky: Sky,
 }
 
@@ -192,6 +194,21 @@ fn sampleRandom(pixel: vec2u, sampleIndex: u32, dimension: u32) -> f32 {
 }
 
 /**
+ * Rotates a local direction into world space around a unit axis.
+ *
+ * Local +z maps to axis. The other two local axes are constructed deterministically, which is
+ * sufficient because the sampled distributions are rotationally symmetric around their axis.
+ */
+fn orientAroundAxis(localDirection: vec3f, axis: vec3f) -> vec3f {
+  let referenceAxis = select(vec3f(0, 0, 1), vec3f(0, 1, 0), abs(axis.z) > 0.999);
+
+  let tangent = normalize(cross(referenceAxis, axis));
+  let bitangent = cross(axis, tangent);
+
+  return tangent * localDirection.x + bitangent * localDirection.y + axis * localDirection.z;
+}
+
+/**
  * Samples a unit direction over the hemisphere above surfaceNormal.
  *
  * The distribution is cosine-weighted: Directions near the normal are chosen more often than
@@ -205,17 +222,8 @@ fn sampleCosineHemisphere(surfaceNormal: vec3f, randomU: f32, randomV: f32) -> v
 
   let localDirection = vec3f(radius * cos(azimuth), radius * sin(azimuth), sqrt(1.0 - randomU));
 
-  // Construct a stable tangent frame around the axis-aligned voxel face normal. Choose a reference
-  // vector that is not nearly parallel to it.
-  let referenceAxis =
-    select(vec3f(0.0, 0.0, 1.0), vec3f(0.0, 1.0, 0.0), abs(surfaceNormal.z) > 0.999);
-
-  let tangent = normalize(cross(referenceAxis, surfaceNormal));
-  let bitangent = cross(surfaceNormal, tangent);
-
   // Local +z points along the surface normal.
-  return
-    tangent * localDirection.x + bitangent * localDirection.y + surfaceNormal * localDirection.z;
+  return orientAroundAxis(localDirection, surfaceNormal);
 }
 
 /**
