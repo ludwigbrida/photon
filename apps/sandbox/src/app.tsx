@@ -6,23 +6,43 @@ import { useEffect, useRef } from "react";
 export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const stone = material({
-    color: [0.45, 0.42, 0.38],
+  const white = material({
+    color: [0.9, 0.9, 0.9],
   });
 
   const red = material({
     color: [1, 0, 0],
   });
 
+  const green = material({
+    color: [0, 1, 0],
+  });
+
+  const blue = material({
+    color: [0, 0, 1],
+  });
+
   const scene = group(
     pyramid({
       position: [0, 0, 0],
-      material: stone,
+      material: white,
       height: 10,
     }),
     voxel({
       position: [0, 3, -7],
       material: red,
+    }),
+    voxel({
+      position: [7, 3, 0],
+      material: red,
+    }),
+    voxel({
+      position: [7, 4, 0],
+      material: green,
+    }),
+    voxel({
+      position: [7, 5, 0],
+      material: blue,
     }),
   );
 

@@ -20,7 +20,7 @@ export const createComputePass = (
   const imageWidth = context.canvas.width;
   const imageHeight = context.canvas.height;
   const octreeDepth = scene.depth;
-  const maxBounces = 1;
+  const maxBounces = 3;
 
   const shaderModule = device.createShaderModule({
     label: "computeShaderModule",
