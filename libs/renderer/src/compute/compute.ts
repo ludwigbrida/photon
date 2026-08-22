@@ -57,7 +57,7 @@ export const createComputePass = (
   const frameBuffer = device.createBuffer({
     label: "computeFrameBuffer",
     size: Uint32Array.BYTES_PER_ELEMENT,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.UNIFORM,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
   const accumulationBindGroups = [
