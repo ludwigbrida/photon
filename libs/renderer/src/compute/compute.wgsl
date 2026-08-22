@@ -153,14 +153,52 @@ fn rayAtDistance(ray: Ray, distance: f32) -> vec3f {
 }
 
 /**
+ * Mixes a number into a deterministic pseudo-random value.
+ */
+fn hash(value: u32) -> u32 {
+  var state = value;
+
+  state = (state ^ 61u) ^ (state >> 16u);
+  state *= 9u;
+  state = state ^ (state >> 4u);
+  state *= 0x27d4eb2du;
+  state = state ^ (state >> 15u);
+
+  return state;
+}
+
+/**
+ * Produces a pseudo-random value in [0.0, 1.0].
+ *
+ * `dimension` selects an independent random dimension for the same pixel and progressive sample.
+ * Dimensions 0 and 1 are reserved for camera jitter. Diffuse path sampling will start at
+ * dimension 2.
+ */
+fn sampleRandom(pixel: vec2u, sampleIndex: u32, dimension: u32) -> f32 {
+  var seed = hash(pixel.x);
+  seed = hash(seed ^ pixel.y);
+  seed = hash(seed ^ sampleIndex);
+  seed = hash(seed ^ dimension);
+
+  // Keep the upper 24 random bits, which fit exactly in f32's mantissa.
+  // This guarantees a value below 1.0 even after integer-to-float conversion.
+  return f32(seed >> 8u) * (1.0 / 16777216.0);
+}
+
+/**
  * Creates the primary world-space ray for one output pixel.
  *
  * The pixel is sampled at its center, so every pixel maps to a symmetric region of the camera image plane.
  */
-fn createCameraRay(pixel: vec2u, resolution: vec2u) -> Ray {
+fn createCameraRay(pixel: vec2u, resolution: vec2u, sampleOffset: vec2f) -> Ray {
   // Convert the pixel coordinate into [0, 1] texture-like space.
   // Add a half-pixel offset to shoot the ray through its center rather than its top-left corner.
-  let uv = (vec2f(pixel) + vec2f(0.5)) / vec2f(resolution);
+  // TODO: keep this behavior if sampling is disabled.
+  // let uv = (vec2f(pixel) + vec2f(0.5)) / vec2f(resolution);
+
+  // Convert the pixel coordinate into [0, 1] texture-like space.
+  // `sampleOffset` lies in [0, 1] on each axis, selecting one stochastic point
+  let uv = (vec2f(pixel) + sampleOffset) / vec2f(resolution);
 
   // Convert [0, 1] into normalized screen coordinates:
   // Bottom-left: (-1, -1)
@@ -485,7 +523,15 @@ fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
 @compute @workgroup_size(WORKGROUP_SIZE, WORKGROUP_SIZE)
 fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
-  let ray = createCameraRay(pixel.xy, resolution);
+  // The offset traces the ray through a different random point inside the pixel for each sample.
+  // The HRD accumulator then averages those samples (Monte-Carlo supersampling).
+  // This results in progressive stochastic anti-aliasing.
+  let sampleOffset =
+    vec2f(
+      sampleRandom(pixel.xy, FRAME.sampleIndex, 0u),
+      sampleRandom(pixel.xy, FRAME.sampleIndex, 1u),
+    );
+  let ray = createCameraRay(pixel.xy, resolution, sampleOffset);
   let hit = traceRay(ray);
 
   var radiance: vec4f;
