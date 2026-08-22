@@ -100,6 +100,8 @@ const RAY_INVALID = Ray();
 
 const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
 
+const BIAS = 0.001f;
+
 // -------------------------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------------------------
@@ -308,17 +310,30 @@ fn traceRay(ray: Ray) -> Hit {
   return HIT_MISS;
 }
 
+fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f) -> bool {
+  let shadowOrigin = surfacePosition + surfaceNormal * BIAS;
+
+  let shadowRay = Ray(shadowOrigin, ENVIRONMENT.sunDirection);
+
+  // TODO: replace with more efficient any-hit query
+  return traceRay(shadowRay).found;
+}
+
 /**
  * Calculates simple Lambert diffuse lighting for a surface.
  */
-fn shadeSurface(baseColor: vec3f, surfaceNormal: vec3f) -> vec3f {
-  let lightDirection = normalize(ENVIRONMENT.sunDirection);
+fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) -> vec3f {
+  let sunFacing = max(dot(surfaceNormal, ENVIRONMENT.sunDirection), 0);
 
-  let sunFacing = max(dot(surfaceNormal, lightDirection), 0);
+  let ambientLight = vec3f(0.15);
 
-  let ambientLight = vec3f(0.25);
+  if sunFacing == 0f {
+    return baseColor * ambientLight;
+  }
 
-  let directLight = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunFacing;
+  let sunVisibility = select(1f, 0f, isSunOccluded(surfacePosition, surfaceNormal));
+
+  let directLight = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunFacing * sunVisibility;
 
   return baseColor * (ambientLight + directLight);
 }
@@ -328,9 +343,12 @@ fn shadeSurface(baseColor: vec3f, surfaceNormal: vec3f) -> vec3f {
  *
  * TODO: shading modes (unlit, debug, lambert, etc.)
  */
-fn shadeHit(hit: Hit) -> vec4f {
+fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
   let material = MATERIALS[hit.materialIndex];
-  let shadedColor = shadeSurface(material.color.rgb, hit.normal);
+
+  let surfacePosition = rayAtDistance(ray, hit.distance);
+
+  let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
 
   return vec4(shadedColor, material.color.a);
 }
@@ -355,7 +373,7 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let hit = traceRay(ray);
 
   if hit.found {
-    textureStore(OUTPUT_TEXTURE, pixel.xy, shadeHit(hit));
+    textureStore(OUTPUT_TEXTURE, pixel.xy, shadeHit(ray, hit));
     return;
   }
 
