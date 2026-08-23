@@ -23,6 +23,7 @@ struct Ray {
 
 struct Material {
   color: vec4f,
+  emission: vec4f,
 }
 
 struct Camera {
@@ -638,6 +639,12 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
 
     let material = MATERIALS[hit.materialIndex];
     let surfacePosition = rayAtDistance(ray, hit.distance);
+
+    // Emission is radiance leaving this surface toward the incoming ray.
+    // `throughput` contains the attenuation from every prior diffuse reflection,
+    // so an emitter visible to the camera uses throughput = 1, while an emitter
+    // reached after a red bounce contributes red-tinted light.
+    radiance += throughput * material.emission.rgb;
 
     let vertexRandomDimension = 2u + bounce * 4u;
 

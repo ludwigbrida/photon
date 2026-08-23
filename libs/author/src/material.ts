@@ -1,9 +1,16 @@
 import { type Color } from "@photon/core";
 
-export type Material = {
+export type Emission = {
   readonly color: Color;
+  readonly strength: number;
 };
 
-export const material = ({ color }: Material): Material => ({
+export type Material = {
+  readonly color: Color;
+  readonly emission?: Emission;
+};
+
+export const material = ({ color, emission }: Material): Material => ({
   color,
+  emission,
 });

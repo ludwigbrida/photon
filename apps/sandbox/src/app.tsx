@@ -22,6 +22,14 @@ export const App = () => {
     color: [0, 0, 1],
   });
 
+  const warmLight = material({
+    color: [1, 0.22, 0.03],
+    emission: {
+      color: [1, 0.16, 0.015],
+      strength: 10,
+    },
+  });
+
   const scene = group(
     pyramid({
       position: [0, 0, 0],
@@ -30,7 +38,7 @@ export const App = () => {
     }),
     voxel({
       position: [0, 3, -7],
-      material: red,
+      material: warmLight,
     }),
     voxel({
       position: [7, 3, 0],

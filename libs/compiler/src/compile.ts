@@ -23,12 +23,20 @@ export const compile = (root: AuthorNode, { depth }: CompileOptions): CompiledSc
   const octree = createOctree(voxels, voxelMaterialIndices, depth);
 
   const materials = new Float32Array(
-    [...materialIndices.keys()].flatMap((material) => [
-      material.color[0],
-      material.color[1],
-      material.color[2],
-      1,
-    ]),
+    [...materialIndices.keys()].flatMap((material) => {
+      const emission = material.emission;
+
+      return [
+        material.color[0],
+        material.color[1],
+        material.color[2],
+        1,
+        emission ? emission.color[0] * emission.strength : 0,
+        emission ? emission.color[1] * emission.strength : 0,
+        emission ? emission.color[2] * emission.strength : 0,
+        0,
+      ];
+    }),
   );
 
   return {
