@@ -7,7 +7,7 @@ export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const white = material({
-    color: [0.9, 0.9, 0.9],
+    color: [1, 1, 1],
   });
 
   const red = material({
@@ -69,7 +69,7 @@ export const App = () => {
           sun: {
             azimuthDegrees: 35,
             elevationDegrees: 45,
-            angularRadiusDegrees: 2,
+            angularRadiusDegrees: 5,
             intensity: 3.14,
             color: [1, 0.98, 0.92],
           },

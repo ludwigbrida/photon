@@ -3,7 +3,15 @@ struct VertexOutput {
   @location(0) coordinate: vec2f,
 }
 
+// Exposure adjustment in photographic stops.
+// One stop doubles all scene radiance before tone mapping.
+const DISPLAY_EXPOSURE_STOPS = 1.0;
+
 @group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
+
+fn applyExposure(radiance: vec3f) -> vec3f {
+  return radiance * exp2(DISPLAY_EXPOSURE_STOPS);
+}
 
 /**
  * Converts unbounded linear HDR radiance into the displayable [0, 1] range.
@@ -37,7 +45,8 @@ fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
   let pixel = vec2i(position.xy);
   let accumulatedSample = textureLoad(INPUT_TEXTURE, pixel, 0);
 
-  let displayColor = toneMapReinhard(accumulatedSample.rgb);
+  let exposedRadiance = applyExposure(accumulatedSample.rgb);
+  let displayColor = toneMapReinhard(exposedRadiance);
 
   return vec4f(displayColor, accumulatedSample.a);
 }
