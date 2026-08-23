@@ -665,26 +665,38 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     // reached after a red bounce contributes red-tinted light.
     radiance += throughput * material.emission.rgb;
 
-    let vertexRandomDimension = 2u + bounce * 4u;
+    // Five independent random dimensions are reserved per path vertex:
+    // 0-1: a point on the finite sun disc
+    // 2-3: cosing-weighted diffuse direction
+    // 4: diffuse versus mirror mode selection
+    let vertexRandomDimension = 2u + bounce * 5u;
 
-    let sampledSunDirection =
-      sampleSunDirection(
-        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension),
-        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 1u),
-      );
+    // move this to author validation eventually
+    let metallic = clamp(material.metallic, 0.0, 1.0);
+    let diffuseWeight = 1.0 - metallic;
 
-    // Next-event estimation of the directional sun at this path vertex.
-    // estimateDirectSun already includes this material's Lambert BRDF.
-    radiance +=
-      throughput * estimateDirectSun(
-        material.color.rgb,
-        surfacePosition,
-        hit.normal,
-        sampledSunDirection,
-      );
+    // Only the diffuse part of the material model receives the existing Lambert direct-sun
+    // estimate. A perfect mirror gets its illumination by tracing its reflected ray instead.
+    if diffuseWeight > 0.0 {
+      let sampledSunDirection =
+        sampleSunDirection(
+          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension),
+          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 1u),
+        );
 
-    // Reaching the continuation limit still allows direct lighting at this final vertex, but does not spawn another
-    // ray.
+      // Next-event estimation of the directional sun at this path vertex.
+      // estimateDirectSun already includes this material's Lambert BRDF.
+      radiance +=
+        throughput * estimateDirectSun(
+          material.color * diffuseWeight,
+          surfacePosition,
+          hit.normal,
+          sampledSunDirection,
+        );
+    }
+
+    // Reaching the continuation limit still allows direct lighting at this final vertex, but
+    // does not spawn another ray.
     if bounce == MAX_BOUNCES {
       break;
     }
@@ -692,15 +704,19 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     // Cosing-weighted Lambert sampling:
     // (baseColor / pi) * cosine / (cosing / pi) = baseColor
     // Therefore the path throughput is the material base color.
-    throughput *= material.color.rgb;
+    throughput *= material.color;
 
-    ray =
-      scatterDiffuse(
-        surfacePosition,
-        hit.normal,
-        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 2u),
-        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u),
-      );
+    if sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 4u) < metallic {
+      ray = scatterMirror(surfacePosition, hit.normal, ray.direction);
+    } else {
+      ray =
+        scatterDiffuse(
+          surfacePosition,
+          hit.normal,
+          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 2u),
+          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u),
+        );
+    }
   }
 
   return radiance;

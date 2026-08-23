@@ -30,6 +30,11 @@ export const App = () => {
     },
   });
 
+  const mirror = material({
+    color: [1, 1, 1],
+    metallic: 1,
+  });
+
   const scene = group(
     pyramid({
       position: [0, 0, 0],
@@ -41,16 +46,64 @@ export const App = () => {
       material: warmLight,
     }),
     voxel({
-      position: [7, 3, 0],
+      position: [7, 3, 1],
       material: red,
     }),
     voxel({
-      position: [7, 4, 0],
+      position: [7, 4, 1],
       material: green,
     }),
     voxel({
-      position: [7, 5, 0],
+      position: [7, 5, 1],
       material: blue,
+    }),
+    voxel({
+      position: [5, 5, -2],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 5, -1],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 6, -1],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 6, -2],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 7, -2],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 7, -1],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 7, 0],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 6, 0],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 5, 0],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 5, 1],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 6, 1],
+      material: mirror,
+    }),
+    voxel({
+      position: [5, 7, 1],
+      material: mirror,
     }),
   );
 
