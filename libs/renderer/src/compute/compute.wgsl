@@ -22,7 +22,8 @@ struct Ray {
 }
 
 struct Material {
-  color: vec4f,
+  color: vec3f,
+  metallic: f32,
   emission: vec4f,
 }
 
@@ -236,6 +237,24 @@ fn scatterDiffuse(surfacePosition: vec3f, surfaceNormal: vec3f, randomU: f32, ra
   let direction = sampleCosineHemisphere(surfaceNormal, randomU, randomV);
 
   return Ray(origin, direction);
+}
+
+/**
+ * Spawns a perfectly specular reflection ray from an opaque surface.
+ *
+ * Unlike diffuse scattering, this has no random component:
+ * For one incoming direction and surface normal there is exactly one reflected direction.
+ */
+fn scatterMirror(surfacePosition: vec3f, surfaceNormal: vec3f, incomingDirection: vec3f) -> Ray {
+  // `incomingDirection` points toward the surface. `reflect` return the direction leaving the
+  // surface in the mirror-reflected direction.
+  // Since ray direction and voxel normal are already normalized, this is implicitly normalized
+  // as well.
+  let reflectedDirection = reflect(incomingDirection, surfaceNormal);
+
+  // The ray leaves into the outward hemisphere, so offset it along the outward normal to avoid
+  // immediately intersecting its source voxel again.
+  return Ray(surfacePosition + surfaceNormal * BIAS, reflectedDirection);
 }
 
 /**
@@ -586,7 +605,7 @@ fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
 
   // let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
 
-  return vec4(radiance, material.color.a);
+  return vec4(radiance, 1);
 }
 
 /**

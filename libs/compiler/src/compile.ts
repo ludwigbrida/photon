@@ -30,7 +30,7 @@ export const compile = (root: AuthorNode, { depth }: CompileOptions): CompiledSc
         material.color[0],
         material.color[1],
         material.color[2],
-        1,
+        material.metallic,
         emission ? emission.color[0] * emission.strength : 0,
         emission ? emission.color[1] * emission.strength : 0,
         emission ? emission.color[2] * emission.strength : 0,
