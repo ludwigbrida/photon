@@ -18,6 +18,7 @@
     "prettier": "3.9.6",
     "prettier-plugin-css-order": "2.2.0",
     "prettier-plugin-organize-imports": "4.3.0",
+    "prettier-plugin-wesl": "github:ludwigbrida/prettier-plugin-wesl",
     "prettier-plugin-wgsl": "0.1.13",
     "typescript": "6.0.3"
   },
