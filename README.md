@@ -8,6 +8,8 @@ around procedural generation and GPU-accelerated path tracing with WebGPU.
 > This project is currently under _active development_ and all APIs are subject to change. You are
 > welcome to check it out, but should **not** use it for serious projects yet.
 
+![Demo](./demo.png)
+
 ## Authoring ✨
 
 Build voxel scenes **entirely from code** by combining simple primitives and procedural generators
