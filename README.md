@@ -1,14 +1,12 @@
 # Photon 🌈
 
 Create expressive procedural voxel scenes in code and bring them to life with physically based path
-tracing on the web.
+tracing on the web. Photon is a **code-first voxel scene authoring and rendering framework** built
+around procedural generation and GPU-accelerated path tracing with WebGPU.
 
-> [!IMPORTANT]
-> This project is currently under active development and all APIs are subject to change. You are
-> welcome to check it out, but should not use it for serious projects yet.
-
-Photon is a **code-first voxel scene authoring and rendering framework** built around procedural
-generation and GPU-accelerated path tracing with WebGPU.
+> [!WARNING]
+> This project is currently under _active development_ and all APIs are subject to change. You are
+> welcome to check it out, but should **not** use it for serious projects yet.
 
 ## Authoring ✨
 
