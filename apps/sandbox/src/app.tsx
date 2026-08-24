@@ -26,7 +26,7 @@ export const App = () => {
     color: [1, 0.22, 0.03],
     emission: {
       color: [1, 0.16, 0.015],
-      strength: 10,
+      strength: 20,
     },
   });
 
@@ -131,7 +131,7 @@ export const App = () => {
             azimuthDegrees: 35,
             elevationDegrees: 45,
             angularRadiusDegrees: 5,
-            intensity: 3.14,
+            intensity: 5,
             color: [1, 0.98, 0.92],
           },
           sky: {
