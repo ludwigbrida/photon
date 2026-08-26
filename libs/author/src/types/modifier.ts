@@ -1,3 +1,3 @@
-import { type Geometry } from "./geometry.ts";
+import { type Shape } from "./shape.ts";
 
-export type Modifier = (geometry: Geometry) => Geometry;
+export type Modifier = (shape: Shape) => Shape;
