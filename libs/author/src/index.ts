@@ -1,5 +1,11 @@
+export { pipe } from "./composers/pipe.ts";
+export { union } from "./composers/union.ts";
 export { group } from "./group.ts";
 export { material, type Material } from "./material.ts";
-export { pyramid } from "./pyramid.ts";
+export { move } from "./modifiers/move.ts";
+export { cube } from "./shapes/cube.ts";
+export { pyramid } from "./shapes/pyramid.ts";
 export type * from "./types.ts";
+export { type Bounds } from "./types/bounds.ts";
+export { type Shape } from "./types/shape.ts";
 export { voxel, type Voxel } from "./voxel.ts";

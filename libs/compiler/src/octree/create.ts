@@ -1,24 +1,15 @@
-import { Voxel } from "@photon/author";
-import { BranchNode, createBranchNode, createLeafNode, Node } from "./node.ts";
+import { type BranchNode, createBranchNode, createLeafNode } from "./node.ts";
 import { getChildIndex } from "./position.ts";
 
-export const createOctree = (
-  voxels: readonly Voxel[],
-  materialIndices: readonly number[],
-  depth: number,
-): Node => {
-  const root = createBranchNode();
-
-  for (let voxelIndex = 0; voxelIndex < voxels.length; voxelIndex++) {
-    insertVoxel(root, voxels[voxelIndex], materialIndices[voxelIndex], depth);
-  }
-
-  return root;
+export const createOctree = (): BranchNode => {
+  return createBranchNode();
 };
 
-const insertVoxel = (
+export const insertVoxel = (
   root: BranchNode,
-  voxel: Voxel,
+  x: number,
+  y: number,
+  z: number,
   materialIndex: number,
   depth: number,
 ): void => {
@@ -26,18 +17,13 @@ const insertVoxel = (
 
   const halfExtent = 1 << (depth - 1);
 
-  const octreePosition = [
-    voxel.position[0] + halfExtent,
-    voxel.position[1] + halfExtent,
-    voxel.position[2] + halfExtent,
-  ] as const;
+  const octreePosition = [x + halfExtent, y + halfExtent, z + halfExtent] as const;
 
   for (let level = depth - 1; level >= 0; level--) {
     const childIndex = getChildIndex(octreePosition, level);
 
     if (level === 0) {
       branch.children[childIndex] = createLeafNode(materialIndex);
-
       return;
     }
 
@@ -48,7 +34,6 @@ const insertVoxel = (
 
       branch.children[childIndex] = childBranch;
       branch = childBranch;
-
       continue;
     }
 
@@ -57,6 +42,6 @@ const insertVoxel = (
       continue;
     }
 
-    throw new Error(`Cannot subdivide occupied voxel at ${voxel.position.join(", ")}`);
+    throw new Error(`Cannot subdivide occupied voxel at ${x}, ${y}, ${z}`);
   }
 };

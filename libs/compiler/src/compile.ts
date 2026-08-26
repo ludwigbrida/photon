@@ -1,26 +1,80 @@
-import { AuthorNode, CompiledScene, CompileOptions, Material } from "@photon/author";
-import { createOctree } from "./octree/create.ts";
+import {
+  type Bounds,
+  type CompiledScene,
+  type CompileOptions,
+  type Material,
+  type Shape,
+} from "@photon/author";
+import { createOctree, insertVoxel } from "./octree/create.ts";
 import { flattenOctree } from "./octree/flatten.ts";
-import { collect } from "./scene/collect.ts";
 
-export const compile = (root: AuthorNode, { depth }: CompileOptions): CompiledScene => {
-  const voxels = collect(root);
+const assertBoundsFitOctree = (bounds: Bounds, depth: number): void => {
+  if (!Number.isInteger(depth) || depth < 1 || depth > 30) {
+    throw new Error("Octree depth must be an integer between 1 and 30.");
+  }
 
+  if (
+    bounds.min[0] > bounds.max[0] ||
+    bounds.min[1] > bounds.max[1] ||
+    bounds.min[2] > bounds.max[2]
+  ) {
+    throw new Error("Shape bounds must have min <= max.");
+  }
+
+  const halfExtent = 1 << (depth - 1);
+  const coordinates = [...bounds.min, ...bounds.max];
+
+  if (!coordinates.every(Number.isInteger)) {
+    throw new Error("Shape bounds must use integer voxel coordinates.");
+  }
+
+  if (
+    bounds.min[0] < -halfExtent ||
+    bounds.min[1] < -halfExtent ||
+    bounds.min[2] < -halfExtent ||
+    bounds.max[0] > halfExtent ||
+    bounds.max[1] > halfExtent ||
+    bounds.max[2] > halfExtent
+  ) {
+    throw new Error(`Shape bounds must fit within [-${halfExtent}, ${halfExtent}).`);
+  }
+};
+
+export const compile = (shape: Shape, { depth }: CompileOptions): CompiledScene => {
+  assertBoundsFitOctree(shape.bounds, depth);
+
+  const octree = createOctree();
   const materialIndices = new Map<Material, number>();
-  const voxelMaterialIndices = voxels.map((voxel) => {
-    const existingIndex = materialIndices.get(voxel.material);
+
+  const getMaterialIndex = (material: Material): number => {
+    const existingIndex = materialIndices.get(material);
 
     if (existingIndex !== undefined) {
       return existingIndex;
     }
 
     const materialIndex = materialIndices.size;
-    materialIndices.set(voxel.material, materialIndex);
+
+    materialIndices.set(material, materialIndex);
 
     return materialIndex;
-  });
+  };
 
-  const octree = createOctree(voxels, voxelMaterialIndices, depth);
+  const { min, max } = shape.bounds;
+
+  for (let x = min[0]; x < max[0]; x++) {
+    for (let y = min[1]; y < max[1]; y++) {
+      for (let z = min[2]; z < max[2]; z++) {
+        const material = shape.sample(x, y, z);
+
+        if (material === undefined) {
+          continue;
+        }
+
+        insertVoxel(octree, x, y, z, getMaterialIndex(material), depth);
+      }
+    }
+  }
 
   const materials = new Float32Array(
     [...materialIndices.keys()].flatMap((material) => {
