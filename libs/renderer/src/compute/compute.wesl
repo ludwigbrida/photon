@@ -1,89 +1,63 @@
+import package::compute::types::camera::Camera;
+import package::compute::types::environment::Environment;
+import package::compute::types::frame::Frame;
+import package::compute::types::material::Material;
+import package::compute::types::ray::Ray;
+import package::compute::config::overrides::{
+  WORKGROUP_SIZE,
+  IMAGE_WIDTH,
+  IMAGE_HEIGHT,
+  OCTREE_DEPTH,
+  MAX_BOUNCES,
+};
+import package::compute::config::constants::{
+  PROJECTION_ORTHOGRAPHIC,
+  PROJECTION_PERSPECTIVE,
+  OCTREE_NODE_EMPTY,
+  OCTREE_NODE_BRANCH,
+  OCTREE_NODE_LEAF,
+  BIAS,
+  INV_PI,
+  TWO_PI,
+};
+import package::compute::config::resources::{
+  INPUT_TEXTURE,
+  OUTPUT_TEXTURE,
+  FRAME,
+  CAMERA,
+  ENVIRONMENT,
+  VOXELS,
+  MATERIALS,
+};
+
 // -------------------------------------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------------------------------------
-
-/**
- * Values that change for every accumulation dispatch.
- */
-struct Frame {
-  // Progressive sample number supplied by the CPU (zero-based).
-  sampleIndex: u32,
-}
-
-/**
- * Represents a ray traveling through the scene.
- */
-struct Ray {
-  // The point in 3D space where the ray starts.
-  origin: vec3f,
-  // The direction in which the ray travels.
-  // This should usually be normalized to have a length of 1.
-  direction: vec3f,
-}
-
-struct Material {
-  color: vec3f,
-  metallic: f32,
-  emission: vec4f,
-}
-
-struct Camera {
-  // World-space origin of rays in perspective mode, and center of the image plane in orthographic mode.
-  position: vec3f,
-  // TODO
-  projection: u32,
-  // World-space camera-right unit vector.
-  right: vec3f,
-  orthographicScale: f32,
-  // World-space camera-up unit vector.
-  up: vec3f,
-  // TODO
-  // The vertical field of view in radians. Only used in perspective mode.
-  verticalFov: f32,
-  // World-space forward unit vector, pointing from the camera toward its target.
-  // Perspective rays start at `position` and fan out around this direction.
-  // Orthographic rays all use this same direction.
-  forward: vec3f,
-}
-
-struct Sky {
-  horizonColor: vec3f,
-  horizonFalloff: f32,
-  zenithColor: vec3f,
-}
-
-/**
- * Describes the scene-wide surroundings of the world.
- */
-struct Environment {
-  // Unit vector from a shaded surface toward the sun.
-  sunDirection: vec3f,
-  // Brightness multiplier of direct sun illumination.
-  sunIntensity: f32,
-  // Color tint of direct sun illumination.
-  sunColor: vec3f,
-  // Apparent radius of the directional sun disc.
-  sunAngularRadius: f32,
-  sky: Sky,
-}
-
 struct AabbHit {
   found: bool,
+
   distance: f32,
+
   normal: vec3f,
 }
 
 struct TraversalEntry {
   nodeIndex: u32,
+
   minBounds: vec3f,
+
   maxBounds: vec3f,
+
   distance: f32,
+
   normal: vec3f,
 }
 
 struct AnyHitTraversalEntry {
   nodeIndex: u32,
+
   minBounds: vec3f,
+
   maxBounds: vec3f,
 }
 
@@ -93,68 +67,27 @@ struct AnyHitTraversalEntry {
 struct Hit {
   // Whether the ray intersected a leaf voxel.
   found: bool,
+
   // Distance along the traced ray at which the ray entered the voxel.
   distance: f32,
+
   // Outward direction of the voxel face through which the ray entered.
   normal: vec3f,
+
   // Material buffer index of the voxel that was hit.
   materialIndex: u32,
 }
 
 // -------------------------------------------------------------------------------------------------
-// Configuration
-// -------------------------------------------------------------------------------------------------
-
-override WORKGROUP_SIZE: u32;
-override IMAGE_WIDTH: u32;
-override IMAGE_HEIGHT: u32;
-override OCTREE_DEPTH: u32;
-
-// Maximum number of diffuse continuation rays spawned after the primary ray.
-override MAX_BOUNCES: u32;
-
-// -------------------------------------------------------------------------------------------------
 // Constants
 // -------------------------------------------------------------------------------------------------
-
-const PROJECTION_ORTHOGRAPHIC = 0u;
-const PROJECTION_PERSPECTIVE = 1u;
-
-const OCTREE_NODE_EMPTY = 0u;
-const OCTREE_NODE_BRANCH = 1u;
-const OCTREE_NODE_LEAF = 2u;
-
 const RAY_INVALID = Ray();
 
 const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
 
-const BIAS = 0.001f;
-
-// Reciprocal approximation of pi, used by the energy-conserving Lambert diffuse BRDF.
-const INV_PI = 0.3183098861837907;
-
-// Full rotation in radians, used to sample an azimuth angle.
-const TWO_PI = 6.283185307179586;
-
-// -------------------------------------------------------------------------------------------------
-// Resources
-// -------------------------------------------------------------------------------------------------
-
-@group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
-@group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(2) var<uniform> FRAME: Frame;
-
-@group(1) @binding(0) var<uniform> CAMERA: Camera;
-
-@group(2) @binding(0) var<uniform> ENVIRONMENT: Environment;
-
-@group(3) @binding(0) var<storage, read> VOXELS: array<u32>;
-@group(3) @binding(1) var<storage, read> MATERIALS: array<Material>;
-
 // -------------------------------------------------------------------------------------------------
 // Functions (split into domains)
 // -------------------------------------------------------------------------------------------------
-
 /**
  * Calculates the position of a point along a ray at a given distance.
  */
@@ -168,11 +101,11 @@ fn rayAtDistance(ray: Ray, distance: f32) -> vec3f {
 fn hash(value: u32) -> u32 {
   var state = value;
 
-  state = (state ^ 61u) ^ (state >> 16u);
+  state =(state ^ 61u) ^(state >> 16u);
   state *= 9u;
-  state = state ^ (state >> 4u);
+  state = state ^(state >> 4u);
   state *= 0x27d4eb2du;
-  state = state ^ (state >> 15u);
+  state = state ^(state >> 15u);
 
   return state;
 }
@@ -192,7 +125,7 @@ fn sampleRandom(pixel: vec2u, sampleIndex: u32, dimension: u32) -> f32 {
 
   // Keep the upper 24 random bits, which fit exactly in f32's mantissa.
   // This guarantees a value below 1.0 even after integer-to-float conversion.
-  return f32(seed >> 8u) * (1.0 / 16777216.0);
+  return f32(seed >> 8u) *(1.0 / 16777216.0);
 }
 
 /**
@@ -264,19 +197,19 @@ fn scatterMirror(surfacePosition: vec3f, surfaceNormal: vec3f, incomingDirection
  * At a zero angular radius it returns the exact central direction, resulting in a hard shadow.
  */
 fn sampleSunDirection(randomU: f32, randomV: f32) -> vec3f {
-  if ENVIRONMENT.sunAngularRadius == 0.0 {
-    return ENVIRONMENT.sunDirection;
+  if ENVIRONMENT.sun.angularRadius == 0.0 {
+    return ENVIRONMENT.sun.direction;
   }
 
   // Uniformly sample a solid angle inside a cone around the central direction.
-  let cosRadius = cos(ENVIRONMENT.sunAngularRadius);
-  let cosTheta = 1.0 - randomU * (1.0 - cosRadius);
+  let cosRadius = cos(ENVIRONMENT.sun.angularRadius);
+  let cosTheta = 1.0 - randomU *(1.0 - cosRadius);
   let sinTheta = sqrt(max(0.0, 1.0 - cosTheta * cosTheta));
   let azimuth = TWO_PI * randomV;
 
   let localDirection = vec3f(sinTheta * cos(azimuth), sinTheta * sin(azimuth), cosTheta);
 
-  return orientAroundAxis(localDirection, ENVIRONMENT.sunDirection);
+  return orientAroundAxis(localDirection, ENVIRONMENT.sun.direction);
 }
 
 /**
@@ -289,10 +222,9 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u, sampleOffset: vec2f) -> Ray 
   // Add a half-pixel offset to shoot the ray through its center rather than its top-left corner.
   // TODO: keep this behavior if sampling is disabled.
   // let uv = (vec2f(pixel) + vec2f(0.5)) / vec2f(resolution);
-
   // Convert the pixel coordinate into [0, 1] texture-like space.
   // `sampleOffset` lies in [0, 1] on each axis, selecting one stochastic point
-  let uv = (vec2f(pixel) + sampleOffset) / vec2f(resolution);
+  let uv =(vec2f(pixel) + sampleOffset) / vec2f(resolution);
 
   // Convert [0, 1] into normalized screen coordinates:
   // Bottom-left: (-1, -1)
@@ -300,30 +232,22 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u, sampleOffset: vec2f) -> Ray 
   let screen = uv * 2.0 - 1.0;
 
   let aspectRatio = f32(resolution.x) / f32(resolution.y);
-  let imagePlane = vec2f(screen.x * aspectRatio, -screen.y);
+  let imagePlane = vec2f(screen.x * aspectRatio, - screen.y);
 
   switch CAMERA.projection {
     case PROJECTION_ORTHOGRAPHIC: {
-      let origin =
-        CAMERA.position
-          + CAMERA.right * imagePlane.x * CAMERA.orthographicScale
-          + CAMERA.up * imagePlane.y * CAMERA.orthographicScale;
+      let origin = CAMERA.position + CAMERA.right * imagePlane.x * CAMERA.scale + CAMERA.up * imagePlane.y * CAMERA.scale;
 
       return Ray(origin, CAMERA.forward);
     }
-    case PROJECTION_PERSPECTIVE: {
-      let imagePlaneHalfHeight = tan(CAMERA.verticalFov * 0.5);
+     case PROJECTION_PERSPECTIVE: {
+      let imagePlaneHalfHeight = tan(CAMERA.fieldOfView * 0.5);
 
-      let direction =
-        normalize(
-          CAMERA.forward
-            + CAMERA.right * imagePlane.x * imagePlaneHalfHeight
-            + CAMERA.up * imagePlane.y * imagePlaneHalfHeight,
-        );
+      let direction = normalize(CAMERA.forward + CAMERA.right * imagePlane.x * imagePlaneHalfHeight + CAMERA.up * imagePlane.y * imagePlaneHalfHeight);
 
       return Ray(CAMERA.position, direction);
     }
-    default: {
+     default: {
       return RAY_INVALID;
     }
   }
@@ -332,8 +256,8 @@ fn createCameraRay(pixel: vec2u, resolution: vec2u, sampleOffset: vec2f) -> Ray 
 fn intersectAabb(ray: Ray, minBounds: vec3f, maxBounds: vec3f) -> AabbHit {
   let inverseDirection = 1.0 / ray.direction;
 
-  let t0 = (minBounds - ray.origin) * inverseDirection;
-  let t1 = (maxBounds - ray.origin) * inverseDirection;
+  let t0 =(minBounds - ray.origin) * inverseDirection;
+  let t1 =(maxBounds - ray.origin) * inverseDirection;
 
   let tMin = min(t0, t1);
   let tMax = max(t0, t1);
@@ -342,20 +266,20 @@ fn intersectAabb(ray: Ray, minBounds: vec3f, maxBounds: vec3f) -> AabbHit {
   let far = min(tMax.x, min(tMax.y, tMax.z));
 
   if far < max(near, 0.0) {
-    return AabbHit(false, -1.0, vec3f(0));
+    return AabbHit(false, - 1.0, vec3f(0));
   }
 
-  var normal = vec3f(0);
+   var normal = vec3f(0);
 
   if near == tMin.x {
-    normal = vec3f(-sign(ray.direction.x), 0, 0);
+    normal = vec3f(- sign(ray.direction.x), 0, 0);
   } else if near == tMin.y {
-    normal = vec3f(0, -sign(ray.direction.y), 0);
+    normal = vec3f(0, - sign(ray.direction.y), 0);
   } else {
-    normal = vec3f(0, 0, -sign(ray.direction.z));
+    normal = vec3f(0, 0, - sign(ray.direction.z));
   }
 
-  return AabbHit(true, max(near, 0), normal);
+   return AabbHit(true, max(near, 0), normal);
 }
 
 fn octreeNodeType(node: u32) -> u32 {
@@ -367,25 +291,19 @@ fn octreeNodePayload(node: u32) -> u32 {
 }
 
 fn childBounds(parentMin: vec3f, parentMax: vec3f, childIndex: u32) -> array<vec3f, 2> {
-  let center = (parentMin + parentMax) * 0.5;
+  let center =(parentMin + parentMax) * 0.5;
 
-  let xHigh = (childIndex & 1u) != 0u;
-  let yHigh = (childIndex & 2u) != 0u;
-  let zHigh = (childIndex & 4u) != 0u;
+  let xHigh =(childIndex & 1u) != 0u;
+  let yHigh =(childIndex & 2u) != 0u;
+  let zHigh =(childIndex & 4u) != 0u;
 
-  let childMin =
-    vec3f(
-      select(parentMin.x, center.x, xHigh),
-      select(parentMin.y, center.y, yHigh),
-      select(parentMin.z, center.z, zHigh),
-    );
+  let childMin = vec3f(select(parentMin.x, center.x, xHigh), select(parentMin.y, center.y, yHigh),
+    select(parentMin.z, center.z, zHigh),
+  );
 
-  let childMax =
-    vec3f(
-      select(center.x, parentMax.x, xHigh),
-      select(center.y, parentMax.y, yHigh),
-      select(center.z, parentMax.z, zHigh),
-    );
+  let childMax = vec3f(select(center.x, parentMax.x, xHigh), select(center.y, parentMax.y, yHigh),
+    select(center.z, parentMax.z, zHigh),
+  );
 
   return array<vec3f, 2>(childMin, childMax);
 }
@@ -394,16 +312,16 @@ fn childBounds(parentMin: vec3f, parentMax: vec3f, childIndex: u32) -> array<vec
  * Traverses the voxel octree and returns the closest leaf hit.
  */
 fn traceRay(ray: Ray) -> Hit {
-  let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
-  let rootMin = vec3(-halfExtent);
+  let halfExtent = f32(1u <<(OCTREE_DEPTH - 1u));
+  let rootMin = vec3(- halfExtent);
   let rootMax = vec3(halfExtent);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
-  if !rootHit.found {
+  if!rootHit.found {
     return HIT_MISS;
   }
 
-  var stack: array<TraversalEntry, 128u>;
+   var stack: array<TraversalEntry, 128u>;
   var stackSize = 1u;
 
   stack[0] = TraversalEntry(0u, rootMin, rootMax, rootHit.distance, rootHit.normal);
@@ -413,7 +331,7 @@ fn traceRay(ray: Ray) -> Hit {
       break;
     }
 
-    var nearestIndex = 0u;
+     var nearestIndex = 0u;
     var nearestDistance = stack[0].distance;
 
     for (var i = 1u; i < stackSize; i++) {
@@ -423,7 +341,7 @@ fn traceRay(ray: Ray) -> Hit {
       }
     }
 
-    let current = stack[nearestIndex];
+     let current = stack[nearestIndex];
     stackSize -= 1u;
     stack[nearestIndex] = stack[stackSize];
 
@@ -433,11 +351,11 @@ fn traceRay(ray: Ray) -> Hit {
       return Hit(true, current.distance, current.normal, octreeNodePayload(node));
     }
 
-    if octreeNodeType(node) != OCTREE_NODE_BRANCH {
+     if octreeNodeType(node) != OCTREE_NODE_BRANCH {
       continue;
     }
 
-    let firstChild = octreeNodePayload(node);
+     let firstChild = octreeNodePayload(node);
 
     for (var i = 0u; i < 8u; i++) {
       let childIndex = firstChild + i;
@@ -447,37 +365,37 @@ fn traceRay(ray: Ray) -> Hit {
         continue;
       }
 
-      let bounds = childBounds(current.minBounds, current.maxBounds, i);
+       let bounds = childBounds(current.minBounds, current.maxBounds, i);
       let hit = intersectAabb(ray, bounds[0], bounds[1]);
 
-      if !hit.found {
+      if!hit.found {
         continue;
       }
 
-      if stackSize >= 128u {
+       if stackSize >= 128u {
         return HIT_MISS;
       }
 
-      stack[stackSize] = TraversalEntry(childIndex, bounds[0], bounds[1], hit.distance, hit.normal);
+       stack[stackSize] = TraversalEntry(childIndex, bounds[0], bounds[1], hit.distance, hit.normal);
 
       stackSize += 1u;
     }
   }
 
-  return HIT_MISS;
+   return HIT_MISS;
 }
 
 fn traceAny(ray: Ray) -> bool {
-  let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
-  let rootMin = vec3f(-halfExtent);
+  let halfExtent = f32(1u <<(OCTREE_DEPTH - 1u));
+  let rootMin = vec3f(- halfExtent);
   let rootMax = vec3f(halfExtent);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
-  if !rootHit.found {
+  if!rootHit.found {
     return false;
   }
 
-  var stack: array<AnyHitTraversalEntry, 128u>;
+   var stack: array<AnyHitTraversalEntry, 128u>;
   var stackSize = 1u;
 
   stack[0] = AnyHitTraversalEntry(0u, rootMin, rootMax);
@@ -487,7 +405,7 @@ fn traceAny(ray: Ray) -> bool {
       break;
     }
 
-    stackSize -= 1u;
+     stackSize -= 1u;
     let current = stack[stackSize];
 
     let node = VOXELS[current.nodeIndex];
@@ -496,11 +414,11 @@ fn traceAny(ray: Ray) -> bool {
       return true;
     }
 
-    if octreeNodeType(node) != OCTREE_NODE_BRANCH {
+     if octreeNodeType(node) != OCTREE_NODE_BRANCH {
       continue;
     }
 
-    let firstChild = octreeNodePayload(node);
+     let firstChild = octreeNodePayload(node);
 
     for (var i = 0u; i < 8u; i++) {
       let childIndex = firstChild + i;
@@ -510,26 +428,26 @@ fn traceAny(ray: Ray) -> bool {
         continue;
       }
 
-      let bounds = childBounds(current.minBounds, current.maxBounds, i);
+       let bounds = childBounds(current.minBounds, current.maxBounds, i);
       let childHit = intersectAabb(ray, bounds[0], bounds[1]);
 
-      if !childHit.found {
+      if!childHit.found {
         continue;
       }
 
-      if stackSize >= 128u {
+       if stackSize >= 128u {
         // An overflow here means traversal cannot prove that the light is visible.
         // Treat it as occluded to avoid a potentially incorrect light leak.
         return true;
       }
 
-      stack[stackSize] = AnyHitTraversalEntry(childIndex, bounds[0], bounds[1]);
+       stack[stackSize] = AnyHitTraversalEntry(childIndex, bounds[0], bounds[1]);
 
       stackSize += 1u;
     }
   }
 
-  return false;
+   return false;
 }
 
 fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec3f) -> bool {
@@ -544,7 +462,7 @@ fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec
  * Calculates simple Lambert diffuse lighting for a surface.
  */
 fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) -> vec3f {
-  let sunFacing = max(dot(surfaceNormal, ENVIRONMENT.sunDirection), 0);
+  let sunFacing = max(dot(surfaceNormal, ENVIRONMENT.sun.direction), 0);
 
   let ambientLight = vec3f(0.15);
 
@@ -552,23 +470,17 @@ fn shadeSurface(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f) 
     return baseColor * ambientLight;
   }
 
-  let sunVisibility =
-    select(1f, 0f, isSunOccluded(surfacePosition, surfaceNormal, ENVIRONMENT.sunDirection));
+   let sunVisibility = select(1f, 0f, isSunOccluded(surfacePosition, surfaceNormal, ENVIRONMENT.sun.direction));
 
-  let directLight = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunFacing * sunVisibility;
+  let directLight = ENVIRONMENT.sun.color * ENVIRONMENT.sun.intensity * sunFacing * sunVisibility;
 
-  return baseColor * (ambientLight + directLight);
+  return baseColor *(ambientLight + directLight);
 }
 
 /**
  * Estimates direct radiance from the directional sun at one diffuse surface.
  */
-fn estimateDirectSun(
-  baseColor: vec3f,
-  surfacePosition: vec3f,
-  surfaceNormal: vec3f,
-  sunDirection: vec3f,
-) -> vec3f {
+fn estimateDirectSun(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec3f) -> vec3f {
   let sunFacing = max(dot(surfaceNormal, sunDirection), 0);
 
   // Back-facing surfaces receive no direct light and need no shadow ray.
@@ -576,16 +488,16 @@ fn estimateDirectSun(
     return vec3f(0);
   }
 
-  if isSunOccluded(surfacePosition, surfaceNormal, sunDirection) {
+   if isSunOccluded(surfacePosition, surfaceNormal, sunDirection) {
     return vec3f(0);
   }
 
-  let sunSampleWeight = 2.0 / (1.0 + cos(ENVIRONMENT.sunAngularRadius));
+   let sunSampleWeight = 2.0 /(1.0 + cos(ENVIRONMENT.sun.angularRadius));
 
   // Lambert's BRDF is baseColor / pi. The cosing term converts incoming directional radiance into
   // irradiance on this oriented surface.
   let diffuseBrdf = baseColor * INV_PI;
-  let sunRadiance = ENVIRONMENT.sunColor * ENVIRONMENT.sunIntensity * sunSampleWeight;
+  let sunRadiance = ENVIRONMENT.sun.color * ENVIRONMENT.sun.intensity * sunSampleWeight;
 
   return diffuseBrdf * sunRadiance * sunFacing;
 }
@@ -600,11 +512,9 @@ fn shadeHit(ray: Ray, hit: Hit) -> vec4f {
 
   let surfacePosition = rayAtDistance(ray, hit.distance);
 
-  let radiance =
-    estimateDirectSun(material.color.rgb, surfacePosition, hit.normal, ENVIRONMENT.sunDirection);
+  let radiance = estimateDirectSun(material.color.rgb, surfacePosition, hit.normal, ENVIRONMENT.sun.direction);
 
   // let shadedColor = shadeSurface(material.color.rgb, surfacePosition, hit.normal);
-
   return vec4(radiance, 1);
 }
 
@@ -649,14 +559,14 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
   for (var bounce = 0u; bounce <= MAX_BOUNCES; bounce++) {
     let hit = traceRay(ray);
 
-    if !hit.found {
+    if!hit.found {
       // The sky is effectively emitted radiance from the environment. It is attenuated by every
       // diffuse surface the path reflected from before reaching it.
       radiance += throughput * skyColor(ray.direction);
       break;
     }
 
-    let material = MATERIALS[hit.materialIndex];
+     let material = MATERIALS[hit.materialIndex];
     let surfacePosition = rayAtDistance(ray, hit.distance);
 
     // Emission is radiance leaving this surface toward the incoming ray.
@@ -678,21 +588,16 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     // Only the diffuse part of the material model receives the existing Lambert direct-sun
     // estimate. A perfect mirror gets its illumination by tracing its reflected ray instead.
     if diffuseWeight > 0.0 {
-      let sampledSunDirection =
-        sampleSunDirection(
-          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension),
-          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 1u),
-        );
+      let sampledSunDirection = sampleSunDirection(sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 1u),
+      );
 
       // Next-event estimation of the directional sun at this path vertex.
       // estimateDirectSun already includes this material's Lambert BRDF.
-      radiance +=
-        throughput * estimateDirectSun(
-          material.color * diffuseWeight,
-          surfacePosition,
-          hit.normal,
-          sampledSunDirection,
-        );
+      radiance += throughput * estimateDirectSun(material.color * diffuseWeight, surfacePosition,
+        hit.normal,
+        sampledSunDirection,
+      );
     }
 
     // Reaching the continuation limit still allows direct lighting at this final vertex, but
@@ -709,17 +614,13 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     if sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 4u) < metallic {
       ray = scatterMirror(surfacePosition, hit.normal, ray.direction);
     } else {
-      ray =
-        scatterDiffuse(
-          surfacePosition,
-          hit.normal,
-          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 2u),
-          sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u),
-        );
+      ray = scatterDiffuse(surfacePosition, hit.normal, sampleRandom(pixel, FRAME.sampleIndex,
+        vertexRandomDimension + 2u,
+      ), sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u));
     }
   }
 
-  return radiance;
+   return radiance;
 }
 
 fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
@@ -727,28 +628,26 @@ fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
     return currentSample;
   }
 
-  let previousAverage = textureLoad(INPUT_TEXTURE, vec2i(pixel), 0);
+   let previousAverage = textureLoad(INPUT_TEXTURE, vec2i(pixel), 0);
 
   let newSampleCount = f32(FRAME.sampleIndex) + 1;
 
-  return previousAverage + (currentSample - previousAverage) / newSampleCount;
+  return previousAverage +(currentSample - previousAverage) / newSampleCount;
 }
 
 // -------------------------------------------------------------------------------------------------
 // Main
 // -------------------------------------------------------------------------------------------------
-
 @compute @workgroup_size(WORKGROUP_SIZE, WORKGROUP_SIZE)
 fn main(@builtin(global_invocation_id) pixel: vec3u) {
   let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
   // The offset traces the ray through a different random point inside the pixel for each sample.
   // The HRD accumulator then averages those samples (Monte-Carlo supersampling).
   // This results in progressive stochastic anti-aliasing.
-  let sampleOffset =
-    vec2f(
-      sampleRandom(pixel.xy, FRAME.sampleIndex, 0u),
-      sampleRandom(pixel.xy, FRAME.sampleIndex, 1u),
-    );
+  let sampleOffset = vec2f(sampleRandom(pixel.xy, FRAME.sampleIndex, 0u), sampleRandom(pixel.xy,
+    FRAME.sampleIndex,
+    1u,
+  ));
   let ray = createCameraRay(pixel.xy, resolution, sampleOffset);
 
   let radiance = tracePath(ray, pixel.xy);

@@ -5,7 +5,7 @@ import {
   Environment,
   Scene,
 } from "../types.ts";
-import computeShader from "./compute.wgsl?raw";
+import computeShader from "./compute.wesl?static";
 
 export const createComputePass = (
   device: GPUDevice,
