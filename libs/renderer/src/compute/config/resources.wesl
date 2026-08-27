@@ -1,4 +1,5 @@
 import package::compute::types::camera::Camera;
+import package::compute::types::emitter::Emitter;
 import package::compute::types::environment::Environment;
 import package::compute::types::frame::Frame;
 import package::compute::types::material::Material;
@@ -43,3 +44,5 @@ import package::compute::types::material::Material;
  * The materials referenced by lead nodes in `VOXELS`.
  */
 @group(3) @binding(1) var<storage, read> MATERIALS: array<Material>;
+
+@group(3) @binding(2) var<storage, read> EMITTERS: array<Emitter>;

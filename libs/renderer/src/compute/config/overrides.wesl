@@ -33,3 +33,5 @@ override OCTREE_DEPTH: u32;
  * bounces at a higher computational cost.
  */
 override MAX_BOUNCES: u32;
+
+override EMITTER_COUNT: u32;

@@ -9,6 +9,7 @@ import package::compute::config::overrides::{
   IMAGE_HEIGHT,
   OCTREE_DEPTH,
   MAX_BOUNCES,
+  EMITTER_COUNT,
 };
 import package::compute::config::constants::{
   PROJECTION_ORTHOGRAPHIC,
@@ -28,6 +29,7 @@ import package::compute::config::resources::{
   ENVIRONMENT,
   VOXELS,
   MATERIALS,
+  EMITTERS,
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -450,12 +452,30 @@ fn traceAny(ray: Ray) -> bool {
    return false;
 }
 
+// infinite distance shadow testing
 fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec3f) -> bool {
   let shadowOrigin = surfacePosition + surfaceNormal * BIAS;
 
   let shadowRay = Ray(shadowOrigin, sunDirection);
 
   return traceAny(shadowRay);
+}
+
+// finite distance shadow testing
+fn isPointOccluded(origin: vec3f, lightTarget: vec3f) -> bool {
+  let toTarget = lightTarget - origin;
+  let distanceSquared = dot(toTarget, toTarget);
+
+  if distanceSquared <= BIAS * BIAS {
+    return false;
+  }
+
+   let distance = sqrt(distanceSquared);
+  let direction = toTarget / distance;
+  let hit = traceRay(Ray(origin, direction));
+
+  // A hit at `distance` is the selected light itself, not an occluder.
+  return hit.found && hit.distance < distance - BIAS;
 }
 
 /**
@@ -500,6 +520,51 @@ fn estimateDirectSun(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: ve
   let sunRadiance = ENVIRONMENT.sun.color * ENVIRONMENT.sun.intensity * sunSampleWeight;
 
   return diffuseBrdf * sunRadiance * sunFacing;
+}
+
+fn estimateDirectEmitter(baseColor: vec3f, surfacePosition: vec3f, surfaceNormal: vec3f, randomEmitter: f32,
+  randomU: f32,
+  randomV: f32,
+) -> vec3f {
+  if EMITTER_COUNT == 0u {
+    return vec3f(0);
+  }
+
+   let emitterIndex = min(u32(randomEmitter * f32(EMITTER_COUNT)), EMITTER_COUNT - 1u);
+  let emitter = EMITTERS[emitterIndex];
+  let emitterMaterial = MATERIALS[u32(emitter.materialIndex)];
+
+  // Uniform point on the voxel's downward facing unit square.
+  // TODO: make general
+  let lightPoint = emitter.position + vec3f(randomU, 0.0, randomV);
+  let lightNormal = vec3f(0.0, - 1.0, 0.0);
+
+  let shadowOrigin = surfacePosition + surfaceNormal * BIAS;
+  let toLight = lightPoint - shadowOrigin;
+  let distanceSquared = dot(toLight, toLight);
+
+  if distanceSquared <= BIAS * BIAS {
+    return vec3f(0);
+  }
+
+   let distance = sqrt(distanceSquared);
+  let lightDirection = toLight / distance;
+
+  let surfaceCosine = max(dot(surfaceNormal, lightDirection), 0.0);
+  let lightCosine = max(dot(lightNormal, - lightDirection), 0.0);
+
+  if surfaceCosine == 0.0 || lightCosine == 0.0 {
+    return vec3f(0.0);
+  }
+
+   if isPointOccluded(shadowOrigin, lightPoint) {
+    return vec3f(0.0);
+  }
+
+  // One unit-area face is selected uniformly among EMITTER_COUNT faces.
+  let areaPdf = 1.0 / f32(EMITTER_COUNT);
+
+  return baseColor * INV_PI * emitterMaterial.emission.rgb * surfaceCosine * lightCosine /(distanceSquared * areaPdf);
 }
 
 /**
@@ -576,10 +641,11 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     radiance += throughput * material.emission.rgb;
 
     // Five independent random dimensions are reserved per path vertex:
-    // 0-1: a point on the finite sun disc
-    // 2-3: cosing-weighted diffuse direction
-    // 4: diffuse versus mirror mode selection
-    let vertexRandomDimension = 2u + bounce * 5u;
+    // 0-1: sun-disc sample
+    // 2-4: emitter selection and point on its face
+    // 5-6: diffuse direction
+    // 7: diffuse versus mirror mode selection
+    let vertexRandomDimension = 2u + bounce * 8u;
 
     // move this to author validation eventually
     let metallic = clamp(material.metallic, 0.0, 1.0);
@@ -598,6 +664,13 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
         hit.normal,
         sampledSunDirection,
       );
+
+      radiance += throughput * estimateDirectEmitter(material.color * diffuseWeight, surfacePosition,
+        hit.normal,
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 2u),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u),
+        sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 4u),
+      );
     }
 
     // Reaching the continuation limit still allows direct lighting at this final vertex, but
@@ -611,12 +684,12 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     // Therefore the path throughput is the material base color.
     throughput *= material.color;
 
-    if sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 4u) < metallic {
+    if sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 7u) < metallic {
       ray = scatterMirror(surfacePosition, hit.normal, ray.direction);
     } else {
       ray = scatterDiffuse(surfacePosition, hit.normal, sampleRandom(pixel, FRAME.sampleIndex,
-        vertexRandomDimension + 2u,
-      ), sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 3u));
+        vertexRandomDimension + 5u,
+      ), sampleRandom(pixel, FRAME.sampleIndex, vertexRandomDimension + 6u));
     }
   }
 

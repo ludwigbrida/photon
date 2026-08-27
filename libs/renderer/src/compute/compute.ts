@@ -21,6 +21,7 @@ export const createComputePass = (
   const imageHeight = context.canvas.height;
   const octreeDepth = scene.depth;
   const maxBounces = 3;
+  const emitterCount = scene.emitters.length / 4;
 
   const shaderModule = device.createShaderModule({
     label: "computeShaderModule",
@@ -182,6 +183,13 @@ export const createComputePass = (
           type: "read-only-storage",
         },
       },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
     ],
   });
 
@@ -197,6 +205,12 @@ export const createComputePass = (
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   });
 
+  const emitterBuffer = device.createBuffer({
+    label: "computeEmitterBuffer",
+    size: Math.max(scene.emitters.byteLength, 16),
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
+
   const sceneBindGroup = device.createBindGroup({
     label: "computeSceneBindGroup",
     layout: sceneBindGroupLayout,
@@ -208,6 +222,10 @@ export const createComputePass = (
       {
         binding: 1,
         resource: materialBuffer,
+      },
+      {
+        binding: 2,
+        resource: emitterBuffer,
       },
     ],
   });
@@ -234,6 +252,7 @@ export const createComputePass = (
         IMAGE_HEIGHT: imageHeight,
         OCTREE_DEPTH: octreeDepth,
         MAX_BOUNCES: maxBounces,
+        EMITTER_COUNT: emitterCount,
       },
     },
   });
@@ -242,6 +261,9 @@ export const createComputePass = (
   device.queue.writeBuffer(environmentBuffer, 0, environmentUniform);
   device.queue.writeBuffer(voxelBuffer, 0, scene.voxels);
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);
+  if (scene.emitters.byteLength > 0) {
+    device.queue.writeBuffer(emitterBuffer, 0, scene.emitters);
+  }
 
   const run = (commandEncoder: GPUCommandEncoder, sample: number) => {
     device.queue.writeBuffer(frameBuffer, 0, new Uint32Array([sample]));

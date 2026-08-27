@@ -45,6 +45,7 @@ export const compile = (shape: Shape, { depth }: CompileOptions): CompiledScene 
 
   const octree = createOctree();
   const materialIndices = new Map<Material, number>();
+  const emitters: number[] = [];
 
   const getMaterialIndex = (material: Material): number => {
     const existingIndex = materialIndices.get(material);
@@ -71,7 +72,13 @@ export const compile = (shape: Shape, { depth }: CompileOptions): CompiledScene 
           continue;
         }
 
-        insertVoxel(octree, x, y, z, getMaterialIndex(material), depth);
+        const materialIndex = getMaterialIndex(material);
+
+        insertVoxel(octree, x, y, z, materialIndex, depth);
+
+        if (material.emission !== undefined) {
+          emitters.push(x, y, z, materialIndex);
+        }
       }
     }
   }
@@ -97,5 +104,6 @@ export const compile = (shape: Shape, { depth }: CompileOptions): CompiledScene 
     depth,
     voxels: flattenOctree(octree),
     materials,
+    emitters: new Float32Array(emitters),
   };
 };
