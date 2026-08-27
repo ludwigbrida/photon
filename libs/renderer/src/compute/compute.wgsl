@@ -395,8 +395,8 @@ fn childBounds(parentMin: vec3f, parentMax: vec3f, childIndex: u32) -> array<vec
  */
 fn traceRay(ray: Ray) -> Hit {
   let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
-  let rootMin = vec3(-halfExtent - 0.5);
-  let rootMax = vec3(halfExtent - 0.5);
+  let rootMin = vec3(-halfExtent);
+  let rootMax = vec3(halfExtent);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
   if !rootHit.found {
@@ -469,8 +469,8 @@ fn traceRay(ray: Ray) -> Hit {
 
 fn traceAny(ray: Ray) -> bool {
   let halfExtent = f32(1u << (OCTREE_DEPTH - 1u));
-  let rootMin = vec3f(-halfExtent - 0.5);
-  let rootMax = vec3f(halfExtent - 0.5);
+  let rootMin = vec3f(-halfExtent);
+  let rootMax = vec3f(halfExtent);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
   if !rootHit.found {

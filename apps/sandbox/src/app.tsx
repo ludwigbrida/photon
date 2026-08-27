@@ -24,7 +24,7 @@ export const App = () => {
           // position: [256, 256, -256],
           // target: [0, 0, 0],
           // orthographicScale: 11,
-          position: [0, 0, -18],
+          position: [0, 0, -21],
           target: [0, 0, 0],
           // orthographicScale: 15,
           verticalFov: 60,
