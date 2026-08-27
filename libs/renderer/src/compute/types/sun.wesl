@@ -10,21 +10,21 @@ struct Sun {
    *
    * It must be normalized so surface-facing and lighting calculations remain consistent.
    */
-  sunDirection: vec3f,
+  direction: vec3f,
 
   /**
    * The brightness of the sun's direct illumination.
    *
    * It scales `sunColor` and must be non-negative.
    */
-  sunIntensity: f32,
+  intensity: f32,
 
   /**
    * The color of the sun's direct illumination.
    *
    * Its components represent radiance and may be greater than `1`.
    */
-  sunColor: vec3f,
+  color: vec3f,
 
   /**
    * The apparent radius of the sun disc in radians.
@@ -34,5 +34,5 @@ struct Sun {
    *
    * It must be non-negative.
    */
-  sunAngularRadius: f32,
+  angularRadius: f32,
 }
