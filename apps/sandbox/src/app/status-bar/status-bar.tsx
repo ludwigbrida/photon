@@ -1,3 +1,4 @@
+import { Progress } from "../../ui/progress/progress.tsx";
 import { formatElapsed } from "../format-elapsed.ts";
 
 type StatusBarProps = {
@@ -12,6 +13,9 @@ export const StatusBar = ({ elapsedMilliseconds, sampleCount, maxSamples }: Stat
       <span>
         Samples {sampleCount} / {maxSamples}
       </span>
+      <div className="w-40">
+        <Progress value={sampleCount} max={maxSamples} />
+      </div>
       <span>Elapsed {formatElapsed(elapsedMilliseconds)}</span>
     </footer>
   );
