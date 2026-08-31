@@ -22,10 +22,8 @@ export const RenderConfigPanel = ({
 }: RenderConfigPanelProps) => {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="text-[10px] font-medium uppercase tracking-wide text-text-muted">
-        Configuration
-      </h3>
-      <label className="flex items-center justify-between gap-3 text-xs">
+      <h3 className="font-medium uppercase tracking-wide text-text-muted">Configuration</h3>
+      <label className="flex items-center justify-between gap-3">
         <span className="text-text-muted">Max samples</span>
         <NumberInput value={maxSamples} disabled={!ready} onChange={onMaxSamplesChange} />
       </label>

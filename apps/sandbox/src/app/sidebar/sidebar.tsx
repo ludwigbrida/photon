@@ -21,7 +21,7 @@ export const Sidebar = ({
 }: SidebarProps) => {
   return (
     <aside className="flex w-56 shrink-0 flex-col gap-4 border-l border-border p-3">
-      <h2 className="text-xs font-semibold tracking-wide">Render</h2>
+      <h2 className="font-semibold tracking-wide">Render</h2>
       <RenderConfigPanel
         ready={ready}
         maxSamples={maxSamples}

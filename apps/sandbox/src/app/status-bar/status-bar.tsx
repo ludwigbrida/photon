@@ -9,7 +9,7 @@ type StatusBarProps = {
 
 export const StatusBar = ({ elapsedMilliseconds, sampleCount, maxSamples }: StatusBarProps) => {
   return (
-    <footer className="flex h-7 shrink-0 items-center gap-3 border-t border-border px-3 text-[11px] text-text-muted">
+    <footer className="flex h-7 shrink-0 items-center gap-3 border-t border-border px-3 text-text-muted">
       <span>
         Samples {sampleCount} / {maxSamples}
       </span>

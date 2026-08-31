@@ -13,7 +13,7 @@ export const Button = ({ variant = "secondary", ...props }: ButtonProps) => {
   return (
     <BaseButton
       className={classNames(
-        "inline-flex h-7 items-center justify-center border px-2 text-xs font-medium rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-40",
+        "inline-flex h-7 items-center justify-center border px-2 font-medium rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-40",
         {
           "border-accent text-accent hover:border-accent-hover hover:text-accent-hover":
             variant === "primary",

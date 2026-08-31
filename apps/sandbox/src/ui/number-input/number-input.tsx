@@ -17,7 +17,7 @@ export const NumberInput = ({ value, disabled, onChange }: NumberInputProps) => 
 
   return (
     <input
-      className="h-7 w-20 border border-border bg-transparent px-2 text-xs focus:outline-2 focus:outline-offset-2 focus:outline-focus disabled:opacity-40"
+      className="h-7 w-20 border border-border bg-transparent px-2 focus:outline-2 focus:outline-offset-2 focus:outline-focus disabled:opacity-40"
       type="number"
       min={1}
       step={1}
