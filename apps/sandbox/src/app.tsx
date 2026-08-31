@@ -1,7 +1,7 @@
 import { compile } from "@photon/compiler";
 import { createRenderer, type Renderer } from "@photon/renderer";
 import { useEffect, useRef } from "react";
-import { cornell } from "./cornell.ts";
+import { cornell, cornellCamera } from "./cornell.ts";
 
 export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -19,16 +19,7 @@ export const App = () => {
     void (async () => {
       const nextRenderer = await createRenderer({
         canvas,
-        camera: {
-          projection: "perspective",
-          // position: [256, 256, -256],
-          // target: [0, 0, 0],
-          // orthographicScale: 11,
-          position: [0, 0, -21],
-          target: [0, 0, 0],
-          // orthographicScale: 15,
-          verticalFov: 60,
-        },
+        camera: cornellCamera,
         environment: {
           sun: {
             azimuthDegrees: 35,

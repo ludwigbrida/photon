@@ -48,3 +48,10 @@ export const example = union(
     move([9, 1, 3]),
   ),
 );
+
+export const exampleCamera = {
+  projection: "orthographic",
+  position: [256.5, 256.5, -257.5],
+  target: [0.5, 0.5, 0.5],
+  orthographicScale: 12,
+} as const;

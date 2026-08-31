@@ -80,15 +80,7 @@ export const cornell = union(
     move([-3, 9, -3]),
   ),
 
-  // Interior blocks
-  pipe(
-    cube({
-      size: [5, 7, 5],
-      material: white,
-    }),
-    move([-7, -9, 1]),
-  ),
-
+  // Left block
   pipe(
     cube({
       size: [4, 4, 4],
@@ -96,4 +88,20 @@ export const cornell = union(
     }),
     move([3, -9, -3]),
   ),
+
+  // Right block
+  pipe(
+    cube({
+      size: [5, 7, 5],
+      material: white,
+    }),
+    move([-7, -9, 1]),
+  ),
 );
+
+export const cornellCamera = {
+  projection: "perspective",
+  position: [0, 0, -21],
+  target: [0, 0, 0],
+  verticalFov: 60,
+} as const;
