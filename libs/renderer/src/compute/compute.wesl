@@ -31,6 +31,7 @@ import package::compute::config::resources::{
   MATERIALS,
   EMITTERS,
 };
+import package::compute::sampling::random::{hash, sampleRandom};
 
 // -------------------------------------------------------------------------------------------------
 // Types
@@ -95,39 +96,6 @@ const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
  */
 fn rayAtDistance(ray: Ray, distance: f32) -> vec3f {
   return ray.origin + ray.direction * distance;
-}
-
-/**
- * Mixes a number into a deterministic pseudo-random value.
- */
-fn hash(value: u32) -> u32 {
-  var state = value;
-
-  state =(state ^ 61u) ^(state >> 16u);
-  state *= 9u;
-  state = state ^(state >> 4u);
-  state *= 0x27d4eb2du;
-  state = state ^(state >> 15u);
-
-  return state;
-}
-
-/**
- * Produces a pseudo-random value in [0.0, 1.0].
- *
- * `dimension` selects an independent random dimension for the same pixel and progressive sample.
- * Dimensions 0 and 1 are reserved for camera jitter. Diffuse path sampling will start at
- * dimension 2.
- */
-fn sampleRandom(pixel: vec2u, sampleIndex: u32, dimension: u32) -> f32 {
-  var seed = hash(pixel.x);
-  seed = hash(seed ^ pixel.y);
-  seed = hash(seed ^ sampleIndex);
-  seed = hash(seed ^ dimension);
-
-  // Keep the upper 24 random bits, which fit exactly in f32's mantissa.
-  // This guarantees a value below 1.0 even after integer-to-float conversion.
-  return f32(seed >> 8u) *(1.0 / 16777216.0);
 }
 
 /**
