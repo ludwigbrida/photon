@@ -10,12 +10,22 @@ export type RendererOptions = {
   readonly camera: Camera;
   readonly environment: Environment;
   readonly scene: Scene;
+  readonly onStatsChange?: (stats: RendererStats) => void;
+};
+
+export type RendererStats = {
+  readonly isRunning: boolean;
+  readonly sampleCount: number;
+  readonly elapsedMilliseconds: number;
+  readonly maxSamples: number;
 };
 
 export type Renderer = {
   start: () => void;
   stop: () => void;
 };
+
+const MAX_SAMPLES = 2048;
 
 export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
   const device = await createDevice();
@@ -39,15 +49,50 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   let sample = 0;
   let frameHandle: number | null = null;
 
-  const scheduleRender = () => {
-    frameHandle = requestAnimationFrame(() => {
-      frameHandle = null;
-      void render();
+  let elapsedMilliseconds = 0;
+  let startedAt: number | undefined;
+  let runId = 0;
+
+  const getElapsedMilliseconds = () =>
+    elapsedMilliseconds + (startedAt === undefined ? 0 : performance.now() - startedAt);
+
+  const reportStats = () => {
+    options.onStatsChange?.({
+      isRunning: running,
+      sampleCount: sample,
+      elapsedMilliseconds: getElapsedMilliseconds(),
+      maxSamples: MAX_SAMPLES,
     });
   };
 
-  const render = async () => {
-    if (!running || sample >= 2048) {
+  const scheduleRender = (scheduledRunId: number) => {
+    frameHandle = requestAnimationFrame(() => {
+      frameHandle = null;
+      void render(scheduledRunId);
+    });
+  };
+
+  const stop = () => {
+    if (!running) {
+      return;
+    }
+
+    elapsedMilliseconds = getElapsedMilliseconds();
+    startedAt = undefined;
+    running = false;
+
+    runId += 1;
+
+    if (frameHandle !== null) {
+      cancelAnimationFrame(frameHandle);
+      frameHandle = null;
+    }
+
+    reportStats();
+  };
+
+  const render = async (renderRunId: number) => {
+    if (!running || renderRunId !== runId || sample >= MAX_SAMPLES) {
       return;
     }
 
@@ -65,32 +110,36 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
     device.queue.submit([commandBuffer]);
 
+    // The submitted sample will contribute to the accumulation.
     sample += 1;
+    reportStats();
 
     await device.queue.onSubmittedWorkDone();
 
-    if (running) {
-      scheduleRender();
+    if (!running || renderRunId !== runId) {
+      return;
     }
+
+    if (sample >= MAX_SAMPLES) {
+      stop();
+      return;
+    }
+
+    scheduleRender(renderRunId);
   };
 
   const start = () => {
-    if (running) {
+    if (running || sample >= MAX_SAMPLES) {
       return;
     }
 
     running = true;
-    scheduleRender();
-  };
+    startedAt = performance.now();
 
-  const stop = () => {
-    running = false;
+    runId += 1;
 
-    if (frameHandle !== null) {
-      cancelAnimationFrame(frameHandle);
-      sample = 0;
-      frameHandle = null;
-    }
+    reportStats();
+    scheduleRender(runId);
   };
 
   return {
