@@ -1,0 +1,20 @@
+@theme inline {
+  --color-border: var(--photon-border);
+  --color-text-muted: var(--photon-text-muted);
+  --color-accent: var(--photon-accent);
+  --color-accent-hover: var(--photon-accent-hover);
+  --color-status: var(--photon-status);
+  --color-focus: var(--photon-focus);
+}
+
+:root {
+  color-scheme: dark;
+  --photon-canvas: oklch(0.181 0 0);
+  --photon-border: var(--color-zinc-700);
+  --photon-text: var(--color-zinc-200);
+  --photon-text-muted: var(--color-zinc-400);
+  --photon-accent: var(--color-blue-500);
+  --photon-accent-hover: var(--color-blue-400);
+  --photon-status: var(--color-emerald-400);
+  --photon-focus: var(--color-blue-400);
+}

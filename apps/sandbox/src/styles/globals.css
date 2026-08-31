@@ -1,0 +1,15 @@
+* {
+  user-select: none;
+}
+
+html,
+body,
+#main {
+  height: 100%;
+}
+
+body {
+  background: var(--photon-canvas);
+  color: var(--photon-text);
+  font-family: monospace;
+}

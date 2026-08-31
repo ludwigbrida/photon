@@ -1,10 +1,11 @@
 import { compile } from "@photon/compiler";
 import { createRenderer, type Renderer, type RendererStats } from "@photon/renderer";
 import { useEffect, useMemo, useRef, useState } from "react";
-import "./app.css";
-import { Canvas } from "./canvas.tsx";
-import { cornell, cornellCamera } from "./cornell.ts";
-import { Sidebar } from "./sidebar.tsx";
+import { cornell, cornellCamera } from "../cornell.ts";
+import { Sidebar } from "./sidebar/sidebar.tsx";
+import { StatusBar } from "./status-bar/status-bar.tsx";
+import { TopBar } from "./top-bar/top-bar.tsx";
+import { Viewport } from "./viewport/viewport.tsx";
 
 const INITIAL_STATS: RendererStats = {
   isRunning: false,
@@ -59,7 +60,6 @@ export const App = () => {
       createdRenderer = nextRenderer;
       rendererRef.current = nextRenderer;
       setReady(true);
-      nextRenderer.start();
     });
 
     return () => {
@@ -70,14 +70,22 @@ export const App = () => {
   }, [compiled]);
 
   return (
-    <div className="app">
-      <Canvas ref={canvasRef} />
-      <Sidebar
-        stats={stats}
-        ready={ready}
-        onStart={() => rendererRef.current?.start()}
-        onStop={() => rendererRef.current?.stop()}
+    <main className="flex h-full flex-col">
+      <TopBar isRendering={stats.isRunning} />
+      <div className="flex min-h-0 flex-1">
+        <Viewport ref={canvasRef} />
+        <Sidebar
+          stats={stats}
+          ready={ready}
+          onStart={() => rendererRef.current?.start()}
+          onStop={() => rendererRef.current?.stop()}
+        />
+      </div>
+      <StatusBar
+        elapsedMilliseconds={stats.elapsedMilliseconds}
+        sampleCount={stats.sampleCount}
+        maxSamples={stats.maxSamples}
       />
-    </div>
+    </main>
   );
 };
