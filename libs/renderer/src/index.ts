@@ -39,7 +39,14 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   let sample = 0;
   let frameHandle: number | null = null;
 
-  const render = () => {
+  const scheduleRender = () => {
+    frameHandle = requestAnimationFrame(() => {
+      frameHandle = null;
+      void render();
+    });
+  };
+
+  const render = async () => {
     if (!running) {
       return;
     }
@@ -59,7 +66,12 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     device.queue.submit([commandBuffer]);
 
     sample += 1;
-    frameHandle = requestAnimationFrame(render);
+
+    await device.queue.onSubmittedWorkDone();
+
+    if (running) {
+      scheduleRender();
+    }
   };
 
   const start = () => {
@@ -68,7 +80,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     }
 
     running = true;
-    frameHandle = requestAnimationFrame(render);
+    scheduleRender();
   };
 
   const stop = () => {
