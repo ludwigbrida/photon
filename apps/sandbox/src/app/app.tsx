@@ -1,5 +1,10 @@
 import { compile } from "@photon/compiler";
-import { createRenderer, type Renderer, type RendererStats } from "@photon/renderer";
+import {
+  createRenderer,
+  DEFAULT_MAX_SAMPLES,
+  type Renderer,
+  type RendererStats,
+} from "@photon/renderer";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cornell, cornellCamera } from "../cornell.ts";
 import { Sidebar } from "./sidebar/sidebar.tsx";
@@ -11,7 +16,7 @@ const INITIAL_STATS: RendererStats = {
   isRunning: false,
   sampleCount: 0,
   elapsedMilliseconds: 0,
-  maxSamples: 2048,
+  maxSamples: DEFAULT_MAX_SAMPLES,
 };
 
 export const App = () => {
@@ -50,6 +55,7 @@ export const App = () => {
         },
       },
       scene: compiled,
+      maxSamples: DEFAULT_MAX_SAMPLES,
       onStatsChange: setStats,
     }).then((nextRenderer) => {
       if (disposed) {
@@ -75,10 +81,13 @@ export const App = () => {
       <div className="flex min-h-0 flex-1">
         <Viewport ref={canvasRef} />
         <Sidebar
-          stats={stats}
           ready={ready}
+          maxSamples={stats.maxSamples}
+          isRendering={stats.isRunning}
+          isComplete={stats.sampleCount >= stats.maxSamples}
           onStart={() => rendererRef.current?.start()}
           onStop={() => rendererRef.current?.stop()}
+          onMaxSamplesChange={(maxSamples) => rendererRef.current?.setMaxSamples(maxSamples)}
         />
       </div>
       <StatusBar

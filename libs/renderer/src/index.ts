@@ -10,6 +10,7 @@ export type RendererOptions = {
   readonly camera: Camera;
   readonly environment: Environment;
   readonly scene: Scene;
+  readonly maxSamples: number;
   readonly onStatsChange?: (stats: RendererStats) => void;
 };
 
@@ -23,9 +24,10 @@ export type RendererStats = {
 export type Renderer = {
   start: () => void;
   stop: () => void;
+  setMaxSamples: (maxSamples: number) => void;
 };
 
-const MAX_SAMPLES = 2048;
+export const DEFAULT_MAX_SAMPLES = 2048;
 
 export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
   const device = await createDevice();
@@ -47,6 +49,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
   let running = false;
   let sample = 0;
+  let maxSamples = options.maxSamples;
   let frameHandle: number | null = null;
 
   let elapsedMilliseconds = 0;
@@ -61,7 +64,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       isRunning: running,
       sampleCount: sample,
       elapsedMilliseconds: getElapsedMilliseconds(),
-      maxSamples: MAX_SAMPLES,
+      maxSamples,
     });
   };
 
@@ -91,8 +94,23 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     reportStats();
   };
 
+  const setMaxSamples = (nextMaxSamples: number) => {
+    if (!Number.isInteger(nextMaxSamples) || nextMaxSamples < 1) {
+      return;
+    }
+
+    maxSamples = nextMaxSamples;
+
+    if (running && sample >= maxSamples) {
+      stop();
+      return;
+    }
+
+    reportStats();
+  };
+
   const render = async (renderRunId: number) => {
-    if (!running || renderRunId !== runId || sample >= MAX_SAMPLES) {
+    if (!running || renderRunId !== runId || sample >= maxSamples) {
       return;
     }
 
@@ -120,7 +138,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       return;
     }
 
-    if (sample >= MAX_SAMPLES) {
+    if (sample >= maxSamples) {
       stop();
       return;
     }
@@ -129,7 +147,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   };
 
   const start = () => {
-    if (running || sample >= MAX_SAMPLES) {
+    if (running || sample >= maxSamples) {
       return;
     }
 
@@ -145,5 +163,6 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   return {
     start,
     stop,
+    setMaxSamples,
   };
 };
