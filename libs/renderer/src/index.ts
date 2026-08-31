@@ -47,7 +47,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   };
 
   const render = async () => {
-    if (!running) {
+    if (!running || sample >= 2048) {
       return;
     }
 
