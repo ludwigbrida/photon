@@ -3,7 +3,9 @@ export const createDevice = async () => {
     throw new Error("Browser does not support WebGPU");
   }
 
-  const adapter = await navigator.gpu.requestAdapter();
+  const adapter = await navigator.gpu.requestAdapter({
+    powerPreference: "high-performance",
+  });
 
   if (!adapter) {
     throw new Error("Could not request adapter");
