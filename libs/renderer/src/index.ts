@@ -1,5 +1,4 @@
 import { createComputePass } from "./compute/compute.ts";
-import { createAccumulation } from "./helpers/accumulation.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
 import { Camera, Environment, Scene } from "./types.ts";
@@ -33,19 +32,34 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   const device = await createDevice();
   const context = createContext(options.canvas, device);
 
-  const [accumulationViewA, accumulationViewB] = createAccumulation(device, context);
+  const accumulationBuffer = device.createBuffer({
+    label: "accumulationBuffer",
+    size: context.canvas.width * context.canvas.height * 4 * Float32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.STORAGE,
+  });
+
+  const presentationTexture = device
+    .createTexture({
+      label: "presentationTexture",
+      size: [context.canvas.width, context.canvas.height],
+      format: "rgba8unorm",
+      usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING,
+    })
+    .createView({
+      label: "presentationTextureView",
+    });
 
   const computePass = createComputePass(
     device,
     context,
-    accumulationViewA,
-    accumulationViewB,
+    accumulationBuffer,
+    presentationTexture,
     options.camera,
     options.environment,
     options.scene,
   );
 
-  const visualizePass = createVisualizePass(device, context, accumulationViewA, accumulationViewB);
+  const visualizePass = createVisualizePass(device, context, presentationTexture);
 
   let running = false;
   let sample = 0;
@@ -120,7 +134,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
     computePass.run(commandEncoder, sample);
 
-    visualizePass.run(commandEncoder, sample);
+    visualizePass.run(commandEncoder);
 
     const commandBuffer = commandEncoder.finish({
       label: "commandBuffer",

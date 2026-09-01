@@ -3,53 +3,40 @@ import visualizeShader from "./visualize.wgsl?raw";
 export const createVisualizePass = (
   device: GPUDevice,
   context: GPUCanvasContext,
-  accumulationViewA: GPUTextureView,
-  accumulationViewB: GPUTextureView,
+  presentationTexture: GPUTextureView,
 ) => {
   const shaderModule = device.createShaderModule({
     label: "visualizeShaderModule",
     code: visualizeShader,
   });
 
-  const accumulationBindGroupLayout = device.createBindGroupLayout({
-    label: "visualizeAccumulationBindGroupLayout",
+  const presentationBindGroupLayout = device.createBindGroupLayout({
+    label: "visualizePresentationBindGroupLayout",
     entries: [
       {
         binding: 0,
         visibility: GPUShaderStage.FRAGMENT,
         texture: {
-          sampleType: "unfilterable-float",
+          sampleType: "float",
         },
       },
     ],
   });
 
-  const accumulationBindGroups = [
-    device.createBindGroup({
-      label: "visualizeAccumulationBindGroupA",
-      layout: accumulationBindGroupLayout,
-      entries: [
-        {
-          binding: 0,
-          resource: accumulationViewB,
-        },
-      ],
-    }),
-    device.createBindGroup({
-      label: "visualizeAccumulationBindGroupB",
-      layout: accumulationBindGroupLayout,
-      entries: [
-        {
-          binding: 0,
-          resource: accumulationViewA,
-        },
-      ],
-    }),
-  ] as const;
+  const presentationBindGroup = device.createBindGroup({
+    label: "visualizePresentationBindGroup",
+    layout: presentationBindGroupLayout,
+    entries: [
+      {
+        binding: 0,
+        resource: presentationTexture,
+      },
+    ],
+  });
 
   const pipelineLayout = device.createPipelineLayout({
     label: "visualizePipelineLayout",
-    bindGroupLayouts: [accumulationBindGroupLayout],
+    bindGroupLayouts: [presentationBindGroupLayout],
   });
 
   const pipeline = device.createRenderPipeline({
@@ -73,7 +60,7 @@ export const createVisualizePass = (
     },
   });
 
-  const run = (commandEncoder: GPUCommandEncoder, sample: number) => {
+  const run = (commandEncoder: GPUCommandEncoder) => {
     const canvasTextureView = context.getCurrentTexture().createView({
       label: "canvasTextureView",
     });
@@ -89,7 +76,7 @@ export const createVisualizePass = (
       ],
     });
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, accumulationBindGroups[sample % 2]);
+    passEncoder.setBindGroup(0, presentationBindGroup);
     passEncoder.draw(6);
     passEncoder.end();
   };

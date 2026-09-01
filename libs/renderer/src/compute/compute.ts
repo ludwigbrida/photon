@@ -10,8 +10,8 @@ import computeShader from "./compute.wesl?static";
 export const createComputePass = (
   device: GPUDevice,
   context: GPUCanvasContext,
-  accumulationViewA: GPUTextureView,
-  accumulationViewB: GPUTextureView,
+  accumulationBuffer: GPUBuffer,
+  presentationTexture: GPUTextureView,
   camera: Camera,
   environment: Environment,
   scene: Scene,
@@ -28,14 +28,14 @@ export const createComputePass = (
     code: computeShader,
   });
 
-  const accumulationBindGroupLayout = device.createBindGroupLayout({
-    label: "computeAccumulationBindGroupLayout",
+  const progressionBindGroupLayout = device.createBindGroupLayout({
+    label: "computeProgressionBindGroupLayout",
     entries: [
       {
         binding: 0,
         visibility: GPUShaderStage.COMPUTE,
-        texture: {
-          sampleType: "unfilterable-float",
+        buffer: {
+          type: "storage",
         },
       },
       {
@@ -43,7 +43,7 @@ export const createComputePass = (
         visibility: GPUShaderStage.COMPUTE,
         storageTexture: {
           access: "write-only",
-          format: "rgba32float",
+          format: "rgba8unorm",
           viewDimension: "2d",
         },
       },
@@ -63,44 +63,24 @@ export const createComputePass = (
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
-  const accumulationBindGroups = [
-    device.createBindGroup({
-      label: "computeAccumulationBindGroupA",
-      layout: accumulationBindGroupLayout,
-      entries: [
-        {
-          binding: 0,
-          resource: accumulationViewA,
-        },
-        {
-          binding: 1,
-          resource: accumulationViewB,
-        },
-        {
-          binding: 2,
-          resource: frameBuffer,
-        },
-      ],
-    }),
-    device.createBindGroup({
-      label: "computeAccumulationBindGroupB",
-      layout: accumulationBindGroupLayout,
-      entries: [
-        {
-          binding: 0,
-          resource: accumulationViewB,
-        },
-        {
-          binding: 1,
-          resource: accumulationViewA,
-        },
-        {
-          binding: 2,
-          resource: frameBuffer,
-        },
-      ],
-    }),
-  ] as const;
+  const progressionBindGroup = device.createBindGroup({
+    label: "computeProgressionBindGroup",
+    layout: progressionBindGroupLayout,
+    entries: [
+      {
+        binding: 0,
+        resource: accumulationBuffer,
+      },
+      {
+        binding: 1,
+        resource: presentationTexture,
+      },
+      {
+        binding: 2,
+        resource: frameBuffer,
+      },
+    ],
+  });
 
   const cameraBindGroupLayout = device.createBindGroupLayout({
     label: "computeCameraBindGroupLayout",
@@ -233,7 +213,7 @@ export const createComputePass = (
   const pipelineLayout = device.createPipelineLayout({
     label: "computePipelineLayout",
     bindGroupLayouts: [
-      accumulationBindGroupLayout,
+      progressionBindGroupLayout,
       cameraBindGroupLayout,
       environmentBindGroupLayout,
       sceneBindGroupLayout,
@@ -272,7 +252,7 @@ export const createComputePass = (
       label: "computePassEncoder",
     });
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, accumulationBindGroups[sample % 2]);
+    passEncoder.setBindGroup(0, progressionBindGroup);
     passEncoder.setBindGroup(1, cameraBindGroup);
     passEncoder.setBindGroup(2, environmentBindGroup);
     passEncoder.setBindGroup(3, sceneBindGroup);

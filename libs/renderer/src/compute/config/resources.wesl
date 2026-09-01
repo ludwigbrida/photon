@@ -5,20 +5,14 @@ import package::compute::types::frame::Frame;
 import package::compute::types::material::Material;
 
 /**
- * The accumulated radiance from the preceding sample.
- *
- * This texture is read when updating the running average.
- * It must have the same dimensions as `OUTPUT_TEXTURE`.
+ * The HDR running average that updates across samples.
  */
-@group(0) @binding(0) var INPUT_TEXTURE: texture_2d<f32>;
+@group(0) @binding(0) var<storage, read_write> ACCUMULATION: array<vec4f>;
 
 /**
- * The accumulated radiance after the current sample is added.
- *
- * The host alternates this texture with `INPUT_TEXTURE` between dispatches to progressively refine
- * the image.
+ * The presentational preview shown by the visualization pass.
  */
-@group(0) @binding(1) var OUTPUT_TEXTURE: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(1) var PRESENTATION: texture_storage_2d<rgba8unorm, write>;
 
 /**
  * The state that changes for each progressive rendering sample.

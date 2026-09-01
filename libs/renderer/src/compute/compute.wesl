@@ -22,8 +22,8 @@ import package::compute::config::constants::{
   TWO_PI,
 };
 import package::compute::config::resources::{
-  INPUT_TEXTURE,
-  OUTPUT_TEXTURE,
+  ACCUMULATION,
+  PRESENTATION,
   FRAME,
   CAMERA,
   ENVIRONMENT,
@@ -665,15 +665,26 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
 }
 
 fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
+  let pixelIndex = pixel.y * IMAGE_WIDTH + pixel.x;
+
   if FRAME.sampleIndex == 0u {
+    ACCUMULATION[pixelIndex] = currentSample;
     return currentSample;
   }
 
-   let previousAverage = textureLoad(INPUT_TEXTURE, vec2i(pixel), 0);
+   let previousAverage = ACCUMULATION[pixelIndex];
 
   let newSampleCount = f32(FRAME.sampleIndex) + 1;
 
-  return previousAverage +(currentSample - previousAverage) / newSampleCount;
+  let accumulatedRadiance = previousAverage +(currentSample - previousAverage) / newSampleCount;
+  ACCUMULATION[pixelIndex] = accumulatedRadiance;
+
+  return accumulatedRadiance;
+}
+
+fn toneMap(radiance: vec3f) -> vec3f {
+  let exposedRadiance = radiance * 2.0;
+  return exposedRadiance /(vec3f(1) + exposedRadiance);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -695,5 +706,7 @@ fn main(@builtin(global_invocation_id) pixel: vec3u) {
 
   let accumulatedRadiance = accumulateRadiance(pixel.xy, vec4f(radiance, 1));
 
-  textureStore(OUTPUT_TEXTURE, pixel.xy, accumulatedRadiance);
+  let toneMappedRadiance = vec4(toneMap(accumulatedRadiance.rgb), accumulatedRadiance.a);
+
+  textureStore(PRESENTATION, pixel.xy, toneMappedRadiance);
 }
