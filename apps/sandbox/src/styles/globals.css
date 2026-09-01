@@ -11,5 +11,6 @@ body,
 body {
   background: var(--photon-canvas);
   color: var(--photon-text);
-  font-family: monospace;
+  font-size: 13px;
+  font-family: "JetBrains Mono", monospace;
 }
