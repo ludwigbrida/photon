@@ -2,7 +2,6 @@ import { derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { RendererStats } from "@photon/renderer";
 import { Progress } from "../../ui/progress/progress.ts";
-import { formatElapsed } from "../format-elapsed.ts";
 
 type StatusBarProps = {
   readonly stats: Grain<RendererStats>;
@@ -11,7 +10,12 @@ type StatusBarProps = {
 export const StatusBar = ({ stats }: StatusBarProps) => {
   const sampleCount = derived(stats, ({ sampleCount: value }) => value);
   const maxSamples = derived(stats, ({ maxSamples: value }) => value);
-  const elapsed = derived(stats, ({ elapsedMilliseconds }) => formatElapsed(elapsedMilliseconds));
+  const elapsed = derived(stats, ({ elapsedMilliseconds }) =>
+    (elapsedMilliseconds / 1000).toFixed(1),
+  );
+  const samplesPerSecond = derived(stats, ({ sampleCount, elapsedMilliseconds }) =>
+    (sampleCount / Math.max(elapsedMilliseconds / 1000, 0.01)).toFixed(1),
+  );
 
   return html`
     <footer
@@ -19,7 +23,8 @@ export const StatusBar = ({ stats }: StatusBarProps) => {
     >
       <span>Samples ${sampleCount} / ${maxSamples}</span>
       <div class="w-40">${Progress({ value: sampleCount, max: maxSamples })}</div>
-      <span>Elapsed ${elapsed}</span>
+      <span>Samples/s ${samplesPerSecond}</span>
+      <span>Elapsed ${elapsed} s</span>
     </footer>
   `;
 };
