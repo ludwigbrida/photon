@@ -7,7 +7,7 @@ type ViewportProps = {
 
 export const Viewport = ({ canvasRef, onMount }: ViewportProps) => html`
   <canvas
-    class="block h-full min-w-0 flex-1 object-contain"
+    class="block h-full min-w-0 flex-1 object-contain [image-rendering:pixelated]"
     ${ref(canvasRef)}
     ${mounted(onMount)}
     width="640"
