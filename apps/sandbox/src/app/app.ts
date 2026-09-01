@@ -4,8 +4,10 @@ import { compile } from "@photon/compiler";
 import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
+  DEFAULT_RENDER_SCHEDULING,
   type Renderer,
   type RendererStats,
+  type RenderScheduling,
 } from "@photon/renderer";
 import { cornell, cornellCamera } from "../cornell.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
@@ -18,6 +20,7 @@ const INITIAL_STATS: RendererStats = {
   sampleCount: 0,
   elapsedMilliseconds: 0,
   maxSamples: DEFAULT_MAX_SAMPLES,
+  scheduling: DEFAULT_RENDER_SCHEDULING,
 };
 
 export const App = () => {
@@ -27,6 +30,7 @@ export const App = () => {
   const stats = grain<RendererStats>(INITIAL_STATS);
   const isRendering = derived(stats, ({ isRunning }) => isRunning);
   const maxSamples = derived(stats, ({ maxSamples: value }) => value);
+  const scheduling = derived(stats, ({ scheduling: value }) => value);
   const isComplete = derived(stats, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
 
@@ -58,6 +62,7 @@ export const App = () => {
       },
       scene: compiled,
       maxSamples: DEFAULT_MAX_SAMPLES,
+      scheduling: DEFAULT_RENDER_SCHEDULING,
       onStatsChange: stats.set,
     }).then((nextRenderer) => {
       if (disposed) {
@@ -84,11 +89,13 @@ export const App = () => {
         ${Sidebar({
           ready,
           maxSamples,
+          scheduling,
           isRendering,
           isComplete,
           onStart: () => renderer.current?.start(),
           onStop: () => renderer.current?.stop(),
           onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
+          onSchedulingChange: (value: RenderScheduling) => renderer.current?.setScheduling(value),
         })}
       </div>
       ${StatusBar({ stats })}

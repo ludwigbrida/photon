@@ -691,8 +691,14 @@ fn toneMap(radiance: vec3f) -> vec3f {
 // Main
 // -------------------------------------------------------------------------------------------------
 @compute @workgroup_size(WORKGROUP_SIZE, WORKGROUP_SIZE)
-fn main(@builtin(global_invocation_id) pixel: vec3u) {
-  let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
+fn main(@builtin(global_invocation_id) invocation: vec3u) {
+  let pixel = vec2u(invocation.x * FRAME.bucketGridSize + FRAME.bucketX, invocation.y * FRAME.bucketGridSize + FRAME.bucketY);
+
+  if pixel.x >= IMAGE_WIDTH || pixel.y >= IMAGE_HEIGHT {
+    return;
+  }
+
+   let resolution = vec2(IMAGE_WIDTH, IMAGE_HEIGHT);
   // The offset traces the ray through a different random point inside the pixel for each sample.
   // The HRD accumulator then averages those samples (Monte-Carlo supersampling).
   // This results in progressive stochastic anti-aliasing.

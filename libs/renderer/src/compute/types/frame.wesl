@@ -13,4 +13,18 @@ struct Frame {
    * random sampling varies and the running average remains correct.
    */
   sampleIndex: u32,
+
+  /**
+   * Coordinates of the interleaved bucket rendered by this dispatch.
+   */
+  bucketX: u32,
+
+  bucketY: u32,
+
+  /**
+   * The number of interleaved buckets along each image axis.
+   *
+   * A value of 1 renders the complete image in one dispatch.
+   */
+  bucketGridSize: u32,
 }

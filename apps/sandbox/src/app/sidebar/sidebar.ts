@@ -1,15 +1,18 @@
 import type { Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
+import type { RenderScheduling } from "@photon/renderer";
 import { RenderConfigPanel } from "./panels/render-config/render-config-panel.ts";
 
 type SidebarProps = {
   readonly ready: Grain<boolean>;
   readonly maxSamples: Grain<number>;
+  readonly scheduling: Grain<RenderScheduling>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
+  readonly onSchedulingChange: (scheduling: RenderScheduling) => void;
 };
 
 export const Sidebar = (props: SidebarProps) => html`

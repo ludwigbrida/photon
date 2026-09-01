@@ -1,6 +1,13 @@
 import { createComputePass } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
+import {
+  areRenderSchedulingsEqual,
+  DEFAULT_RENDER_SCHEDULING,
+  getBucket,
+  getBucketCount,
+  type RenderScheduling,
+} from "./scheduling.ts";
 import { Camera, Environment, Scene } from "./types.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
@@ -10,6 +17,7 @@ export type RendererOptions = {
   readonly environment: Environment;
   readonly scene: Scene;
   readonly maxSamples: number;
+  readonly scheduling?: RenderScheduling;
   readonly onStatsChange?: (stats: RendererStats) => void;
 };
 
@@ -18,15 +26,18 @@ export type RendererStats = {
   readonly sampleCount: number;
   readonly elapsedMilliseconds: number;
   readonly maxSamples: number;
+  readonly scheduling: RenderScheduling;
 };
 
 export type Renderer = {
   start: () => void;
   stop: () => void;
   setMaxSamples: (maxSamples: number) => void;
+  setScheduling: (scheduling: RenderScheduling) => void;
 };
 
-export const DEFAULT_MAX_SAMPLES = 2048;
+export const DEFAULT_MAX_SAMPLES = 256;
+export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
 
 export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
   const device = await createDevice();
@@ -63,7 +74,9 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
   let running = false;
   let sample = 0;
+  let bucketIndex = 0;
   let maxSamples = options.maxSamples;
+  let scheduling = options.scheduling ?? DEFAULT_RENDER_SCHEDULING;
   let frameHandle: number | null = null;
 
   let elapsedMilliseconds = 0;
@@ -79,6 +92,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       sampleCount: sample,
       elapsedMilliseconds: getElapsedMilliseconds(),
       maxSamples,
+      scheduling,
     });
   };
 
@@ -123,6 +137,37 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     reportStats();
   };
 
+  const reset = () => {
+    sample = 0;
+    bucketIndex = 0;
+    elapsedMilliseconds = 0;
+    startedAt = undefined;
+  };
+
+  const setScheduling = (nextScheduling: RenderScheduling) => {
+    if (
+      !Number.isInteger(nextScheduling.bucketGridSize) ||
+      nextScheduling.bucketGridSize < 1 ||
+      areRenderSchedulingsEqual(scheduling, nextScheduling)
+    ) {
+      return;
+    }
+
+    const resume = running;
+
+    if (resume) {
+      stop();
+    }
+
+    scheduling = nextScheduling;
+    reset();
+    reportStats();
+
+    if (resume) {
+      start();
+    }
+  };
+
   const render = async (renderRunId: number) => {
     if (!running || renderRunId !== runId || sample >= maxSamples) {
       return;
@@ -132,7 +177,13 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       label: "commandEncoder",
     });
 
-    computePass.run(commandEncoder, sample);
+    const bucket = getBucket(scheduling, bucketIndex);
+    computePass.run(commandEncoder, {
+      sampleIndex: sample,
+      bucketX: bucket.x,
+      bucketY: bucket.y,
+      bucketGridSize: bucket.gridSize,
+    });
 
     visualizePass.run(commandEncoder);
 
@@ -142,9 +193,13 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
     device.queue.submit([commandBuffer]);
 
-    // The submitted sample will contribute to the accumulation.
-    sample += 1;
-    reportStats();
+    bucketIndex += 1;
+
+    if (bucketIndex === getBucketCount(scheduling)) {
+      sample += 1;
+      bucketIndex = 0;
+      reportStats();
+    }
 
     await device.queue.onSubmittedWorkDone();
 
@@ -178,5 +233,6 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     start,
     stop,
     setMaxSamples,
+    setScheduling,
   };
 };

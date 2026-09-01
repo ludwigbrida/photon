@@ -7,6 +7,13 @@ import {
 } from "../types.ts";
 import computeShader from "./compute.wesl?static";
 
+type ComputeFrame = {
+  readonly sampleIndex: number;
+  readonly bucketX: number;
+  readonly bucketY: number;
+  readonly bucketGridSize: number;
+};
+
 export const createComputePass = (
   device: GPUDevice,
   context: GPUCanvasContext,
@@ -59,7 +66,7 @@ export const createComputePass = (
 
   const frameBuffer = device.createBuffer({
     label: "computeFrameBuffer",
-    size: Uint32Array.BYTES_PER_ELEMENT,
+    size: Uint32Array.BYTES_PER_ELEMENT * 4,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -245,8 +252,12 @@ export const createComputePass = (
     device.queue.writeBuffer(emitterBuffer, 0, scene.emitters);
   }
 
-  const run = (commandEncoder: GPUCommandEncoder, sample: number) => {
-    device.queue.writeBuffer(frameBuffer, 0, new Uint32Array([sample]));
+  const run = (commandEncoder: GPUCommandEncoder, frame: ComputeFrame) => {
+    device.queue.writeBuffer(
+      frameBuffer,
+      0,
+      new Uint32Array([frame.sampleIndex, frame.bucketX, frame.bucketY, frame.bucketGridSize]),
+    );
 
     const passEncoder = commandEncoder.beginComputePass({
       label: "computePassEncoder",
@@ -256,7 +267,12 @@ export const createComputePass = (
     passEncoder.setBindGroup(1, cameraBindGroup);
     passEncoder.setBindGroup(2, environmentBindGroup);
     passEncoder.setBindGroup(3, sceneBindGroup);
-    passEncoder.dispatchWorkgroups(imageWidth / workgroupSize, imageHeight / workgroupSize);
+    const bucketWidth = Math.ceil(imageWidth / frame.bucketGridSize);
+    const bucketHeight = Math.ceil(imageHeight / frame.bucketGridSize);
+    passEncoder.dispatchWorkgroups(
+      Math.ceil(bucketWidth / workgroupSize),
+      Math.ceil(bucketHeight / workgroupSize),
+    );
     passEncoder.end();
   };
 
