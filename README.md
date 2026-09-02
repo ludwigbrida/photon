@@ -69,6 +69,8 @@ define rules, compose them, and let the scene emerge from code.
   - _Emission_ — Glowing surfaces can emit radiance
 - ☀️ **Sun and gradient-sky** environment lighting, including hard or soft shadows
 - 📷 **Perspective and orthographic** cameras
+- ⚙️ **Adaptive, GPU-budget-aware scheduling** with tiled rendering
+- 📊 **Live rendering telemetry** for progress, timing and scheduling state
 
 ## License
 
