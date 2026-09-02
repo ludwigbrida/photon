@@ -1,6 +1,7 @@
 import type { Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { RenderScheduling } from "@photon/renderer";
+import { RendererConfig } from "@photon/renderer";
 import { RenderConfigPanel } from "./panels/render-config/render-config-panel.ts";
 
 type SidebarProps = {
@@ -13,6 +14,7 @@ type SidebarProps = {
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
+  readonly configure: (config: Partial<RendererConfig>) => void;
 };
 
 export const Sidebar = (props: SidebarProps) => html`

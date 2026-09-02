@@ -1,6 +1,6 @@
 import { combined, derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
-import type { RenderScheduling } from "@photon/renderer";
+import type { RendererConfig, RenderScheduling } from "@photon/renderer";
 import { Button } from "../../../../ui/button/button.ts";
 import { NumberInput } from "../../../../ui/number-input/number-input.ts";
 
@@ -14,6 +14,7 @@ export type RenderConfigPanelProps = {
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
+  readonly configure: (config: Partial<RendererConfig>) => void;
 };
 
 export const RenderConfigPanel = ({
@@ -26,6 +27,7 @@ export const RenderConfigPanel = ({
   onStop,
   onMaxSamplesChange,
   onGpuBudgetChange,
+  configure,
 }: RenderConfigPanelProps) => {
   const startDisabled = derived(
     combined([ready, isRendering, isComplete]),
@@ -51,6 +53,19 @@ export const RenderConfigPanel = ({
       <div class="flex gap-2">
         ${Button({ variant: "primary", onClick: onStart, disabled: startDisabled, children: "Start" })}
         ${Button({ onClick: onStop, disabled: derived(isRendering, (value) => !value), children: "Stop" })}
+        ${Button({
+          onClick: () =>
+            configure({
+              camera: {
+                projection: "perspective",
+                position: [0, 0, -41],
+                target: [0, 0, 0],
+                verticalFov: 60,
+              },
+            }),
+          disabled: derived(ready, (value) => !value),
+          children: "Cam",
+        })}
       </div>
     </section>
   `;

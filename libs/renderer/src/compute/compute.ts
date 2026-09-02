@@ -252,6 +252,11 @@ export const createComputePass = (
     device.queue.writeBuffer(emitterBuffer, 0, scene.emitters);
   }
 
+  const updateCamera = (camera: Camera) => {
+    const uniform = createCameraUniform(camera);
+    device.queue.writeBuffer(cameraBuffer, 0, uniform);
+  };
+
   const run = (commandEncoder: GPUCommandEncoder, frame: ComputeFrame) => {
     device.queue.writeBuffer(
       frameBuffer,
@@ -278,5 +283,6 @@ export const createComputePass = (
 
   return {
     run,
+    updateCamera,
   };
 };

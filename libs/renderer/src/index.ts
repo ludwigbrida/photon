@@ -9,7 +9,13 @@ import {
   type RenderScheduling,
 } from "./scheduling.ts";
 import { Camera, Environment, Scene } from "./types.ts";
+import type { RendererConfig } from "./types/config.ts";
+import { RendererHandle } from "./types/handle.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
+
+export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
+export type { RendererConfig } from "./types/config.ts";
+export type { RendererHandle } from "./types/handle.ts";
 
 export type RendererOptions = {
   readonly canvas: HTMLCanvasElement;
@@ -41,9 +47,10 @@ export const DEFAULT_MAX_SAMPLES = 256;
 const TARGET_TILE_TIME = 4;
 const MIN_BUCKET_GRID_SIZE = 4;
 const MAX_BUCKET_GRID_SIZE = 64;
-export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
 
-export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
+export const createRenderer = async (
+  options: RendererOptions,
+): Promise<Renderer & RendererHandle> => {
   const device = await createDevice();
   const context = createContext(options.canvas, device);
 
@@ -307,11 +314,22 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     schedulePresent(runId);
   };
 
+  const configure = (config: Partial<RendererConfig>) => {
+    if (config.camera) {
+      computePass.updateCamera(config.camera);
+    }
+
+    if (config.camera) {
+      reset();
+    }
+  };
+
   return {
     start,
     stop,
     setMaxSamples,
     setScheduling,
     setGpuBudget,
+    configure,
   };
 };

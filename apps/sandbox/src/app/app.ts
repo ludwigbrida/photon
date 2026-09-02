@@ -5,6 +5,7 @@ import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
   DEFAULT_RENDER_SCHEDULING,
+  RendererHandle,
   type Renderer,
   type RendererStats,
 } from "@photon/renderer";
@@ -24,7 +25,7 @@ const INITIAL_STATS: RendererStats = {
 
 export const App = () => {
   const canvasRef = createRef<HTMLCanvasElement>();
-  const renderer = { current: null as Renderer | null };
+  const renderer = { current: null as (Renderer & RendererHandle) | null };
   const ready = grain(false);
   const stats = grain<RendererStats>(INITIAL_STATS);
   const isRendering = derived(stats, ({ isRunning }) => isRunning);
@@ -95,6 +96,7 @@ export const App = () => {
           onStop: () => renderer.current?.stop(),
           onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
           onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
+          configure: (value) => renderer.current?.configure(value),
         })}
       </div>
       ${StatusBar({ stats })}
