@@ -1,4 +1,5 @@
 import { cube, material, move, pipe, union } from "@photon/author";
+import { Projection } from "@photon/renderer";
 
 const white = material({
   color: [0.8, 0.8, 0.8],
@@ -100,7 +101,7 @@ export const cornell = union(
 );
 
 export const cornellCamera = {
-  projection: "perspective",
+  projection: Projection.Perspective,
   position: [0, 0, -21],
   target: [0, 0, 0],
   verticalFov: 60,

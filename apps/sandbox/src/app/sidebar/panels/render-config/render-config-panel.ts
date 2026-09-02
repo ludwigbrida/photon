@@ -1,6 +1,6 @@
 import { combined, derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
-import type { RendererConfig, RenderScheduling } from "@photon/renderer";
+import { Projection, type RendererConfig, type RenderScheduling } from "@photon/renderer";
 import { Button } from "../../../../ui/button/button.ts";
 import { NumberInput } from "../../../../ui/number-input/number-input.ts";
 
@@ -57,7 +57,7 @@ export const RenderConfigPanel = ({
           onClick: () =>
             configure({
               camera: {
-                projection: "perspective",
+                projection: Projection.Perspective,
                 position: [0, 0, -41],
                 target: [0, 0, 0],
                 verticalFov: 60,

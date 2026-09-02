@@ -1,10 +1,6 @@
-import {
-  Camera,
-  createCameraUniform,
-  createEnvironmentUniform,
-  Environment,
-  Scene,
-} from "../types.ts";
+import type { Camera } from "../camera/types.ts";
+import { createCameraUniform } from "../camera/uniform.ts";
+import { createEnvironmentUniform, Environment, Scene } from "../types.ts";
 import computeShader from "./compute.wesl?static";
 
 type ComputeFrame = {

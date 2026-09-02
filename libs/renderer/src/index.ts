@@ -1,3 +1,4 @@
+import type { Camera } from "./camera/types.ts";
 import { createComputePass } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
@@ -8,11 +9,12 @@ import {
   getBucketCount,
   type RenderScheduling,
 } from "./scheduling.ts";
-import { Camera, Environment, Scene } from "./types.ts";
+import { Environment, Scene } from "./types.ts";
 import type { RendererConfig } from "./types/config.ts";
 import { RendererHandle } from "./types/handle.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
+export { Projection } from "./camera/types.ts";
 export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
 export type { RendererConfig } from "./types/config.ts";
 export type { RendererHandle } from "./types/handle.ts";
