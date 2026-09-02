@@ -1,4 +1,4 @@
-import { Vector3 } from "@photon/core";
+import type { Vector3 } from "@photon/core";
 
 type WgslValue = {
   readonly alignment: number;
