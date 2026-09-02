@@ -34,9 +34,13 @@ export type Renderer = {
   stop: () => void;
   setMaxSamples: (maxSamples: number) => void;
   setScheduling: (scheduling: RenderScheduling) => void;
+  setGpuBudget: (gpuBudget: number) => void;
 };
 
 export const DEFAULT_MAX_SAMPLES = 256;
+const TARGET_TILE_TIME = 4;
+const MIN_BUCKET_GRID_SIZE = 4;
+const MAX_BUCKET_GRID_SIZE = 64;
 export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
 
 export const createRenderer = async (options: RendererOptions): Promise<Renderer> => {
@@ -77,7 +81,9 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   let bucketIndex = 0;
   let maxSamples = options.maxSamples;
   let scheduling = options.scheduling ?? DEFAULT_RENDER_SCHEDULING;
-  let frameHandle: number | null = null;
+  let computeHandle: number | null = null;
+  let presentHandle: number | null = null;
+  let computeInFlight = false;
 
   let elapsedMilliseconds = 0;
   let startedAt: number | undefined;
@@ -96,11 +102,42 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     });
   };
 
-  const scheduleRender = (scheduledRunId: number) => {
-    frameHandle = requestAnimationFrame(() => {
-      frameHandle = null;
-      void render(scheduledRunId);
+  const schedulePresent = (scheduledRunId: number) => {
+    if (presentHandle !== null) {
+      return;
+    }
+
+    presentHandle = requestAnimationFrame(() => {
+      presentHandle = null;
+
+      if (!running || scheduledRunId !== runId) {
+        return;
+      }
+
+      const commandEncoder = device.createCommandEncoder({ label: "presentCommandEncoder" });
+      visualizePass.run(commandEncoder);
+      device.queue.submit([commandEncoder.finish({ label: "presentCommandBuffer" })]);
+
+      schedulePresent(scheduledRunId);
     });
+  };
+
+  const scheduleCompute = (scheduledRunId: number, delayMilliseconds = 0) => {
+    computeHandle = window.setTimeout(() => {
+      computeHandle = null;
+      void compute(scheduledRunId);
+    }, delayMilliseconds);
+  };
+
+  const waitForSubmittedWork = () => {
+    const queue = device.queue as GPUQueue & {
+      onSubmittedWorkDone?: () => Promise<undefined>;
+    };
+
+    return (
+      queue.onSubmittedWorkDone?.() ??
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    );
   };
 
   const stop = () => {
@@ -114,9 +151,14 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
 
     runId += 1;
 
-    if (frameHandle !== null) {
-      cancelAnimationFrame(frameHandle);
-      frameHandle = null;
+    if (computeHandle !== null) {
+      clearTimeout(computeHandle);
+      computeHandle = null;
+    }
+
+    if (presentHandle !== null) {
+      cancelAnimationFrame(presentHandle);
+      presentHandle = null;
     }
 
     reportStats();
@@ -147,7 +189,11 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   const setScheduling = (nextScheduling: RenderScheduling) => {
     if (
       !Number.isInteger(nextScheduling.bucketGridSize) ||
-      nextScheduling.bucketGridSize < 1 ||
+      nextScheduling.bucketGridSize < MIN_BUCKET_GRID_SIZE ||
+      nextScheduling.bucketGridSize > MAX_BUCKET_GRID_SIZE ||
+      !Number.isFinite(nextScheduling.gpuBudget) ||
+      nextScheduling.gpuBudget < 0.1 ||
+      nextScheduling.gpuBudget > 1 ||
       areRenderSchedulingsEqual(scheduling, nextScheduling)
     ) {
       return;
@@ -168,14 +214,26 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     }
   };
 
-  const render = async (renderRunId: number) => {
-    if (!running || renderRunId !== runId || sample >= maxSamples) {
+  const setGpuBudget = (gpuBudget: number) => {
+    if (
+      !Number.isFinite(gpuBudget) ||
+      gpuBudget < 0.1 ||
+      gpuBudget > 1 ||
+      gpuBudget === scheduling.gpuBudget
+    ) {
       return;
     }
 
-    const commandEncoder = device.createCommandEncoder({
-      label: "commandEncoder",
-    });
+    scheduling = { ...scheduling, gpuBudget };
+    reportStats();
+  };
+
+  const compute = async (renderRunId: number) => {
+    if (!running || renderRunId !== runId || sample >= maxSamples || computeInFlight) {
+      return;
+    }
+
+    const commandEncoder = device.createCommandEncoder({ label: "computeCommandEncoder" });
 
     const bucket = getBucket(scheduling, bucketIndex);
     computePass.run(commandEncoder, {
@@ -185,25 +243,26 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       bucketGridSize: bucket.gridSize,
     });
 
-    visualizePass.run(commandEncoder);
-
-    const commandBuffer = commandEncoder.finish({
-      label: "commandBuffer",
-    });
-
-    device.queue.submit([commandBuffer]);
+    const startedAt = performance.now();
+    computeInFlight = true;
+    device.queue.submit([commandEncoder.finish({ label: "computeCommandBuffer" })]);
 
     bucketIndex += 1;
 
-    if (bucketIndex === getBucketCount(scheduling)) {
+    const completedSample = bucketIndex === getBucketCount(scheduling);
+    if (completedSample) {
       sample += 1;
       bucketIndex = 0;
       reportStats();
     }
 
-    await device.queue.onSubmittedWorkDone();
+    await waitForSubmittedWork();
+    computeInFlight = false;
 
     if (!running || renderRunId !== runId) {
+      if (running) {
+        scheduleCompute(runId);
+      }
       return;
     }
 
@@ -212,7 +271,25 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       return;
     }
 
-    scheduleRender(renderRunId);
+    const elapsed = performance.now() - startedAt;
+    if (completedSample || sample === 0) {
+      const bucketGridSize =
+        elapsed < TARGET_TILE_TIME / 2
+          ? Math.max(MIN_BUCKET_GRID_SIZE, Math.floor(scheduling.bucketGridSize / 2))
+          : elapsed > TARGET_TILE_TIME * 2
+            ? Math.min(MAX_BUCKET_GRID_SIZE, scheduling.bucketGridSize * 2)
+            : scheduling.bucketGridSize;
+      if (bucketGridSize !== scheduling.bucketGridSize) {
+        scheduling = { ...scheduling, bucketGridSize };
+        if (!completedSample && sample === 0) {
+          bucketIndex = 0;
+        }
+        reportStats();
+      }
+    }
+
+    const cooldown = elapsed * ((1 - scheduling.gpuBudget) / scheduling.gpuBudget);
+    scheduleCompute(renderRunId, cooldown);
   };
 
   const start = () => {
@@ -226,7 +303,8 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     runId += 1;
 
     reportStats();
-    scheduleRender(runId);
+    scheduleCompute(runId);
+    schedulePresent(runId);
   };
 
   return {
@@ -234,5 +312,6 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     stop,
     setMaxSamples,
     setScheduling,
+    setGpuBudget,
   };
 };

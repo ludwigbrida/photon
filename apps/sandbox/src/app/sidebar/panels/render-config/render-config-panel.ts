@@ -13,7 +13,7 @@ export type RenderConfigPanelProps = {
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
-  readonly onSchedulingChange: (scheduling: RenderScheduling) => void;
+  readonly onGpuBudgetChange: (gpuBudget: number) => void;
 };
 
 export const RenderConfigPanel = ({
@@ -25,13 +25,13 @@ export const RenderConfigPanel = ({
   onStart,
   onStop,
   onMaxSamplesChange,
-  onSchedulingChange,
+  onGpuBudgetChange,
 }: RenderConfigPanelProps) => {
   const startDisabled = derived(
     combined([ready, isRendering, isComplete]),
     ([isReady, rendering, complete]) => !isReady || rendering || complete,
   );
-  const batchSize = derived(scheduling, ({ bucketGridSize }) => bucketGridSize);
+  const gpuBudget = derived(scheduling, ({ gpuBudget }) => Math.round(gpuBudget * 100));
 
   return html`
     <section class="flex flex-col gap-3">
@@ -41,11 +41,11 @@ export const RenderConfigPanel = ({
         ${NumberInput({ value: maxSamples, disabled: derived(ready, (value) => !value), onChange: onMaxSamplesChange })}
       </label>
       <label class="flex items-center justify-between gap-3">
-        <span class="text-text-muted">Batch size</span>
+        <span class="text-text-muted">GPU budget</span>
         ${NumberInput({
-          value: batchSize,
+          value: gpuBudget,
           disabled: derived(ready, (value) => !value),
-          onChange: (bucketGridSize) => onSchedulingChange({ bucketGridSize }),
+          onChange: (gpuBudget) => onGpuBudgetChange(gpuBudget / 100),
         })}
       </label>
       <div class="flex gap-2">

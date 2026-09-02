@@ -1,5 +1,6 @@
 export type RenderScheduling = {
   readonly bucketGridSize: number;
+  readonly gpuBudget: number;
 };
 
 export type RenderBucket = {
@@ -9,7 +10,8 @@ export type RenderBucket = {
 };
 
 export const DEFAULT_RENDER_SCHEDULING: RenderScheduling = {
-  bucketGridSize: 4,
+  bucketGridSize: 16,
+  gpuBudget: 0.75,
 };
 
 export const getBucketCount = ({ bucketGridSize }: RenderScheduling) => bucketGridSize ** 2;
@@ -23,4 +25,4 @@ export const getBucket = (scheduling: RenderScheduling, index: number): RenderBu
 };
 
 export const areRenderSchedulingsEqual = (left: RenderScheduling, right: RenderScheduling) =>
-  left.bucketGridSize === right.bucketGridSize;
+  left.bucketGridSize === right.bucketGridSize && left.gpuBudget === right.gpuBudget;

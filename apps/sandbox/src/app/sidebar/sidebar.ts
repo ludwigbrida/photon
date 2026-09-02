@@ -12,7 +12,7 @@ type SidebarProps = {
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
-  readonly onSchedulingChange: (scheduling: RenderScheduling) => void;
+  readonly onGpuBudgetChange: (gpuBudget: number) => void;
 };
 
 export const Sidebar = (props: SidebarProps) => html`

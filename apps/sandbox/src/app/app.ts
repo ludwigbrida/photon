@@ -7,7 +7,6 @@ import {
   DEFAULT_RENDER_SCHEDULING,
   type Renderer,
   type RendererStats,
-  type RenderScheduling,
 } from "@photon/renderer";
 import { cornell, cornellCamera } from "../cornell.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
@@ -95,7 +94,7 @@ export const App = () => {
           onStart: () => renderer.current?.start(),
           onStop: () => renderer.current?.stop(),
           onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
-          onSchedulingChange: (value: RenderScheduling) => renderer.current?.setScheduling(value),
+          onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
         })}
       </div>
       ${StatusBar({ stats })}

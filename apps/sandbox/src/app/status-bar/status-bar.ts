@@ -16,6 +16,10 @@ export const StatusBar = ({ stats }: StatusBarProps) => {
   const samplesPerSecond = derived(stats, ({ sampleCount, elapsedMilliseconds }) =>
     (sampleCount / Math.max(elapsedMilliseconds / 1000, 0.01)).toFixed(1),
   );
+  const tileGrid = derived(
+    stats,
+    ({ scheduling: { bucketGridSize } }) => `${bucketGridSize}×${bucketGridSize}`,
+  );
 
   return html`
     <footer
@@ -24,6 +28,7 @@ export const StatusBar = ({ stats }: StatusBarProps) => {
       <span>Samples ${sampleCount} / ${maxSamples}</span>
       <div class="w-40">${Progress({ value: sampleCount, max: maxSamples })}</div>
       <span>Samples/s ${samplesPerSecond}</span>
+      <span>Tile grid ${tileGrid}</span>
       <span>Elapsed ${elapsed} s</span>
     </footer>
   `;
