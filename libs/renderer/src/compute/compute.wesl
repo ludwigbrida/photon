@@ -88,6 +88,8 @@ const RAY_INVALID = Ray();
 
 const HIT_MISS = Hit(false, 0, vec3f(0), 0u);
 
+const RAY_MAX_DISTANCE = 3.402823e38;
+
 // -------------------------------------------------------------------------------------------------
 // Functions (split into domains)
 // -------------------------------------------------------------------------------------------------
@@ -355,13 +357,13 @@ fn traceRay(ray: Ray) -> Hit {
    return HIT_MISS;
 }
 
-fn traceAny(ray: Ray) -> bool {
+fn traceAny(ray: Ray, maxDistance: f32) -> bool {
   let halfExtent = f32(1u <<(OCTREE_DEPTH - 1u));
   let rootMin = vec3f(- halfExtent);
   let rootMax = vec3f(halfExtent);
   let rootHit = intersectAabb(ray, rootMin, rootMax);
 
-  if!rootHit.found {
+  if!rootHit.found || rootHit.distance >= maxDistance {
     return false;
   }
 
@@ -405,6 +407,10 @@ fn traceAny(ray: Ray) -> bool {
         continue;
       }
 
+       if childHit.distance >= maxDistance {
+        continue;
+      }
+
        if stackSize >= 128u {
         // An overflow here means traversal cannot prove that the light is visible.
         // Treat it as occluded to avoid a potentially incorrect light leak.
@@ -426,7 +432,7 @@ fn isSunOccluded(surfacePosition: vec3f, surfaceNormal: vec3f, sunDirection: vec
 
   let shadowRay = Ray(shadowOrigin, sunDirection);
 
-  return traceAny(shadowRay);
+  return traceAny(shadowRay, RAY_MAX_DISTANCE);
 }
 
 // finite distance shadow testing
@@ -440,10 +446,8 @@ fn isPointOccluded(origin: vec3f, lightTarget: vec3f) -> bool {
 
    let distance = sqrt(distanceSquared);
   let direction = toTarget / distance;
-  let hit = traceRay(Ray(origin, direction));
-
   // A hit at `distance` is the selected light itself, not an occluder.
-  return hit.found && hit.distance < distance - BIAS;
+  return traceAny(Ray(origin, direction), distance - BIAS);
 }
 
 /**
