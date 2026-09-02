@@ -1,5 +1,4 @@
 import type { Scene } from "@photon/core";
-import type { Camera } from "./camera/types.ts";
 import type { Environment } from "./environment/types.ts";
 import type { RenderScheduling } from "./scheduling.ts";
 
@@ -11,7 +10,6 @@ export type { RendererHandle } from "./types/handle.ts";
 
 export type RendererOptions = {
   readonly canvas: HTMLCanvasElement;
-  readonly camera: Camera;
   readonly environment: Environment;
   readonly scene: Scene;
   readonly maxSamples: number;

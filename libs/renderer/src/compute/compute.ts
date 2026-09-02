@@ -17,7 +17,6 @@ export const createComputePass = (
   context: GPUCanvasContext,
   accumulationBuffer: GPUBuffer,
   presentationTexture: GPUTextureView,
-  camera: Camera,
   environment: Environment,
   scene: Scene,
 ) => {
@@ -100,11 +99,11 @@ export const createComputePass = (
     ],
   });
 
-  const cameraUniform = createCameraUniform(camera);
+  // todo: store uniform sizes as constants
 
   const cameraBuffer = device.createBuffer({
     label: "computeCameraBuffer",
-    size: cameraUniform.byteLength,
+    size: 4 * 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -242,7 +241,6 @@ export const createComputePass = (
     },
   });
 
-  device.queue.writeBuffer(cameraBuffer, 0, cameraUniform);
   device.queue.writeBuffer(environmentBuffer, 0, environmentUniform);
   device.queue.writeBuffer(voxelBuffer, 0, scene.voxels);
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);

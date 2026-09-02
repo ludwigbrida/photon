@@ -45,7 +45,6 @@ export const App = () => {
 
     void createRenderer({
       canvas,
-      camera: cornellCamera,
       environment: {
         sun: {
           azimuthDegrees: 35,
@@ -69,6 +68,10 @@ export const App = () => {
         nextRenderer.stop();
         return;
       }
+
+      nextRenderer.configure({
+        camera: cornellCamera,
+      });
 
       renderer.current = nextRenderer;
       ready.set(true);

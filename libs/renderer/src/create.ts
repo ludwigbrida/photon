@@ -45,7 +45,6 @@ export const createRenderer = async (
     context,
     accumulationBuffer,
     presentationTexture,
-    options.camera,
     options.environment,
     options.scene,
   );
