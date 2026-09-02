@@ -5,11 +5,4 @@ export type CompileOptions = {
   readonly depth: number;
 };
 
-export type CompiledScene = {
-  readonly depth: number;
-  readonly voxels: Uint32Array;
-  readonly materials: Float32Array;
-  readonly emitters: Float32Array;
-};
-
 export type AuthorNode = Voxel | Group;

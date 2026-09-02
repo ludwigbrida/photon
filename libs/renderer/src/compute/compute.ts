@@ -1,8 +1,8 @@
+import type { Scene } from "@photon/core";
 import type { Camera } from "../camera/types.ts";
 import { createCameraUniform } from "../camera/uniform.ts";
 import type { Environment } from "../environment/types.ts";
 import { createEnvironmentUniform } from "../environment/uniform.ts";
-import type { Scene } from "../types.ts";
 import computeShader from "./compute.wesl?static";
 
 type ComputeFrame = {

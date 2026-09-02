@@ -1,7 +1,7 @@
+import type { Scene } from "@photon/core";
 import type { Camera } from "./camera/types.ts";
 import type { Environment } from "./environment/types.ts";
 import type { RenderScheduling } from "./scheduling.ts";
-import type { Scene } from "./types.ts";
 
 export { Projection } from "./camera/types.ts";
 export { createRenderer } from "./create.ts";

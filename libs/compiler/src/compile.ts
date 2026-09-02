@@ -1,10 +1,5 @@
-import {
-  type Bounds,
-  type CompiledScene,
-  type CompileOptions,
-  type Material,
-  type Shape,
-} from "@photon/author";
+import { type Bounds, type CompileOptions, type Material, type Shape } from "@photon/author";
+import type { Scene } from "@photon/core";
 import { createOctree, insertVoxel } from "./octree/create.ts";
 import { flattenOctree } from "./octree/flatten.ts";
 
@@ -40,7 +35,7 @@ const assertBoundsFitOctree = (bounds: Bounds, depth: number): void => {
   }
 };
 
-export const compile = (shape: Shape, { depth }: CompileOptions): CompiledScene => {
+export const compile = (shape: Shape, { depth }: CompileOptions): Scene => {
   assertBoundsFitOctree(shape.bounds, depth);
 
   const octree = createOctree();
