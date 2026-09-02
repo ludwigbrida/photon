@@ -1,6 +1,7 @@
 import { derived, grain } from "@grainular/grains";
 import { createRef, html } from "@grainular/nord";
 import { compile } from "@photon/compiler";
+import type { Vector3 } from "@photon/core";
 import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
@@ -33,6 +34,14 @@ export const App = () => {
   const scheduling = derived(stats, ({ scheduling: value }) => value);
   const isComplete = derived(stats, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
+  const cameraPosition = grain<Vector3>(cornellCamera.position);
+
+  const configureCameraPosition = (position: Vector3) => {
+    cameraPosition.set(position);
+    renderer.current?.configure({
+      camera: { ...cornellCamera, position },
+    });
+  };
 
   const createRendererForCanvas = () => {
     const canvas = canvasRef.current;
@@ -70,7 +79,7 @@ export const App = () => {
       }
 
       nextRenderer.configure({
-        camera: cornellCamera,
+        camera: { ...cornellCamera, position: cameraPosition() },
       });
 
       renderer.current = nextRenderer;
@@ -95,11 +104,12 @@ export const App = () => {
           scheduling,
           isRendering,
           isComplete,
+          cameraPosition,
           onStart: () => renderer.current?.start(),
           onStop: () => renderer.current?.stop(),
           onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
           onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
-          configure: (value) => renderer.current?.configure(value),
+          onCameraPositionChange: configureCameraPosition,
         })}
       </div>
       ${StatusBar({ stats })}

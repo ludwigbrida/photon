@@ -1,8 +1,10 @@
 import { combined, derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
-import { Projection, type RendererConfig, type RenderScheduling } from "@photon/renderer";
+import type { Vector3 } from "@photon/core";
+import type { RenderScheduling } from "@photon/renderer";
 import { Button } from "../../../../ui/button/button.ts";
 import { NumberInput } from "../../../../ui/number-input/number-input.ts";
+import { Vector3Input } from "../../../../ui/vector3-input/vector3-input.ts";
 
 export type RenderConfigPanelProps = {
   readonly ready: Grain<boolean>;
@@ -10,11 +12,12 @@ export type RenderConfigPanelProps = {
   readonly scheduling: Grain<RenderScheduling>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
+  readonly cameraPosition: Grain<Vector3>;
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onMaxSamplesChange: (maxSamples: number) => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
-  readonly configure: (config: Partial<RendererConfig>) => void;
+  readonly onCameraPositionChange: (position: Vector3) => void;
 };
 
 export const RenderConfigPanel = ({
@@ -23,11 +26,12 @@ export const RenderConfigPanel = ({
   scheduling,
   isRendering,
   isComplete,
+  cameraPosition,
   onStart,
   onStop,
   onMaxSamplesChange,
   onGpuBudgetChange,
-  configure,
+  onCameraPositionChange,
 }: RenderConfigPanelProps) => {
   const startDisabled = derived(
     combined([ready, isRendering, isComplete]),
@@ -50,22 +54,17 @@ export const RenderConfigPanel = ({
           onChange: (gpuBudget) => onGpuBudgetChange(gpuBudget / 100),
         })}
       </label>
+      <div class="flex items-start justify-between gap-3">
+        <span class="pt-1 text-text-muted">Camera position</span>
+        ${Vector3Input({
+          value: cameraPosition,
+          disabled: derived(ready, (value) => !value),
+          onChange: onCameraPositionChange,
+        })}
+      </div>
       <div class="flex gap-2">
         ${Button({ variant: "primary", onClick: onStart, disabled: startDisabled, children: "Start" })}
         ${Button({ onClick: onStop, disabled: derived(isRendering, (value) => !value), children: "Stop" })}
-        ${Button({
-          onClick: () =>
-            configure({
-              camera: {
-                projection: Projection.Perspective,
-                position: [0, 0, -41],
-                target: [0, 0, 0],
-                verticalFov: 60,
-              },
-            }),
-          disabled: derived(ready, (value) => !value),
-          children: "Cam",
-        })}
       </div>
     </section>
   `;

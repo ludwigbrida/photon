@@ -4,7 +4,7 @@ import type { RenderScheduling } from "./scheduling.ts";
 
 export { Projection } from "./camera/types.ts";
 export { createRenderer } from "./create.ts";
-export { DEFAULT_RENDER_SCHEDULING } from "./scheduling.ts";
+export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";
 export type { RendererConfig } from "./types/config.ts";
 export type { RendererHandle } from "./types/handle.ts";
 
