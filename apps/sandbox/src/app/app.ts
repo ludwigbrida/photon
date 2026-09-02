@@ -9,7 +9,7 @@ import {
   type Renderer,
   type RendererStats,
 } from "@photon/renderer";
-import { cornell, cornellCamera } from "../cornell.ts";
+import { cornell, cornellCamera } from "../scenes/cornell.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
 import { StatusBar } from "./status-bar/status-bar.ts";
 import { TopBar } from "./top-bar/top-bar.ts";
