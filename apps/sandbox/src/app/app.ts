@@ -1,7 +1,7 @@
 import { derived, grain } from "@grainular/grains";
 import { createRef, html } from "@grainular/nord";
 import { compile } from "@photon/compiler";
-import type { Vector3 } from "@photon/core";
+import type { Camera } from "@photon/renderer";
 import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
@@ -34,14 +34,8 @@ export const App = () => {
   const scheduling = derived(stats, ({ scheduling: value }) => value);
   const isComplete = derived(stats, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
-  const cameraPosition = grain<Vector3>(cornellCamera.position);
-
-  const configureCameraPosition = (position: Vector3) => {
-    cameraPosition.set(position);
-    renderer.current?.configure({
-      camera: { ...cornellCamera, position },
-    });
-  };
+  const camera = grain<Camera>(cornellCamera);
+  const cameraPosition = derived(camera, (value) => value.position);
 
   const createRendererForCanvas = () => {
     const canvas = canvasRef.current;
@@ -51,6 +45,8 @@ export const App = () => {
     }
 
     let disposed = false;
+
+    let unsubscribeCamera: (() => void) | undefined;
 
     void createRenderer({
       canvas,
@@ -78,16 +74,20 @@ export const App = () => {
         return;
       }
 
-      nextRenderer.configure({
-        camera: { ...cornellCamera, position: cameraPosition() },
+      renderer.current = nextRenderer;
+
+      nextRenderer.configure({ camera: camera() });
+
+      unsubscribeCamera = camera.subscribe((camera) => {
+        nextRenderer.configure({ camera });
       });
 
-      renderer.current = nextRenderer;
       ready.set(true);
     });
 
     return () => {
       disposed = true;
+      unsubscribeCamera?.();
       renderer.current?.stop();
       renderer.current = null;
     };
@@ -109,7 +109,11 @@ export const App = () => {
           onStop: () => renderer.current?.stop(),
           onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
           onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
-          onCameraPositionChange: configureCameraPosition,
+          onCameraPositionChange: (position) =>
+            camera.update((current) => ({
+              ...current,
+              position,
+            })),
         })}
       </div>
       ${StatusBar({ stats })}
