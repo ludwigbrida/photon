@@ -1,23 +1,23 @@
 import { derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
-import type { RendererStats } from "@photon/renderer";
+import type { RendererTelemetry } from "@photon/renderer";
 import { Progress } from "../../ui/progress/progress.ts";
 
 type StatusBarProps = {
-  readonly stats: Grain<RendererStats>;
+  readonly telemetry: Grain<RendererTelemetry>;
 };
 
-export const StatusBar = ({ stats }: StatusBarProps) => {
-  const sampleCount = derived(stats, ({ sampleCount: value }) => value);
-  const maxSamples = derived(stats, ({ maxSamples: value }) => value);
-  const elapsed = derived(stats, ({ elapsedMilliseconds }) =>
+export const StatusBar = ({ telemetry }: StatusBarProps) => {
+  const sampleCount = derived(telemetry, ({ sampleCount: value }) => value);
+  const maxSamples = derived(telemetry, ({ maxSamples: value }) => value);
+  const elapsed = derived(telemetry, ({ elapsedMilliseconds }) =>
     (elapsedMilliseconds / 1000).toFixed(1),
   );
-  const samplesPerSecond = derived(stats, ({ sampleCount, elapsedMilliseconds }) =>
+  const samplesPerSecond = derived(telemetry, ({ sampleCount, elapsedMilliseconds }) =>
     (sampleCount / Math.max(elapsedMilliseconds / 1000, 0.01)).toFixed(1),
   );
   const tileGrid = derived(
-    stats,
+    telemetry,
     ({ scheduling: { bucketGridSize } }) => `${bucketGridSize}×${bucketGridSize}`,
   );
 

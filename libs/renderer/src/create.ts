@@ -67,7 +67,7 @@ export const createRenderer = async (
     elapsedMilliseconds + (startedAt === undefined ? 0 : performance.now() - startedAt);
 
   const reportStats = () => {
-    options.onStatsChange?.({
+    options.onTelemetryChange?.({
       isRunning: running,
       sampleCount: sample,
       elapsedMilliseconds: getElapsedMilliseconds(),

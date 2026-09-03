@@ -8,7 +8,7 @@ import {
   DEFAULT_RENDER_SCHEDULING,
   RendererHandle,
   type Renderer,
-  type RendererStats,
+  type RendererTelemetry,
 } from "@photon/renderer";
 import { cornell, cornellCamera } from "../scenes/cornell.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
@@ -16,7 +16,7 @@ import { StatusBar } from "./status-bar/status-bar.ts";
 import { TopBar } from "./top-bar/top-bar.ts";
 import { Viewport } from "./viewport/viewport.ts";
 
-const INITIAL_STATS: RendererStats = {
+const INITIAL_TELEMETRY: RendererTelemetry = {
   isRunning: false,
   sampleCount: 0,
   elapsedMilliseconds: 0,
@@ -28,10 +28,10 @@ export const App = () => {
   const canvasRef = createRef<HTMLCanvasElement>();
   const renderer = { current: null as (Renderer & RendererHandle) | null };
   const ready = grain(false);
-  const stats = grain<RendererStats>(INITIAL_STATS);
-  const isRendering = derived(stats, ({ isRunning }) => isRunning);
-  const scheduling = derived(stats, ({ scheduling: value }) => value);
-  const isComplete = derived(stats, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
+  const telemetry = grain<RendererTelemetry>(INITIAL_TELEMETRY);
+  const isRendering = derived(telemetry, ({ isRunning }) => isRunning);
+  const scheduling = derived(telemetry, ({ scheduling: value }) => value);
+  const isComplete = derived(telemetry, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
   const camera = grain<Camera>(cornellCamera);
   const cameraPosition = derived(camera, (value) => value.position);
@@ -51,7 +51,7 @@ export const App = () => {
       canvas,
       scene: compiled,
       scheduling: DEFAULT_RENDER_SCHEDULING,
-      onStatsChange: stats.set,
+      onTelemetryChange: telemetry.set,
     }).then((nextRenderer) => {
       if (disposed) {
         nextRenderer.stop();
@@ -114,7 +114,7 @@ export const App = () => {
             })),
         })}
       </div>
-      ${StatusBar({ stats })}
+      ${StatusBar({ telemetry })}
     </main>
   `;
 };
