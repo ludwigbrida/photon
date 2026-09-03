@@ -24,8 +24,6 @@ export type RendererStats = {
 };
 
 export type Renderer = {
-  start: () => void;
-  stop: () => void;
   setScheduling: (scheduling: RenderScheduling) => void;
   setGpuBudget: (gpuBudget: number) => void;
 };
