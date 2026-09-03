@@ -1,13 +1,12 @@
 import { derived, grain } from "@grainular/grains";
 import { createRef, html } from "@grainular/nord";
 import { compile } from "@photon/compiler";
-import type { Camera } from "@photon/renderer";
 import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
   DEFAULT_RENDER_SCHEDULING,
-  RendererHandle,
-  type Renderer,
+  type Camera,
+  type RendererHandle,
   type RendererTelemetry,
 } from "@photon/renderer";
 import { cornell, cornellCamera } from "../scenes/cornell.ts";
@@ -26,15 +25,15 @@ const INITIAL_TELEMETRY: RendererTelemetry = {
 
 export const App = () => {
   const canvasRef = createRef<HTMLCanvasElement>();
-  const renderer = { current: null as (Renderer & RendererHandle) | null };
+  const renderer = { current: null as RendererHandle | null };
   const ready = grain(false);
   const telemetry = grain<RendererTelemetry>(INITIAL_TELEMETRY);
   const isRendering = derived(telemetry, ({ isRunning }) => isRunning);
-  const scheduling = derived(telemetry, ({ scheduling: value }) => value);
   const isComplete = derived(telemetry, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
   const camera = grain<Camera>(cornellCamera);
   const cameraPosition = derived(camera, (value) => value.position);
+  const gpuBudget = grain(DEFAULT_RENDER_SCHEDULING.gpuBudget);
 
   const createRendererForCanvas = () => {
     const canvas = canvasRef.current;
@@ -46,6 +45,7 @@ export const App = () => {
     let disposed = false;
 
     let unsubscribeCamera: (() => void) | undefined;
+    let unsubscribeGpuBudget: (() => void) | undefined;
 
     void createRenderer({
       canvas,
@@ -61,6 +61,7 @@ export const App = () => {
 
       nextRenderer.configure({
         camera: camera(),
+        gpuBudget: gpuBudget(),
         environment: {
           sun: {
             azimuthDegrees: 35,
@@ -80,6 +81,9 @@ export const App = () => {
       unsubscribeCamera = camera.subscribe((camera) => {
         nextRenderer.configure({ camera });
       });
+      unsubscribeGpuBudget = gpuBudget.subscribe((gpuBudget) => {
+        nextRenderer.configure({ gpuBudget });
+      });
 
       ready.set(true);
     });
@@ -87,6 +91,7 @@ export const App = () => {
     return () => {
       disposed = true;
       unsubscribeCamera?.();
+      unsubscribeGpuBudget?.();
       renderer.current?.stop();
       renderer.current = null;
     };
@@ -99,13 +104,13 @@ export const App = () => {
         ${Viewport({ canvasRef, onMount: createRendererForCanvas })}
         ${Sidebar({
           ready,
-          scheduling,
+          gpuBudget,
           isRendering,
           isComplete,
           cameraPosition,
           onStart: () => renderer.current?.start(),
           onStop: () => renderer.current?.stop(),
-          onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
+          onGpuBudgetChange: gpuBudget.set,
           onCameraPositionChange: (position) =>
             camera.update((current) => ({
               ...current,

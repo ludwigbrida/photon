@@ -3,8 +3,6 @@ export type RenderScheduling = {
   readonly gpuBudget: number;
 };
 
-export type RenderSchedulingOptions = Pick<RenderScheduling, "gpuBudget">;
-
 export type RenderBucket = {
   readonly x: number;
   readonly y: number;

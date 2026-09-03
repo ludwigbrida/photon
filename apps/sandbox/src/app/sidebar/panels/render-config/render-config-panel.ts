@@ -1,14 +1,13 @@
 import { combined, derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { Vector3 } from "@photon/core";
-import type { RenderScheduling } from "@photon/renderer";
 import { Button } from "../../../../ui/button/button.ts";
 import { NumberInput } from "../../../../ui/number-input/number-input.ts";
 import { Vector3Input } from "../../../../ui/vector3-input/vector3-input.ts";
 
 export type RenderConfigPanelProps = {
   readonly ready: Grain<boolean>;
-  readonly scheduling: Grain<RenderScheduling>;
+  readonly gpuBudget: Grain<number>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
@@ -20,7 +19,7 @@ export type RenderConfigPanelProps = {
 
 export const RenderConfigPanel = ({
   ready,
-  scheduling,
+  gpuBudget,
   isRendering,
   isComplete,
   cameraPosition,
@@ -33,7 +32,7 @@ export const RenderConfigPanel = ({
     combined([ready, isRendering, isComplete]),
     ([isReady, rendering, complete]) => !isReady || rendering || complete,
   );
-  const gpuBudget = derived(scheduling, ({ gpuBudget }) => Math.round(gpuBudget * 100));
+  const gpuBudgetPercent = derived(gpuBudget, (value) => Math.round(value * 100));
 
   return html`
     <section class="flex flex-col gap-3">
@@ -41,7 +40,7 @@ export const RenderConfigPanel = ({
       <label class="flex items-center justify-between gap-3">
         <span class="text-text-muted">GPU budget</span>
         ${NumberInput({
-          value: gpuBudget,
+          value: gpuBudgetPercent,
           disabled: derived(ready, (value) => !value),
           onChange: (gpuBudget) => onGpuBudgetChange(gpuBudget / 100),
         })}

@@ -1,7 +1,6 @@
 import { createComputePass } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
-import type { Renderer } from "./index.ts";
 import { DEFAULT_RENDER_SCHEDULING, getBucket, getBucketCount } from "./scheduling.ts";
 import type { RendererConfig } from "./types/config.ts";
 import { RendererHandle } from "./types/handle.ts";
@@ -12,9 +11,7 @@ const TARGET_TILE_TIME = 4;
 const MIN_BUCKET_GRID_SIZE = 4;
 const MAX_BUCKET_GRID_SIZE = 64;
 
-export const createRenderer = async (
-  options: RendererOptions,
-): Promise<Renderer & RendererHandle> => {
+export const createRenderer = async (options: RendererOptions): Promise<RendererHandle> => {
   const device = await createDevice();
   const context = createContext(options.canvas, device);
 
@@ -234,6 +231,10 @@ export const createRenderer = async (
   };
 
   const configure = (config: Partial<RendererConfig>) => {
+    if (config.gpuBudget !== undefined) {
+      setGpuBudget(config.gpuBudget);
+    }
+
     if (config.camera) {
       computePass.updateCamera(config.camera);
     }
@@ -250,7 +251,6 @@ export const createRenderer = async (
   return {
     start,
     stop,
-    setGpuBudget,
     configure,
   };
 };

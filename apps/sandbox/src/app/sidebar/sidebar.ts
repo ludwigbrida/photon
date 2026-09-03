@@ -1,12 +1,11 @@
 import type { Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { Vector3 } from "@photon/core";
-import type { RenderScheduling } from "@photon/renderer";
 import { RenderConfigPanel } from "./panels/render-config/render-config-panel.ts";
 
 type SidebarProps = {
   readonly ready: Grain<boolean>;
-  readonly scheduling: Grain<RenderScheduling>;
+  readonly gpuBudget: Grain<number>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
