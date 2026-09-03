@@ -9,13 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/jetbrains-mono": "5.3.0",
-    "@grainular/grains": "2.2.1",
-    "@grainular/nord": "2.2.1",
     "@photon/author": "*",
-    "@photon/compiler": "*",
-    "@photon/core": "*",
-    "@photon/renderer": "*"
+    "@photon/renderer": "*",
+    "@photon/runtime": "*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

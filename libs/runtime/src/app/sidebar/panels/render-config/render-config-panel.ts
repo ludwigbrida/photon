@@ -42,7 +42,7 @@ export const RenderConfigPanel = ({
         ${NumberInput({
           value: gpuBudgetPercent,
           disabled: derived(ready, (value) => !value),
-          onChange: (gpuBudget) => onGpuBudgetChange(gpuBudget / 100),
+          onChange: (value) => onGpuBudgetChange(value / 100),
         })}
       </label>
       <div class="flex items-start justify-between gap-3">

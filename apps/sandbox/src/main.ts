@@ -1,7 +1,6 @@
-import { mount } from "@grainular/nord";
-import { App } from "./app/app.ts";
-import "./main.css";
+import { mount } from "@photon/runtime";
+import options from "./scenes/cornell.ts";
 
-const main = document.getElementById("main");
+const main = document.getElementById("main") as HTMLElement;
 
-mount(App, { to: main });
+mount(main, options);

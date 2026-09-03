@@ -1,5 +1,5 @@
 import { cube, material, move, pipe, union } from "@photon/author";
-import { Projection } from "@photon/renderer";
+import { Projection, type Camera, type Environment } from "@photon/renderer";
 
 const white = material({
   color: [0.8, 0.8, 0.8],
@@ -26,7 +26,7 @@ const mirror = material({
   metallic: 1,
 });
 
-export const cornell = union(
+const scene = union(
   // Floor
   pipe(
     cube({
@@ -100,9 +100,30 @@ export const cornell = union(
   ),
 );
 
-export const cornellCamera = {
+const camera: Camera = {
   projection: Projection.Perspective,
   position: [0, 0, -21],
   target: [0, 0, 0],
   verticalFov: 60,
-} as const;
+};
+
+const environment: Environment = {
+  sun: {
+    azimuthDegrees: 35,
+    elevationDegrees: 45,
+    angularRadiusDegrees: 5,
+    intensity: 5,
+    color: [1, 0.98, 0.92],
+  },
+  sky: {
+    horizonColor: [0.65, 0.78, 1],
+    zenithColor: [0.08, 0.28, 0.72],
+    horizonFalloff: 1.4,
+  },
+};
+
+export default {
+  scene,
+  camera,
+  environment,
+};
