@@ -1,7 +1,7 @@
 import { type Vector3 } from "@photon/core";
 import { type Material } from "./material.ts";
 
-export type VoxelOptions = {
+type VoxelOptions = {
   readonly position: Vector3;
   readonly material: Material;
 };

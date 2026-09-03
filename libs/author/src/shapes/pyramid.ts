@@ -1,7 +1,7 @@
 import type { Material } from "../material.ts";
 import type { Shape } from "../types/shape.ts";
 
-export type PyramidOptions = {
+type PyramidOptions = {
   readonly height: number;
   readonly material: Material;
 };

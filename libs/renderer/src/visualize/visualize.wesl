@@ -1,5 +1,6 @@
 struct VertexOutput {
   @builtin(position) position: vec4f,
+
   @location(0) coordinate: vec2f,
 }
 

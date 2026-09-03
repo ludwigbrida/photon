@@ -1,4 +1,4 @@
-import visualizeShader from "./visualize.wgsl?raw";
+import visualizeShader from "./visualize.wesl?static";
 
 export const createVisualizePass = (
   device: GPUDevice,

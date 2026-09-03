@@ -14,7 +14,7 @@ export type LeafNode = {
 
 export type Node = EmptyNode | BranchNode | LeafNode;
 
-export const createEmptyNode = (): EmptyNode => ({
+const createEmptyNode = (): EmptyNode => ({
   type: "empty",
 });
 

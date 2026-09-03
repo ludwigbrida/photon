@@ -1,6 +1,6 @@
 import { mount } from "@photon/runtime";
-import options from "./scenes/cornell.ts";
+import scenes from "./scenes/index.ts";
 
 const main = document.getElementById("main") as HTMLElement;
 
-mount(main, options);
+mount(main, scenes.cornell);

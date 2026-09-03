@@ -1,6 +1,6 @@
 import { type Color } from "@photon/core";
 
-export type Emission = {
+type Emission = {
   readonly color: Color;
   readonly strength: number;
 };

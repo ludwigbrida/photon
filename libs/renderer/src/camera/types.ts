@@ -7,18 +7,18 @@ export const Projection = {
 
 export type Projection = (typeof Projection)[keyof typeof Projection];
 
-export type CameraTransform = {
+type CameraTransform = {
   readonly position: Vector3;
   readonly target: Vector3;
   readonly up?: Vector3;
 };
 
-export type OrthographicCamera = CameraTransform & {
+type OrthographicCamera = CameraTransform & {
   readonly projection: typeof Projection.Orthographic;
   readonly orthographicScale: number;
 };
 
-export type PerspectiveCamera = CameraTransform & {
+type PerspectiveCamera = CameraTransform & {
   readonly projection: typeof Projection.Perspective;
   readonly verticalFov: number;
 };
