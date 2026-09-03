@@ -50,20 +50,6 @@ export const App = () => {
 
     void createRenderer({
       canvas,
-      environment: {
-        sun: {
-          azimuthDegrees: 35,
-          elevationDegrees: 45,
-          angularRadiusDegrees: 5,
-          intensity: 5,
-          color: [1, 0.98, 0.92],
-        },
-        sky: {
-          horizonColor: [0.65, 0.78, 1],
-          zenithColor: [0.08, 0.28, 0.72],
-          horizonFalloff: 1.4,
-        },
-      },
       scene: compiled,
       maxSamples: DEFAULT_MAX_SAMPLES,
       scheduling: DEFAULT_RENDER_SCHEDULING,
@@ -76,7 +62,23 @@ export const App = () => {
 
       renderer.current = nextRenderer;
 
-      nextRenderer.configure({ camera: camera() });
+      nextRenderer.configure({
+        camera: camera(),
+        environment: {
+          sun: {
+            azimuthDegrees: 35,
+            elevationDegrees: 45,
+            angularRadiusDegrees: 5,
+            intensity: 5,
+            color: [1, 0.98, 0.92],
+          },
+          sky: {
+            horizonColor: [0.65, 0.78, 1],
+            zenithColor: [0.08, 0.28, 0.72],
+            horizonFalloff: 1.4,
+          },
+        },
+      });
 
       unsubscribeCamera = camera.subscribe((camera) => {
         nextRenderer.configure({ camera });

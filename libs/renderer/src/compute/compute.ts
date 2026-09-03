@@ -17,7 +17,6 @@ export const createComputePass = (
   context: GPUCanvasContext,
   accumulationBuffer: GPUBuffer,
   presentationTexture: GPUTextureView,
-  environment: Environment,
   scene: Scene,
 ) => {
   const workgroupSize = 8;
@@ -131,11 +130,9 @@ export const createComputePass = (
     ],
   });
 
-  const environmentUniform = createEnvironmentUniform(environment);
-
   const environmentBuffer = device.createBuffer({
     label: "computeEnvironmentBuffer",
-    size: environmentUniform.byteLength,
+    size: 4 * 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -241,7 +238,6 @@ export const createComputePass = (
     },
   });
 
-  device.queue.writeBuffer(environmentBuffer, 0, environmentUniform);
   device.queue.writeBuffer(voxelBuffer, 0, scene.voxels);
   device.queue.writeBuffer(materialBuffer, 0, scene.materials);
   if (scene.emitters.byteLength > 0) {
@@ -251,6 +247,11 @@ export const createComputePass = (
   const updateCamera = (camera: Camera) => {
     const uniform = createCameraUniform(camera);
     device.queue.writeBuffer(cameraBuffer, 0, uniform);
+  };
+
+  const updateEnvironment = (environment: Environment) => {
+    const uniform = createEnvironmentUniform(environment);
+    device.queue.writeBuffer(environmentBuffer, 0, uniform);
   };
 
   const run = (commandEncoder: GPUCommandEncoder, frame: ComputeFrame) => {
@@ -280,5 +281,6 @@ export const createComputePass = (
   return {
     run,
     updateCamera,
+    updateEnvironment,
   };
 };

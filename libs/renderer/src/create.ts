@@ -45,7 +45,6 @@ export const createRenderer = async (
     context,
     accumulationBuffer,
     presentationTexture,
-    options.environment,
     options.scene,
   );
 
@@ -287,7 +286,11 @@ export const createRenderer = async (
       computePass.updateCamera(config.camera);
     }
 
-    if (config.camera) {
+    if (config.environment) {
+      computePass.updateEnvironment(config.environment);
+    }
+
+    if (config.camera || config.environment) {
       reset();
     }
   };
