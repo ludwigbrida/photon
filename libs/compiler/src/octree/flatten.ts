@@ -1,5 +1,5 @@
 import { encodeBranch, encodeEmpty, encodeLeaf } from "./encode.ts";
-import { Node } from "./node.ts";
+import type { Node } from "./node.ts";
 
 export const flattenOctree = (root: Node): Uint32Array => {
   const nodes: number[] = [];

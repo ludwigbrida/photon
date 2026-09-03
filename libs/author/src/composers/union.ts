@@ -1,5 +1,5 @@
-import { Bounds } from "../types/bounds.ts";
-import { Shape } from "../types/shape.ts";
+import type { Bounds } from "../types/bounds.ts";
+import type { Shape } from "../types/shape.ts";
 
 const contains = (bounds: Bounds, x: number, y: number, z: number): boolean => {
   return (

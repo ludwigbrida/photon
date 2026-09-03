@@ -3,7 +3,7 @@ import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
 import { DEFAULT_RENDER_SCHEDULING, getBucket, getBucketCount } from "./scheduling.ts";
 import type { RendererConfig } from "./types/config.ts";
-import { RendererHandle } from "./types/handle.ts";
+import type { RendererHandle } from "./types/handle.ts";
 import type { RendererOptions } from "./types/options.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 

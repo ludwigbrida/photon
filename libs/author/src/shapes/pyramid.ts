@@ -1,5 +1,5 @@
-import { Material } from "../material.ts";
-import { Shape } from "../types/shape.ts";
+import type { Material } from "../material.ts";
+import type { Shape } from "../types/shape.ts";
 
 export type PyramidOptions = {
   readonly height: number;

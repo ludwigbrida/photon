@@ -1,4 +1,4 @@
-import { AuthorNode } from "./types.ts";
+import type { AuthorNode } from "./types.ts";
 
 export type Group = {
   readonly type: "group";
