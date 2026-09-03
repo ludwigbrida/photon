@@ -1,4 +1,5 @@
 import { cube, material, move, pipe, pyramid, union } from "@photon/author";
+import { Projection } from "@photon/renderer";
 
 const white = material({
   color: [1, 1, 1],
@@ -50,7 +51,7 @@ export const example = union(
 );
 
 export const exampleCamera = {
-  projection: "orthographic",
+  projection: Projection.Orthographic,
   position: [256.5, 256.5, -257.5],
   target: [0.5, 0.5, 0.5],
   orthographicScale: 12,
