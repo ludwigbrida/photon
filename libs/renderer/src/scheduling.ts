@@ -3,6 +3,8 @@ export type RenderScheduling = {
   readonly gpuBudget: number;
 };
 
+export type RenderSchedulingOptions = Pick<RenderScheduling, "gpuBudget">;
+
 export type RenderBucket = {
   readonly x: number;
   readonly y: number;
@@ -14,15 +16,12 @@ export const DEFAULT_RENDER_SCHEDULING: RenderScheduling = {
   gpuBudget: 0.75,
 };
 
-export const getBucketCount = ({ bucketGridSize }: RenderScheduling) => bucketGridSize ** 2;
+export const getBucketCount = (bucketGridSize: number) => bucketGridSize ** 2;
 
-export const getBucket = (scheduling: RenderScheduling, index: number): RenderBucket => {
+export const getBucket = (bucketGridSize: number, index: number): RenderBucket => {
   return {
-    x: index % scheduling.bucketGridSize,
-    y: Math.floor(index / scheduling.bucketGridSize),
-    gridSize: scheduling.bucketGridSize,
+    x: index % bucketGridSize,
+    y: Math.floor(index / bucketGridSize),
+    gridSize: bucketGridSize,
   };
 };
-
-export const areRenderSchedulingsEqual = (left: RenderScheduling, right: RenderScheduling) =>
-  left.bucketGridSize === right.bucketGridSize && left.gpuBudget === right.gpuBudget;

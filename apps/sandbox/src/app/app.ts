@@ -50,7 +50,6 @@ export const App = () => {
     void createRenderer({
       canvas,
       scene: compiled,
-      scheduling: DEFAULT_RENDER_SCHEDULING,
       onTelemetryChange: telemetry.set,
     }).then((nextRenderer) => {
       if (disposed) {

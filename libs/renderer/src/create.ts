@@ -3,7 +3,6 @@ import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
 import type { Renderer, RendererOptions } from "./index.ts";
 import {
-  areRenderSchedulingsEqual,
   DEFAULT_RENDER_SCHEDULING,
   getBucket,
   getBucketCount,
@@ -54,7 +53,7 @@ export const createRenderer = async (
   let sample = 0;
   let bucketIndex = 0;
   const maxSamples = 1024;
-  let scheduling = options.scheduling ?? DEFAULT_RENDER_SCHEDULING;
+  let scheduling: RenderScheduling = { ...DEFAULT_RENDER_SCHEDULING, ...options.scheduling };
   let computeHandle: number | null = null;
   let presentHandle: number | null = null;
   let computeInFlight = false;
@@ -145,34 +144,6 @@ export const createRenderer = async (
     startedAt = undefined;
   };
 
-  const setScheduling = (nextScheduling: RenderScheduling) => {
-    if (
-      !Number.isInteger(nextScheduling.bucketGridSize) ||
-      nextScheduling.bucketGridSize < MIN_BUCKET_GRID_SIZE ||
-      nextScheduling.bucketGridSize > MAX_BUCKET_GRID_SIZE ||
-      !Number.isFinite(nextScheduling.gpuBudget) ||
-      nextScheduling.gpuBudget < 0.1 ||
-      nextScheduling.gpuBudget > 1 ||
-      areRenderSchedulingsEqual(scheduling, nextScheduling)
-    ) {
-      return;
-    }
-
-    const resume = running;
-
-    if (resume) {
-      stop();
-    }
-
-    scheduling = nextScheduling;
-    reset();
-    reportStats();
-
-    if (resume) {
-      start();
-    }
-  };
-
   const setGpuBudget = (gpuBudget: number) => {
     if (
       !Number.isFinite(gpuBudget) ||
@@ -194,7 +165,7 @@ export const createRenderer = async (
 
     const commandEncoder = device.createCommandEncoder({ label: "computeCommandEncoder" });
 
-    const bucket = getBucket(scheduling, bucketIndex);
+    const bucket = getBucket(scheduling.bucketGridSize, bucketIndex);
     computePass.run(commandEncoder, {
       sampleIndex: sample,
       bucketX: bucket.x,
@@ -208,7 +179,7 @@ export const createRenderer = async (
 
     bucketIndex += 1;
 
-    const completedSample = bucketIndex === getBucketCount(scheduling);
+    const completedSample = bucketIndex === getBucketCount(scheduling.bucketGridSize);
     if (completedSample) {
       sample += 1;
       bucketIndex = 0;
@@ -283,7 +254,6 @@ export const createRenderer = async (
   return {
     start,
     stop,
-    setScheduling,
     setGpuBudget,
     configure,
   };
