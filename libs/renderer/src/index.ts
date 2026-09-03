@@ -11,7 +11,6 @@ export type { RendererHandle } from "./types/handle.ts";
 export type RendererOptions = {
   readonly canvas: HTMLCanvasElement;
   readonly scene: Scene;
-  readonly maxSamples: number;
   readonly scheduling?: RenderScheduling;
   readonly onStatsChange?: (stats: RendererStats) => void;
 };
@@ -27,7 +26,6 @@ export type RendererStats = {
 export type Renderer = {
   start: () => void;
   stop: () => void;
-  setMaxSamples: (maxSamples: number) => void;
   setScheduling: (scheduling: RenderScheduling) => void;
   setGpuBudget: (gpuBudget: number) => void;
 };

@@ -6,14 +6,12 @@ import { RenderConfigPanel } from "./panels/render-config/render-config-panel.ts
 
 type SidebarProps = {
   readonly ready: Grain<boolean>;
-  readonly maxSamples: Grain<number>;
   readonly scheduling: Grain<RenderScheduling>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
   readonly onStart: () => void;
   readonly onStop: () => void;
-  readonly onMaxSamplesChange: (maxSamples: number) => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
   readonly onCameraPositionChange: (position: Vector3) => void;
 };

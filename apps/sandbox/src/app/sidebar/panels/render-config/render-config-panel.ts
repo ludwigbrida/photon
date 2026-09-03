@@ -8,28 +8,24 @@ import { Vector3Input } from "../../../../ui/vector3-input/vector3-input.ts";
 
 export type RenderConfigPanelProps = {
   readonly ready: Grain<boolean>;
-  readonly maxSamples: Grain<number>;
   readonly scheduling: Grain<RenderScheduling>;
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
   readonly onStart: () => void;
   readonly onStop: () => void;
-  readonly onMaxSamplesChange: (maxSamples: number) => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
   readonly onCameraPositionChange: (position: Vector3) => void;
 };
 
 export const RenderConfigPanel = ({
   ready,
-  maxSamples,
   scheduling,
   isRendering,
   isComplete,
   cameraPosition,
   onStart,
   onStop,
-  onMaxSamplesChange,
   onGpuBudgetChange,
   onCameraPositionChange,
 }: RenderConfigPanelProps) => {
@@ -42,10 +38,6 @@ export const RenderConfigPanel = ({
   return html`
     <section class="flex flex-col gap-3">
       <h3 class="font-medium uppercase tracking-wide text-text-muted">Configuration</h3>
-      <label class="flex items-center justify-between gap-3">
-        <span class="text-text-muted">Max samples</span>
-        ${NumberInput({ value: maxSamples, disabled: derived(ready, (value) => !value), onChange: onMaxSamplesChange })}
-      </label>
       <label class="flex items-center justify-between gap-3">
         <span class="text-text-muted">GPU budget</span>
         ${NumberInput({

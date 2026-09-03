@@ -53,7 +53,7 @@ export const createRenderer = async (
   let running = false;
   let sample = 0;
   let bucketIndex = 0;
-  let maxSamples = options.maxSamples;
+  const maxSamples = 1024;
   let scheduling = options.scheduling ?? DEFAULT_RENDER_SCHEDULING;
   let computeHandle: number | null = null;
   let presentHandle: number | null = null;
@@ -133,21 +133,6 @@ export const createRenderer = async (
     if (presentHandle !== null) {
       cancelAnimationFrame(presentHandle);
       presentHandle = null;
-    }
-
-    reportStats();
-  };
-
-  const setMaxSamples = (nextMaxSamples: number) => {
-    if (!Number.isInteger(nextMaxSamples) || nextMaxSamples < 1) {
-      return;
-    }
-
-    maxSamples = nextMaxSamples;
-
-    if (running && sample >= maxSamples) {
-      stop();
-      return;
     }
 
     reportStats();
@@ -298,7 +283,6 @@ export const createRenderer = async (
   return {
     start,
     stop,
-    setMaxSamples,
     setScheduling,
     setGpuBudget,
     configure,

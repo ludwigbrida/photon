@@ -30,7 +30,6 @@ export const App = () => {
   const ready = grain(false);
   const stats = grain<RendererStats>(INITIAL_STATS);
   const isRendering = derived(stats, ({ isRunning }) => isRunning);
-  const maxSamples = derived(stats, ({ maxSamples: value }) => value);
   const scheduling = derived(stats, ({ scheduling: value }) => value);
   const isComplete = derived(stats, ({ sampleCount, maxSamples: max }) => sampleCount >= max);
   const compiled = compile(cornell, { depth: 10 });
@@ -51,7 +50,6 @@ export const App = () => {
     void createRenderer({
       canvas,
       scene: compiled,
-      maxSamples: DEFAULT_MAX_SAMPLES,
       scheduling: DEFAULT_RENDER_SCHEDULING,
       onStatsChange: stats.set,
     }).then((nextRenderer) => {
@@ -102,14 +100,12 @@ export const App = () => {
         ${Viewport({ canvasRef, onMount: createRendererForCanvas })}
         ${Sidebar({
           ready,
-          maxSamples,
           scheduling,
           isRendering,
           isComplete,
           cameraPosition,
           onStart: () => renderer.current?.start(),
           onStop: () => renderer.current?.stop(),
-          onMaxSamplesChange: (value) => renderer.current?.setMaxSamples(value),
           onGpuBudgetChange: (value) => renderer.current?.setGpuBudget(value),
           onCameraPositionChange: (position) =>
             camera.update((current) => ({
