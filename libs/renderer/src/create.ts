@@ -1,15 +1,11 @@
 import { createComputePass } from "./compute/compute.ts";
 import { createContext } from "./helpers/context.ts";
 import { createDevice } from "./helpers/device.ts";
-import type { Renderer, RendererOptions } from "./index.ts";
-import {
-  DEFAULT_RENDER_SCHEDULING,
-  getBucket,
-  getBucketCount,
-  type RenderScheduling,
-} from "./scheduling.ts";
+import type { Renderer } from "./index.ts";
+import { DEFAULT_RENDER_SCHEDULING, getBucket, getBucketCount } from "./scheduling.ts";
 import type { RendererConfig } from "./types/config.ts";
 import { RendererHandle } from "./types/handle.ts";
+import type { RendererOptions } from "./types/options.ts";
 import { createVisualizePass } from "./visualize/visualize.ts";
 
 const TARGET_TILE_TIME = 4;
@@ -53,7 +49,7 @@ export const createRenderer = async (
   let sample = 0;
   let bucketIndex = 0;
   const maxSamples = 1024;
-  let scheduling: RenderScheduling = { ...DEFAULT_RENDER_SCHEDULING, ...options.scheduling };
+  let scheduling = DEFAULT_RENDER_SCHEDULING;
   let computeHandle: number | null = null;
   let presentHandle: number | null = null;
   let computeInFlight = false;
