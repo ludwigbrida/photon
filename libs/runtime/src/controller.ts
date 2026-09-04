@@ -76,6 +76,7 @@ export const createController = ({
         nextRenderer.configure({ gpuBudget: value }),
       );
       ready.set(true);
+      nextRenderer.start();
     });
 
     return () => {
