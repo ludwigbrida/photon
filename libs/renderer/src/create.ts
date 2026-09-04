@@ -140,7 +140,13 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     sample = 0;
     bucketIndex = 0;
     elapsedMilliseconds = 0;
-    startedAt = undefined;
+    startedAt = running ? performance.now() : undefined;
+
+    if (running && !computeInFlight && computeHandle === null) {
+      scheduleCompute(runId);
+    }
+
+    reportStats();
   };
 
   const setGpuBudget = (gpuBudget: number) => {
@@ -172,7 +178,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
       bucketGridSize: bucket.gridSize,
     });
 
-    const startedAt = performance.now();
+    const computeStartedAt = performance.now();
     computeInFlight = true;
     device.queue.submit([commandEncoder.finish({ label: "computeCommandBuffer" })]);
 
@@ -196,11 +202,13 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     }
 
     if (sample >= maxSamples) {
-      stop();
+      elapsedMilliseconds = getElapsedMilliseconds();
+      startedAt = undefined;
+      reportStats();
       return;
     }
 
-    const elapsed = performance.now() - startedAt;
+    const elapsed = performance.now() - computeStartedAt;
     if (FIXED_BUCKET_GRID_SIZE === undefined && (completedSample || sample === 0)) {
       const bucketGridSize =
         elapsed < TARGET_TILE_TIME / 2
@@ -222,7 +230,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   };
 
   const start = () => {
-    if (running || sample >= maxSamples) {
+    if (running) {
       return;
     }
 
@@ -232,7 +240,9 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     runId += 1;
 
     reportStats();
-    scheduleCompute(runId);
+    if (sample < maxSamples) {
+      scheduleCompute(runId);
+    }
     schedulePresent(runId);
   };
 
