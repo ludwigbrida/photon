@@ -1,9 +1,11 @@
 import { combined, derived, type Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { Vector3 } from "@photon/core";
+import type { CameraYawPitch } from "../../../../camera/orientation.ts";
 import { Button } from "../../../../ui/button/button.ts";
 import { NumberInput } from "../../../../ui/number-input/number-input.ts";
 import { Vector3Input } from "../../../../ui/vector3-input/vector3-input.ts";
+import { YawPitchInput } from "../../../../ui/yaw-pitch-input/yaw-pitch-input.ts";
 
 export type RenderConfigPanelProps = {
   readonly ready: Grain<boolean>;
@@ -11,10 +13,12 @@ export type RenderConfigPanelProps = {
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
+  readonly cameraYawPitch: Grain<CameraYawPitch>;
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
   readonly onCameraPositionChange: (position: Vector3) => void;
+  readonly onCameraYawPitchChange: (yawPitch: CameraYawPitch) => void;
 };
 
 export const RenderConfigPanel = ({
@@ -23,10 +27,12 @@ export const RenderConfigPanel = ({
   isRendering,
   isComplete,
   cameraPosition,
+  cameraYawPitch,
   onStart,
   onStop,
   onGpuBudgetChange,
   onCameraPositionChange,
+  onCameraYawPitchChange,
 }: RenderConfigPanelProps) => {
   const startDisabled = derived(
     combined([ready, isRendering, isComplete]),
@@ -51,6 +57,14 @@ export const RenderConfigPanel = ({
           value: cameraPosition,
           disabled: derived(ready, (value) => !value),
           onChange: onCameraPositionChange,
+        })}
+      </div>
+      <div class="flex items-start justify-between gap-3">
+        <span class="pt-1 text-text-muted">Camera rotation</span>
+        ${YawPitchInput({
+          value: cameraYawPitch,
+          disabled: derived(ready, (value) => !value),
+          onChange: onCameraYawPitchChange,
         })}
       </div>
       <div class="flex gap-2">

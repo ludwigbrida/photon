@@ -1,5 +1,6 @@
 import { derived } from "@grainular/grains";
 import { createRef, html } from "@grainular/nord";
+import { directionFromYawPitch, yawPitchFromDirection } from "../camera/orientation.ts";
 import type { RuntimeController } from "../controller.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
 import { StatusBar } from "./status-bar/status-bar.ts";
@@ -19,6 +20,9 @@ export const App = ({ controller }: AppProps) => {
     ({ sampleCount, maxSamples }) => sampleCount >= maxSamples,
   );
   const cameraPosition = derived(controller.camera, ({ position }) => position);
+  const cameraYawPitch = derived(controller.camera, ({ direction }) =>
+    yawPitchFromDirection(direction),
+  );
 
   return html`
     <main class="flex h-full flex-col">
@@ -36,11 +40,17 @@ export const App = ({ controller }: AppProps) => {
           isRendering,
           isComplete,
           cameraPosition,
+          cameraYawPitch,
           onStart: controller.start,
           onStop: controller.stop,
           onGpuBudgetChange: controller.gpuBudget.set,
           onCameraPositionChange: (position) =>
             controller.camera.update((current) => ({ ...current, position })),
+          onCameraYawPitchChange: (yawPitch) =>
+            controller.camera.update((current) => ({
+              ...current,
+              direction: directionFromYawPitch(yawPitch),
+            })),
         })}
       </div>
       ${StatusBar({

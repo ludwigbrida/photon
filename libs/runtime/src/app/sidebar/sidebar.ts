@@ -1,6 +1,7 @@
 import type { Grain } from "@grainular/grains";
 import { html } from "@grainular/nord";
 import type { Vector3 } from "@photon/core";
+import type { CameraYawPitch } from "../../camera/orientation.ts";
 import { RenderConfigPanel } from "./panels/render-config/render-config-panel.ts";
 
 type SidebarProps = {
@@ -9,10 +10,12 @@ type SidebarProps = {
   readonly isRendering: Grain<boolean>;
   readonly isComplete: Grain<boolean>;
   readonly cameraPosition: Grain<Vector3>;
+  readonly cameraYawPitch: Grain<CameraYawPitch>;
   readonly onStart: () => void;
   readonly onStop: () => void;
   readonly onGpuBudgetChange: (gpuBudget: number) => void;
   readonly onCameraPositionChange: (position: Vector3) => void;
+  readonly onCameraYawPitchChange: (yawPitch: CameraYawPitch) => void;
 };
 
 export const Sidebar = (props: SidebarProps) => html`
