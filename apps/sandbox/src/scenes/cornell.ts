@@ -21,11 +21,6 @@ const light = material({
   },
 });
 
-const mirror = material({
-  color: [1, 1, 1],
-  metallic: 1,
-});
-
 const scene = union(
   // Floor
   pipe(
@@ -49,7 +44,7 @@ const scene = union(
   pipe(
     cube({
       size: [20, 20, 1],
-      material: mirror,
+      material: white,
     }),
     move([-10, -10, 9]),
   ),
