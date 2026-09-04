@@ -97,7 +97,7 @@ const scene = union(
 
 const camera: Camera = {
   projection: Projection.Perspective,
-  position: [0, 0, -21],
+  position: [0, 1, -32],
   direction: [0, 0, 1],
   verticalFov: 60,
 };
