@@ -61,9 +61,7 @@ export const App = ({ controller }: AppProps) => {
             })),
         })}
       </div>
-      ${StatusBar({
-        telemetry: controller.telemetry,
-      })}
+      ${StatusBar({ ready: controller.ready })}
     </main>
   `;
 };

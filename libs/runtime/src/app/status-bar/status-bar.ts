@@ -1,35 +1,37 @@
 import { derived, type Grain } from "@grainular/grains";
-import { html } from "@grainular/nord";
-import type { RendererTelemetry } from "@photon/renderer";
-import { Progress } from "../../ui/progress/progress.ts";
+import { attr, html } from "@grainular/nord";
 
 type StatusBarProps = {
-  readonly telemetry: Grain<RendererTelemetry>;
+  readonly ready: Grain<boolean>;
 };
 
-export const StatusBar = ({ telemetry }: StatusBarProps) => {
-  const sampleCount = derived(telemetry, ({ sampleCount: value }) => value);
-  const maxSamples = derived(telemetry, ({ maxSamples: value }) => value);
-  const elapsed = derived(telemetry, ({ elapsedMilliseconds }) =>
-    (elapsedMilliseconds / 1000).toFixed(1),
-  );
-  const samplesPerSecond = derived(telemetry, ({ sampleCount, elapsedMilliseconds }) =>
-    (sampleCount / Math.max(elapsedMilliseconds / 1000, 0.01)).toFixed(1),
-  );
-  const tileGrid = derived(
-    telemetry,
-    ({ scheduling: { bucketGridSize } }) => `${bucketGridSize}×${bucketGridSize}`,
+export const StatusBar = ({ ready }: StatusBarProps) => {
+  const deviceStatus = derived(ready, (value) => (value ? "READY" : "INITIALIZING"));
+  const deviceStatusClass = derived(ready, (value) =>
+    value ? "flex items-center gap-2.5 text-status" : "flex items-center gap-2.5 text-status-muted",
   );
 
   return html`
     <footer
-      class="flex h-7 shrink-0 items-center gap-3 border-t border-border px-3 text-text-muted"
+      class="flex shrink-0 items-center gap-4 border-t border-border bg-surface px-4 py-2 leading-6 text-status-muted"
     >
-      <span>Samples ${sampleCount} / ${maxSamples}</span>
-      <div class="w-40">${Progress({ value: sampleCount, max: maxSamples })}</div>
-      <span>Samples/s ${samplesPerSecond}</span>
-      <span>Tile grid ${tileGrid}</span>
-      <span>Elapsed ${elapsed} s</span>
+      <span>GPU <span class="text-status-value">--</span></span>
+      <span class="h-4 w-px bg-border"></span>
+      <span>API <span class="text-status-value">WEBGPU</span></span>
+      <span class="h-4 w-px bg-border"></span>
+      <span>VRAM <span class="text-status-value">--</span></span>
+      <span class="h-4 w-px bg-border"></span>
+      <span>FPS <span class="text-status-value">--</span></span>
+      <span class="h-4 w-px bg-border"></span>
+      <span>FRAME <span class="text-status-value">--</span><span>ms</span></span>
+      <button class="ml-auto border border-transparent text-status-muted" type="button">
+        ERRORS <span class="text-status-value">--</span>
+      </button>
+      <span class="h-4 w-px bg-border"></span>
+      <span ${attr({ class: deviceStatusClass })}>
+        <span class="h-2 w-2 bg-current"></span>
+        <span>${deviceStatus}</span>
+      </span>
     </footer>
   `;
 };
