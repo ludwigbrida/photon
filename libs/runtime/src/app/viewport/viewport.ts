@@ -62,7 +62,7 @@ export const Viewport = ({
         height="480"
       ></canvas>
       <div
-        class="pointer-events-none absolute inset-x-0 top-0 z-20 flex h-10.5 items-center border-b border-border bg-surface-recessed/90 px-4 text-viewport-muted"
+        class="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center border-b border-border bg-surface-recessed/90 px-4 py-2 leading-6 text-viewport-muted"
       >
         <div class="flex items-center gap-4">
           <span
