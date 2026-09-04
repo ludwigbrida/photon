@@ -17,6 +17,7 @@ export const App = ({ controller }: AppProps) => {
   const canvasRef = createRef<HTMLCanvasElement>();
   const mountCameraNavigation = createCameraNavigation(controller.camera);
 
+  const isRendering = derived(controller.telemetry, ({ isRunning }) => isRunning);
   const cameraPosition = derived(controller.camera, ({ position }) => position);
   const cameraYawPitch = derived(controller.camera, ({ direction }) =>
     yawPitchFromDirection(direction),
@@ -29,6 +30,12 @@ export const App = ({ controller }: AppProps) => {
         ${SceneOutline()}
         ${Viewport({
           canvasRef,
+          telemetry: controller.telemetry,
+          ready: controller.ready,
+          isRendering,
+          onStart: controller.start,
+          onStop: controller.stop,
+          onReset: controller.reset,
           onMount: () => {
             const unmountRenderer = controller.mountCanvas(canvasRef.current!);
             const unmountCameraNavigation = mountCameraNavigation(canvasRef.current!);

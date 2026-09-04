@@ -1,0 +1,6 @@
+.pattern {
+  opacity: 0.44;
+  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+  background-image: radial-gradient(var(--photon-viewport-pattern) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
