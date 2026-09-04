@@ -11,6 +11,9 @@ const TARGET_TILE_TIME = 4;
 const MIN_BUCKET_GRID_SIZE = 4;
 const MAX_BUCKET_GRID_SIZE = 64;
 
+// For testing purposes only: use `undefined` to restore adaptive tile sizing.
+const FIXED_BUCKET_GRID_SIZE: number | undefined = 1;
+
 export const createRenderer = async (options: RendererOptions): Promise<RendererHandle> => {
   const device = await createDevice();
   const context = createContext(options.canvas, device);
@@ -46,7 +49,10 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   let sample = 0;
   let bucketIndex = 0;
   const maxSamples = 1024;
-  let scheduling = DEFAULT_RENDER_SCHEDULING;
+  let scheduling = {
+    ...DEFAULT_RENDER_SCHEDULING,
+    bucketGridSize: FIXED_BUCKET_GRID_SIZE ?? DEFAULT_RENDER_SCHEDULING.bucketGridSize,
+  };
   let computeHandle: number | null = null;
   let presentHandle: number | null = null;
   let computeInFlight = false;
@@ -195,7 +201,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
     }
 
     const elapsed = performance.now() - startedAt;
-    if (completedSample || sample === 0) {
+    if (FIXED_BUCKET_GRID_SIZE === undefined && (completedSample || sample === 0)) {
       const bucketGridSize =
         elapsed < TARGET_TILE_TIME / 2
           ? Math.max(MIN_BUCKET_GRID_SIZE, Math.floor(scheduling.bucketGridSize / 2))
