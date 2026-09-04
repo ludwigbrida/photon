@@ -1,8 +1,8 @@
-import { cross, normalize, subtract, type Vector3 } from "@photon/core";
+import { cross, normalize, type Vector3 } from "@photon/core";
 
-export const createCameraBasis = (position: Vector3, target: Vector3, up: Vector3) => {
-  // TODO: Handle zero-length (camera target must differ from position)
-  const forward = normalize(subtract(target, position));
+export const createCameraBasis = (direction: Vector3, up: Vector3) => {
+  // TODO: Handle a zero-length direction.
+  const forward = normalize(direction);
   const normalizedUp = normalize(up);
 
   // TODO: Check that abs(dot(forward, normalizedUp)) is > certain threshold.

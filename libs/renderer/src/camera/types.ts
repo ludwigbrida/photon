@@ -9,7 +9,7 @@ export type Projection = (typeof Projection)[keyof typeof Projection];
 
 type CameraTransform = {
   readonly position: Vector3;
-  readonly target: Vector3;
+  readonly direction: Vector3;
   readonly up?: Vector3;
 };
 

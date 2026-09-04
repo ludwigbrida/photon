@@ -4,11 +4,7 @@ import { createCameraBasis } from "./basis.ts";
 import { type Camera, Projection } from "./types.ts";
 
 export const createCameraUniform = (camera: Camera): ArrayBuffer => {
-  const { right, up, forward } = createCameraBasis(
-    camera.position,
-    camera.target,
-    camera.up ?? [0, 1, 0],
-  );
+  const { right, up, forward } = createCameraBasis(camera.direction, camera.up ?? [0, 1, 0]);
 
   const orthographicScale =
     camera.projection === Projection.Orthographic ? camera.orthographicScale : 0;

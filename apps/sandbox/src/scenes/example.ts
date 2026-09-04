@@ -53,7 +53,7 @@ const scene = union(
 const camera: Camera = {
   projection: Projection.Orthographic,
   position: [256.5, 256.5, -257.5],
-  target: [0.5, 0.5, 0.5],
+  direction: [-0.5758468, -0.5758468, 0.5803456],
   orthographicScale: 12,
 };
 
