@@ -585,7 +585,10 @@ fn shadeMiss(ray: Ray) -> vec4f {
  * Direct sunlight is sampled deterministically at every surface. Diffuse continuation is sampled
  * stochastically, so repeated frames must be averaged by the accumulated radiance.
  */
-fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
+// TODO: expose as config param
+const SHOW_SKY = false;
+
+fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec4f {
   var radiance = vec3f(0);
   var throughput = vec3f(1);
   var ray = primaryRay;
@@ -597,6 +600,10 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     let hit = traceRay(ray);
 
     if!hit.found {
+      if bounce == 0u && !SHOW_SKY {
+        return vec4f(0);
+      }
+
       // The sky is effectively emitted radiance from the environment. It is attenuated by every
       // diffuse surface the path reflected from before reaching it.
       radiance += throughput * skyColor(ray.direction);
@@ -665,7 +672,7 @@ fn tracePath(primaryRay: Ray, pixel: vec2u) -> vec3f {
     }
   }
 
-   return radiance;
+   return vec4f(radiance, 1);
 }
 
 fn accumulateRadiance(pixel: vec2u, currentSample: vec4f) -> vec4f {
@@ -714,7 +721,7 @@ fn main(@builtin(global_invocation_id) invocation: vec3u) {
 
   let radiance = tracePath(ray, pixel.xy);
 
-  let accumulatedRadiance = accumulateRadiance(pixel.xy, vec4f(radiance, 1));
+  let accumulatedRadiance = accumulateRadiance(pixel.xy, radiance);
 
   let toneMappedRadiance = vec4(toneMap(accumulatedRadiance.rgb), accumulatedRadiance.a);
 
