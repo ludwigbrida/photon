@@ -2,15 +2,23 @@
   user-select: none;
 }
 
+button,
+input {
+  font: inherit;
+}
+
 html,
 body,
 #main {
   height: 100%;
 }
 
+html {
+  font-size: 13px;
+}
+
 body {
   background: var(--photon-canvas);
   color: var(--photon-text);
-  font-size: 13px;
   font-family: "JetBrains Mono", monospace;
 }

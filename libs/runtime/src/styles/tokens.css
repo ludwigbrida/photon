@@ -1,6 +1,21 @@
 @theme inline {
   --color-border: var(--photon-border);
+  --color-surface: var(--photon-surface);
+  --color-surface-raised: var(--photon-surface-raised);
+  --color-surface-recessed: var(--photon-surface-recessed);
   --color-text-muted: var(--photon-text-muted);
+  --color-input-border: var(--photon-input-border);
+  --color-input-text: var(--photon-input-text);
+  --color-action-border: var(--photon-action-border);
+  --color-action-surface: var(--photon-action-surface);
+  --color-action-text: var(--photon-action-text);
+  --color-action-hover: var(--photon-action-hover);
+  --color-progress-track: var(--photon-progress-track);
+  --color-status-muted: var(--photon-status-muted);
+  --color-status-value: var(--photon-status-value);
+  --color-viewport-text: var(--photon-viewport-text);
+  --color-viewport-muted: var(--photon-viewport-muted);
+  --color-viewport-surface: var(--photon-viewport-surface);
   --color-accent: var(--photon-accent);
   --color-accent-hover: var(--photon-accent-hover);
   --color-status: var(--photon-status);
@@ -9,12 +24,28 @@
 
 :root {
   color-scheme: dark;
-  --photon-canvas: oklch(0.181 0 0);
-  --photon-border: var(--color-zinc-700);
-  --photon-text: var(--color-zinc-200);
-  --photon-text-muted: var(--color-zinc-400);
-  --photon-accent: var(--color-blue-500);
-  --photon-accent-hover: var(--color-blue-400);
-  --photon-status: var(--color-emerald-400);
-  --photon-focus: var(--color-blue-400);
+  --photon-canvas: #0e1012;
+  --photon-surface: #121519;
+  --photon-surface-raised: #15191d;
+  --photon-surface-recessed: #111417;
+  --photon-border: #2a3037;
+  --photon-text: #b6bec7;
+  --photon-text-muted: #65707b;
+  --photon-input-border: #333a42;
+  --photon-input-text: #d2d8de;
+  --photon-action-border: #3a4650;
+  --photon-action-surface: #1b232a;
+  --photon-action-text: #c7d4dd;
+  --photon-action-hover: #222c34;
+  --photon-progress-track: #252b31;
+  --photon-status-muted: #65707b;
+  --photon-status-value: #b6bec7;
+  --photon-viewport-text: #b6bec7;
+  --photon-viewport-muted: #65707b;
+  --photon-viewport-surface: #0f1214;
+  --photon-viewport-pattern: rgb(255 255 255 / 22%);
+  --photon-accent: #9bacb8;
+  --photon-accent-hover: #c7d4dd;
+  --photon-status: #b9c8a2;
+  --photon-focus: #c7d4dd;
 }

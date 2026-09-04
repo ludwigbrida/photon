@@ -11,7 +11,7 @@ export const Progress = ({ value, max }: ProgressProps) => {
 
   return html`
     <div
-      class="h-1 overflow-hidden bg-border"
+      class="h-1.5 overflow-hidden bg-progress-track"
       role="progressbar"
       ${attr({ "aria-valuenow": value, "aria-valuemax": max })}
     >

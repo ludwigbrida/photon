@@ -26,9 +26,9 @@ const AxisInput = ({ axis, label, value, disabled, onChange }: AxisInputProps) =
   const axisValue = derived(value, (vector) => vector[axis]);
 
   return html`
-    <span class="text-text-muted">${label}</span>
+    <span class="pt-1.5 text-text-muted">${label}</span>
     <input
-      class="h-7 w-20 border border-border bg-transparent px-2 focus:outline-2 focus:outline-offset-2 focus-visible:outline-focus disabled:opacity-40"
+      class="h-8 w-26.5 border border-input-border bg-surface-recessed px-2.5 text-right text-input-text focus:outline-2 focus:outline-offset-2 focus-visible:outline-focus disabled:opacity-40"
       type="number"
       step="any"
       ${attr({ value: axisValue, disabled })}
