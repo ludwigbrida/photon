@@ -24,6 +24,7 @@ export type RuntimeController = {
   readonly camera: WritableGrain<Camera>;
   readonly gpuBudget: WritableGrain<number>;
   readonly mountCanvas: (canvas: HTMLCanvasElement) => () => void;
+  readonly reset: () => void;
   readonly start: () => void;
   readonly stop: () => void;
 };
@@ -95,6 +96,7 @@ export const createController = ({
     camera,
     gpuBudget,
     mountCanvas,
+    reset: () => renderer.current?.reset(),
     start: () => renderer.current?.start(),
     stop: () => renderer.current?.stop(),
   };

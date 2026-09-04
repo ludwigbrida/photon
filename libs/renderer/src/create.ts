@@ -265,6 +265,7 @@ export const createRenderer = async (options: RendererOptions): Promise<Renderer
   };
 
   return {
+    reset,
     start,
     stop,
     configure,
