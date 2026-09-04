@@ -1,5 +1,6 @@
 import { derived } from "@grainular/grains";
 import { createRef, html } from "@grainular/nord";
+import { createCameraNavigation } from "../camera/navigation.ts";
 import { directionFromYawPitch, yawPitchFromDirection } from "../camera/orientation.ts";
 import type { RuntimeController } from "../controller.ts";
 import { Sidebar } from "./sidebar/sidebar.ts";
@@ -13,6 +14,7 @@ type AppProps = {
 
 export const App = ({ controller }: AppProps) => {
   const canvasRef = createRef<HTMLCanvasElement>();
+  const mountCameraNavigation = createCameraNavigation(controller.camera);
 
   const isRendering = derived(controller.telemetry, ({ isRunning }) => isRunning);
   const isComplete = derived(
@@ -32,7 +34,15 @@ export const App = ({ controller }: AppProps) => {
       <div class="flex min-h-0 flex-1">
         ${Viewport({
           canvasRef,
-          onMount: () => controller.mountCanvas(canvasRef.current!),
+          onMount: () => {
+            const unmountRenderer = controller.mountCanvas(canvasRef.current!);
+            const unmountCameraNavigation = mountCameraNavigation(canvasRef.current!);
+
+            return () => {
+              unmountCameraNavigation();
+              unmountRenderer();
+            };
+          },
         })}
         ${Sidebar({
           ready: controller.ready,
