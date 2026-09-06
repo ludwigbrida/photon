@@ -1,0 +1,7 @@
+.label {
+  color: var(--color-text-muted);
+}
+
+.value {
+  color: var(--color-text);
+}
