@@ -1,0 +1,11 @@
+.stack {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.divider {
+  background: var(--color-border);
+  width: var(--size-border);
+  height: 1rem;
+}
