@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "5.3.0",
-    "@grainular/grains": "2.2.1",
-    "@grainular/nord": "2.2.1",
+    "@grainular/grains": "2.3.0",
+    "@grainular/nord": "2.3.0",
     "@photon/author": "*",
     "@photon/compiler": "*",
     "@photon/core": "*",
