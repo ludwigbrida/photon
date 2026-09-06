@@ -20,7 +20,7 @@
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier-plugin-wesl": "github:ludwigbrida/prettier-plugin-wesl",
     "prettier-plugin-wgsl": "0.1.13",
-    "typescript": "7.0.2"
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=24.19.0",
