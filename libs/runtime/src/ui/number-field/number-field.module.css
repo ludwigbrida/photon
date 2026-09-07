@@ -2,6 +2,7 @@
   border: var(--size-border) solid var(--color-border);
   background: var(--color-surface-muted);
   padding: var(--size-4) var(--size-8);
+  inline-size: 10ch;
   color: var(--color-text);
   text-align: right;
 
