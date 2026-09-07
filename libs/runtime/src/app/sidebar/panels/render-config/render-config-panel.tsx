@@ -3,7 +3,7 @@ import type { Camera } from "@photon/renderer";
 import clsx from "clsx";
 import type { CameraYawPitch } from "../../../../camera/orientation.ts";
 import { yawPitchFromDirection } from "../../../../camera/orientation.ts";
-import { NumberInput } from "../../../../ui/number-input/number-input.tsx";
+import { NumberField } from "../../../../ui/number-field/number-field.tsx";
 import { Vector3Input } from "../../../../ui/vector3-input/vector3-input.tsx";
 import { YawPitchInput } from "../../../../ui/yaw-pitch-input/yaw-pitch-input.tsx";
 import styles from "./render-config-panel.module.css";
@@ -66,9 +66,15 @@ export const RenderConfigPanel = ({
         <div className={styles.content}>
           <label className={styles.field}>
             <span className={styles.fieldLabel}>GPU budget</span>
-            <NumberInput
+            <NumberField
               value={gpuBudgetPercent}
-              onChange={(value) => onGpuBudgetChange(value / 100)}
+              min={1}
+              step={1}
+              onChange={(value) => {
+                if (Number.isInteger(value) && value > 0) {
+                  onGpuBudgetChange(value / 100);
+                }
+              }}
             />
           </label>
         </div>

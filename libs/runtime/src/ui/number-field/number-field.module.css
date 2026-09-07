@@ -1,8 +1,12 @@
 .root {
   border: var(--size-border) solid var(--color-border);
   background: var(--color-surface-muted);
-  padding-inline: var(--space-10);
+  padding: var(--space-4) var(--space-8);
 
   color: var(--color-text);
   text-align: right;
+
+  &:disabled {
+    opacity: 0.4;
+  }
 }

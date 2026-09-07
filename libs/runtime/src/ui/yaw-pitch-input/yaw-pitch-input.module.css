@@ -7,17 +7,5 @@
 
 .label {
   color: var(--color-text-muted);
-}
-
-.input {
-  border: var(--size-border) solid var(--color-border);
-  background: var(--color-surface-muted);
-  padding-inline: var(--space-10);
-
-  color: var(--color-text);
   text-align: right;
-
-  &:disabled {
-    opacity: 0.4;
-  }
 }

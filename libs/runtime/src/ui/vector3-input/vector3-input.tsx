@@ -1,4 +1,5 @@
 import type { Vector3 } from "@photon/core";
+import { NumberField } from "../number-field/number-field.tsx";
 import styles from "./vector3-input.module.css";
 
 type Axis = 0 | 1 | 2;
@@ -25,18 +26,11 @@ const AxisInput = ({ axis, label, value, disabled, onChange }: AxisInputProps) =
   return (
     <>
       <span className={styles.label}>{label}</span>
-      <input
-        className={styles.input}
-        type="number"
-        step="any"
+      <NumberField
         value={value[axis]}
         disabled={disabled}
-        onChange={(event) => {
-          const nextValue = (event.currentTarget as HTMLInputElement).valueAsNumber;
-          if (Number.isFinite(nextValue)) {
-            onChange(updateAxis(value, axis, nextValue));
-          }
-        }}
+        step="any"
+        onChange={(nextValue) => onChange(updateAxis(value, axis, nextValue))}
       />
     </>
   );
