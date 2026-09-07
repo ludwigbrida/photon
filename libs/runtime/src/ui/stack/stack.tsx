@@ -4,12 +4,13 @@ import { Separator } from "../separator/separator.tsx";
 import styles from "./stack.module.css";
 
 type StackProps = {
-  orientation?: "horizontal" | "vertical";
+  orientation: "horizontal" | "vertical";
   separator?: boolean;
+  equal?: boolean;
   children: ReactNode[];
 };
 
-export const Stack = ({ orientation = "horizontal", separator = false, children }: StackProps) => (
+export const Stack = ({ orientation, separator = false, equal = false, children }: StackProps) => (
   <div
     className={clsx(styles.stack, {
       [styles.horizontal]: orientation === "horizontal",
@@ -19,7 +20,13 @@ export const Stack = ({ orientation = "horizontal", separator = false, children 
     {children.map((item, index) => (
       <Fragment key={index}>
         {separator && index > 0 && <Separator />}
-        {item}
+        <div
+          className={clsx(styles.item, {
+            [styles.equal]: equal,
+          })}
+        >
+          {item}
+        </div>
       </Fragment>
     ))}
   </div>

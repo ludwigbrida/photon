@@ -1,6 +1,7 @@
 .stack {
   display: flex;
-  align-items: center;
+  justify-content: center;
+  align-items: stretch;
   gap: var(--size-12);
 }
 
@@ -10,4 +11,12 @@
 
 .vertical {
   flex-direction: column;
+}
+
+.item {
+  align-content: center;
+}
+
+.equal {
+  flex: 1 1 0;
 }
