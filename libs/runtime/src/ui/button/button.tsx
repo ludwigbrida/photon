@@ -1,22 +1,16 @@
-import clsx from "clsx";
+import { Button as BaseButton } from "@base-ui/react/button";
 import styles from "./button.module.css";
 
 type ButtonProps = {
   readonly children: string;
   readonly disabled?: boolean;
-  readonly inline?: boolean;
-  readonly onClick?: () => void;
+  readonly onClick: () => void;
 };
 
-export const Button = ({ children, disabled, inline = false, onClick }: ButtonProps) => {
+export const Button = ({ children, disabled, onClick }: ButtonProps) => {
   return (
-    <button
-      className={clsx(styles.root, { [styles.inline]: inline })}
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-    >
+    <BaseButton className={styles.root} disabled={disabled} onClick={onClick}>
       {children}
-    </button>
+    </BaseButton>
   );
 };

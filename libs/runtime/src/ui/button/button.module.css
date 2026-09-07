@@ -1,25 +1,24 @@
 .root {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   border: var(--size-border) solid var(--color-border);
   background: var(--color-surface-muted);
-  padding: var(--space-4) var(--space-10);
-
+  padding: var(--size-4) var(--size-8);
   color: var(--color-text);
 
-  &:hover {
+  &:hover,
+  &:active {
     border-color: var(--color-text-muted);
+  }
+
+  &:hover {
+    background: var(--color-surface);
+  }
+
+  &:active {
+    background: var(--color-surface-muted);
   }
 
   &:disabled {
     opacity: 0.4;
     pointer-events: none;
   }
-}
-
-.inline {
-  border: 0;
-  background: transparent;
-  padding: 0;
 }
