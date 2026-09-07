@@ -3,7 +3,7 @@ import clsx from "clsx";
 import type { RefObject } from "react";
 import { formatDuration } from "../../format-duration.ts";
 import { Button } from "../../ui/button/button.tsx";
-import { Field } from "../../ui/field/field.tsx";
+import { Metric } from "../../ui/metric/metric.tsx";
 import { Stack } from "../../ui/stack/stack.tsx";
 import styles from "./viewport.module.css";
 
@@ -50,28 +50,6 @@ export const Viewport = ({
     ["R", "Toggle render sidebar", contextPanelVisible, onContextPanelVisibleChange],
   ] as const;
 
-  const metrics = [
-    <Field label="RESOLUTION">640 × 480</Field>,
-    <Field label="TILES">
-      {state.scheduling.bucketGridSize} × {state.scheduling.bucketGridSize}
-    </Field>,
-    <Field label="SAMPLES">
-      {state.sampleCount}/{state.maxSamples}
-    </Field>,
-    <Field label="NOISE" unit="%">
-      --
-    </Field>,
-    <Field label="RATE" unit="/s">
-      {(state.sampleCount / Math.max(state.elapsedMilliseconds / 1000, 0.01)).toFixed(1)}
-    </Field>,
-    <Field label="RAYS" unit="M/s">
-      --
-    </Field>,
-    <Field label="ELAPSED">
-      {elapsed.hours}:{elapsed.minutes}:{elapsed.seconds}
-    </Field>,
-  ];
-
   return (
     <section className={styles.root}>
       <div className={styles.pattern} />
@@ -82,7 +60,27 @@ export const Viewport = ({
         height="480"
       />
       <div className={styles.telemetryBar}>
-        <Stack items={metrics} />
+        <Stack>
+          <Metric label="RESOLUTION">640 × 480</Metric>
+          <Metric label="TILES">
+            {state.scheduling.bucketGridSize} × {state.scheduling.bucketGridSize}
+          </Metric>
+          <Metric label="SAMPLES">
+            {state.sampleCount}/{state.maxSamples}
+          </Metric>
+          <Metric label="NOISE" unit="%">
+            --
+          </Metric>
+          <Metric label="RATE" unit="/s">
+            {(state.sampleCount / Math.max(state.elapsedMilliseconds / 1000, 0.01)).toFixed(1)}
+          </Metric>
+          <Metric label="RAYS" unit="M/s">
+            --
+          </Metric>
+          <Metric label="ELAPSED">
+            {elapsed.hours}:{elapsed.minutes}:{elapsed.seconds}
+          </Metric>
+        </Stack>
         <div className={styles.layoutToggles}>
           {toggles.map(([label, ariaLabel, visible, onClick]) => (
             <button

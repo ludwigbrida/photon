@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Field } from "../../ui/field/field.tsx";
+import { Metric } from "../../ui/metric/metric.tsx";
 import { Stack } from "../../ui/stack/stack.tsx";
 import styles from "./footer-panel.module.css";
 
@@ -13,27 +13,23 @@ export const FooterPanel = ({ ready, visible }: FooterPanelProps) => {
   return (
     <footer className={clsx(styles.root, { [styles.hidden]: !visible })}>
       <div className={styles.start}>
-        <Stack
-          items={[
-            <Field label="GPU">--</Field>,
-            <Field label="API">WEBGPU</Field>,
-            <Field label="VRAM">--</Field>,
-            <Field label="FPS">--</Field>,
-            <Field label="FRAME" unit="ms">
-              --
-            </Field>,
-          ]}
-        />
+        <Stack>
+          <Metric label="GPU">--</Metric>
+          <Metric label="API">WEBGPU</Metric>
+          <Metric label="VRAM">--</Metric>
+          <Metric label="FPS">--</Metric>
+          <Metric label="FRAME" unit="ms">
+            --
+          </Metric>
+        </Stack>
       </div>
       <div className={styles.end}>
-        <Stack
-          items={[
-            <Field label="ERRORS">--</Field>,
-            <span className={clsx({ [styles.deviceStatusReady]: isReady })}>
-              {isReady ? "READY" : "INITIALIZING"}
-            </span>,
-          ]}
-        />
+        <Stack>
+          <Metric label="ERRORS">--</Metric>
+          <span className={clsx({ [styles.deviceStatusReady]: isReady })}>
+            {isReady ? "READY" : "INITIALIZING"}
+          </span>
+        </Stack>
       </div>
     </footer>
   );
