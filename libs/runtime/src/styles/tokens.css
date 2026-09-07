@@ -22,10 +22,11 @@
 
   --size-border: 1px;
 
-  --space-4: 0.25rem;
-  --space-8: 0.5rem;
-  --space-10: 0.625rem;
-  --space-12: 0.75rem;
+  --size-4: 0.25rem;
+  --size-8: 0.5rem;
+  --size-10: 0.625rem;
+  --size-12: 0.75rem;
+  --size-16: 1rem;
 
   --layer-overlay: 20;
 }
