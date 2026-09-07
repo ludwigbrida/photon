@@ -60,7 +60,7 @@ export const Viewport = ({
         height="480"
       />
       <div className={styles.telemetryBar}>
-        <Stack>
+        <Stack orientation="horizontal" separator>
           <Metric label="RESOLUTION">640 × 480</Metric>
           <Metric label="TILES">
             {state.scheduling.bucketGridSize} × {state.scheduling.bucketGridSize}

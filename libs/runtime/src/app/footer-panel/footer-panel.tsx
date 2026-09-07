@@ -13,7 +13,7 @@ export const FooterPanel = ({ ready, visible }: FooterPanelProps) => {
   return (
     <footer className={clsx(styles.root, { [styles.hidden]: !visible })}>
       <div className={styles.start}>
-        <Stack>
+        <Stack orientation="horizontal" separator>
           <Metric label="GPU">--</Metric>
           <Metric label="API">WEBGPU</Metric>
           <Metric label="VRAM">--</Metric>
@@ -24,7 +24,7 @@ export const FooterPanel = ({ ready, visible }: FooterPanelProps) => {
         </Stack>
       </div>
       <div className={styles.end}>
-        <Stack>
+        <Stack orientation="horizontal" separator>
           <Metric label="ERRORS">--</Metric>
           <span className={clsx({ [styles.deviceStatusReady]: isReady })}>
             {isReady ? "READY" : "INITIALIZING"}
