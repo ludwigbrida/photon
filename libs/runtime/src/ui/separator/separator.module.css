@@ -1,0 +1,5 @@
+.root {
+  background: var(--color-border);
+  width: var(--size-border);
+  height: var(--size-16);
+}
