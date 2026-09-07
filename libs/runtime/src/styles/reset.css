@@ -1,17 +1,5 @@
 * {
+  all: unset;
+  display: revert;
   box-sizing: border-box;
-}
-
-h1,
-h2,
-h3,
-p,
-button,
-input {
-  margin: 0;
-  font: inherit;
-}
-
-body {
-  margin: 0;
 }
