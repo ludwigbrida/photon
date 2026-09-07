@@ -1,4 +1,3 @@
-import type { WritableGrain } from "@grainular/grains";
 import { add, cross, normalize, scale, type Vector3 } from "@photon/core";
 import { Projection, type Camera } from "@photon/renderer";
 import { directionFromYawPitch, yawPitchFromDirection } from "./orientation.ts";
@@ -44,8 +43,12 @@ const moveCamera = (camera: Camera, movement: Movement, distance: number): Camer
   return { ...camera, position: add(camera.position, offset) };
 };
 
-export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
-  let yawPitch = yawPitchFromDirection(camera().direction);
+type CameraNavigationOptions = {
+  getCamera: () => Camera;
+  updateCamera: (updater: (camera: Camera) => Camera) => void;
+};
+
+export const createCameraNavigation = ({ getCamera, updateCamera }: CameraNavigationOptions) => {
   const pressedKeys = new Set<string>();
 
   const getMovement = (): Movement => ({
@@ -79,7 +82,7 @@ export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
 
       if (movement.forward !== 0 || movement.right !== 0) {
         const speedMultiplier = pressedKeys.has("ShiftLeft") ? FAST_MOVE_MULTIPLIER : 1;
-        camera.update((current) =>
+        updateCamera((current) =>
           moveCamera(current, movement, MOVE_SPEED * speedMultiplier * elapsedSeconds),
         );
       }
@@ -109,11 +112,14 @@ export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
         return;
       }
 
-      yawPitch = {
-        yawRadians: yawPitch.yawRadians - event.movementX * LOOK_SENSITIVITY,
-        pitchRadians: yawPitch.pitchRadians - event.movementY * LOOK_SENSITIVITY,
-      };
-      camera.update((current) => ({ ...current, direction: directionFromYawPitch(yawPitch) }));
+      const yawPitch = yawPitchFromDirection(getCamera().direction);
+      updateCamera((current) => ({
+        ...current,
+        direction: directionFromYawPitch({
+          yawRadians: yawPitch.yawRadians - event.movementX * LOOK_SENSITIVITY,
+          pitchRadians: yawPitch.pitchRadians - event.movementY * LOOK_SENSITIVITY,
+        }),
+      }));
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -134,12 +140,12 @@ export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (!locked || camera().projection !== Projection.Orthographic) {
+      if (!locked || getCamera().projection !== Projection.Orthographic) {
         return;
       }
 
       event.preventDefault();
-      camera.update((current) => {
+      updateCamera((current) => {
         if (current.projection !== Projection.Orthographic) {
           return current;
         }
@@ -159,10 +165,6 @@ export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
 
     const onBlur = () => pressedKeys.clear();
 
-    const unsubscribeCamera = camera.subscribe((value) => {
-      yawPitch = yawPitchFromDirection(value.direction);
-    });
-
     canvas.addEventListener("click", onClick);
     canvas.addEventListener("wheel", onWheel, { passive: false });
     document.addEventListener("pointerlockchange", onPointerLockChange);
@@ -173,7 +175,6 @@ export const createCameraNavigation = (camera: WritableGrain<Camera>) => {
 
     return () => {
       stopMovement();
-      unsubscribeCamera();
       canvas.classList.remove("cursor-none");
       canvas.removeEventListener("click", onClick);
       canvas.removeEventListener("wheel", onWheel);

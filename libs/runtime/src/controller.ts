@@ -1,4 +1,3 @@
-import { grain, type Grain, type WritableGrain } from "@grainular/grains";
 import type { Shape } from "@photon/author";
 import { compile } from "@photon/compiler";
 import {
@@ -19,14 +18,20 @@ export type RuntimeOptions = {
 };
 
 export type RuntimeController = {
-  readonly ready: Grain<boolean>;
-  readonly telemetry: Grain<RendererTelemetry>;
-  readonly camera: WritableGrain<Camera>;
-  readonly gpuBudget: WritableGrain<number>;
-  readonly mountCanvas: (canvas: HTMLCanvasElement) => () => void;
+  readonly initialCamera: Camera;
+  readonly initialGpuBudget: number;
+  readonly initialTelemetry: RendererTelemetry;
+  readonly mountCanvas: (canvas: HTMLCanvasElement, options: MountOptions) => () => void;
+  readonly configure: (options: Pick<RendererConfig, "camera" | "gpuBudget">) => void;
   readonly reset: () => void;
   readonly start: () => void;
   readonly stop: () => void;
+};
+
+type RendererConfig = { camera: Camera; gpuBudget: number };
+type MountOptions = RendererConfig & {
+  onTelemetryChange: (telemetry: RendererTelemetry) => void;
+  onReadyChange: (ready: boolean) => void;
 };
 
 const createInitialTelemetry = (): RendererTelemetry => ({
@@ -45,20 +50,18 @@ export const createController = ({
 }: RuntimeOptions): RuntimeController => {
   const compiled = compile(scene, { depth });
   const renderer = { current: null as RendererHandle | null };
-  const ready = grain(false);
-  const telemetry = grain<RendererTelemetry>(createInitialTelemetry());
-  const camera = grain<Camera>(initialCamera);
-  const gpuBudget = grain(DEFAULT_RENDER_SCHEDULING.gpuBudget);
+  const gpuBudget = DEFAULT_RENDER_SCHEDULING.gpuBudget;
 
-  const mountCanvas = (canvas: HTMLCanvasElement) => {
+  const mountCanvas = (
+    canvas: HTMLCanvasElement,
+    { camera, gpuBudget, onTelemetryChange, onReadyChange }: MountOptions,
+  ) => {
     let disposed = false;
-    let unsubscribeCamera: (() => void) | undefined;
-    let unsubscribeGpuBudget: (() => void) | undefined;
 
     void createRenderer({
       canvas,
       scene: compiled,
-      onTelemetryChange: telemetry.set,
+      onTelemetryChange,
     }).then((nextRenderer) => {
       if (disposed) {
         nextRenderer.stop();
@@ -67,35 +70,29 @@ export const createController = ({
 
       renderer.current = nextRenderer;
       nextRenderer.configure({
-        camera: camera(),
+        camera,
         environment,
-        gpuBudget: gpuBudget(),
+        gpuBudget,
       });
 
-      unsubscribeCamera = camera.subscribe((value) => nextRenderer.configure({ camera: value }));
-      unsubscribeGpuBudget = gpuBudget.subscribe((value) =>
-        nextRenderer.configure({ gpuBudget: value }),
-      );
-      ready.set(true);
+      onReadyChange(true);
       nextRenderer.start();
     });
 
     return () => {
       disposed = true;
-      unsubscribeCamera?.();
-      unsubscribeGpuBudget?.();
       renderer.current?.stop();
       renderer.current = null;
-      ready.set(false);
+      onReadyChange(false);
     };
   };
 
   return {
-    ready,
-    telemetry,
-    camera,
-    gpuBudget,
+    initialCamera,
+    initialGpuBudget: gpuBudget,
+    initialTelemetry: createInitialTelemetry(),
     mountCanvas,
+    configure: (options) => renderer.current?.configure(options),
     reset: () => renderer.current?.reset(),
     start: () => renderer.current?.start(),
     stop: () => renderer.current?.stop(),

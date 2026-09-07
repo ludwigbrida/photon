@@ -1,0 +1,49 @@
+.section {
+  border-bottom: var(--size-border) solid var(--color-border);
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+
+  align-items: center;
+  padding: var(--space-8) var(--space-12);
+}
+
+.sectionTitle {
+}
+
+.toggle {
+  color: var(--color-text-muted);
+}
+
+.toggleOpen {
+  display: none;
+}
+
+.section[open] .toggleClosed {
+  display: none;
+}
+
+.section[open] .toggleOpen {
+  display: inline;
+}
+
+.content {
+  display: grid;
+  gap: var(--space-10);
+  border-top: var(--size-border) solid var(--color-border);
+  padding: var(--space-12);
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+
+  align-items: start;
+  gap: var(--space-12);
+}
+
+.fieldLabel {
+  color: var(--color-text-muted);
+}

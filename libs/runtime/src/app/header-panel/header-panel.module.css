@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  grid-row: 1;
+
+  grid-column: 1 / -1;
+  align-items: center;
+  border-bottom: var(--size-border) solid var(--color-border);
+  background: var(--color-surface);
+  padding: var(--space-8) var(--space-12);
+  &.hidden {
+    display: none;
+  }
+}
+
+.version {
+  color: var(--color-text-muted);
+}

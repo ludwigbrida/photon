@@ -1,0 +1,23 @@
+.root {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-8);
+  row-gap: var(--space-4);
+}
+
+.label {
+  color: var(--color-text-muted);
+}
+
+.input {
+  border: var(--size-border) solid var(--color-border);
+  background: var(--color-surface-muted);
+  padding-inline: var(--space-10);
+
+  color: var(--color-text);
+  text-align: right;
+
+  &:disabled {
+    opacity: 0.4;
+  }
+}

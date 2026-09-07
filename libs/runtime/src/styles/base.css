@@ -1,0 +1,17 @@
+* {
+  user-select: none;
+}
+
+html,
+body,
+#main {
+  height: 100%;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-family: "JetBrains Mono", monospace;
+}

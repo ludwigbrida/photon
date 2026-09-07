@@ -1,0 +1,24 @@
+.root {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: 2 / 4;
+  grid-column: 1;
+  border-right: var(--size-border) solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  border-bottom: var(--size-border) solid var(--color-border);
+}
+
+.header,
+.content {
+  padding: var(--space-8) var(--space-12);
+  color: var(--color-text-muted);
+}
+
+.hidden {
+  display: none;
+}

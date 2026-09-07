@@ -1,0 +1,27 @@
+.root {
+  display: flex;
+  grid-row: 4;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  border-top: var(--size-border) solid var(--color-border);
+  background: var(--color-surface-muted);
+  padding: var(--space-8) var(--space-12);
+}
+
+.start,
+.end {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.deviceStatusReady {
+  color: var(--color-success);
+}
+
+.hidden {
+  display: none;
+}
