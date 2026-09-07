@@ -3,6 +3,7 @@ import { createCameraNavigation } from "../camera/navigation.ts";
 import { directionFromYawPitch } from "../camera/orientation.ts";
 import type { RuntimeController } from "../controller.ts";
 import styles from "./app.module.css";
+import { EnvironmentProvider } from "./environment-context.tsx";
 import { FooterPanel } from "./footer-panel/footer-panel.tsx";
 import { HeaderPanel } from "./header-panel/header-panel.tsx";
 import { ScenePanel } from "./scene-panel/scene-panel.tsx";
@@ -59,7 +60,9 @@ export const App = ({ controller }: AppProps) => {
   return (
     <div className={styles.root}>
       <HeaderPanel visible={isHeaderPanelVisible} />
-      <ScenePanel visible={isScenePanelVisible} />
+      <EnvironmentProvider controller={controller}>
+        <ScenePanel visible={isScenePanelVisible} />
+      </EnvironmentProvider>
       <Viewport
         canvasRef={canvasRef}
         telemetry={telemetry}

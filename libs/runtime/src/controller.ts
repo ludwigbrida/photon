@@ -19,17 +19,18 @@ export type RuntimeOptions = {
 
 export type RuntimeController = {
   readonly initialCamera: Camera;
+  readonly initialEnvironment: Environment;
   readonly initialGpuBudget: number;
   readonly initialTelemetry: RendererTelemetry;
   readonly mountCanvas: (canvas: HTMLCanvasElement, options: MountOptions) => () => void;
-  readonly configure: (options: Pick<RendererConfig, "camera" | "gpuBudget">) => void;
+  readonly configure: (options: Partial<RendererConfig>) => void;
   readonly reset: () => void;
   readonly start: () => void;
   readonly stop: () => void;
 };
 
-type RendererConfig = { camera: Camera; gpuBudget: number };
-type MountOptions = RendererConfig & {
+type RendererConfig = { camera: Camera; environment: Environment; gpuBudget: number };
+type MountOptions = Pick<RendererConfig, "camera" | "gpuBudget"> & {
   onTelemetryChange: (telemetry: RendererTelemetry) => void;
   onReadyChange: (ready: boolean) => void;
 };
@@ -89,6 +90,7 @@ export const createController = ({
 
   return {
     initialCamera,
+    initialEnvironment: environment,
     initialGpuBudget: gpuBudget,
     initialTelemetry: createInitialTelemetry(),
     mountCanvas,

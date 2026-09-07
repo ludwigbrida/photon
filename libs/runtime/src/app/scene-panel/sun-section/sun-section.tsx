@@ -1,21 +1,37 @@
-import { useState } from "react";
+import type { Environment } from "@photon/renderer";
+import { useContext } from "react";
 import { Field } from "../../../ui/field/field.tsx";
 import { NumberField } from "../../../ui/number-field/number-field.tsx";
 import { Stack } from "../../../ui/stack/stack.tsx";
+import { EnvironmentContext } from "../../environment-context.tsx";
 import styles from "./sun-section.module.css";
 
 export const SunSection = () => {
-  const [azimuth, setAzimuth] = useState(0);
-  const [elevation, setElevation] = useState(0);
+  const { environment, updateEnvironment } = useContext(EnvironmentContext);
+
+  const updateSun = (update: Partial<Environment["sun"]>) =>
+    updateEnvironment((current) => ({
+      ...current,
+      sun: {
+        ...current.sun,
+        ...update,
+      },
+    }));
 
   return (
     <div className={styles.root}>
       <Stack orientation="vertical">
         <Field label="Azimuth">
-          <NumberField value={azimuth} onChange={setAzimuth} />
+          <NumberField
+            value={environment.sun.azimuthDegrees}
+            onChange={(azimuthDegrees) => updateSun({ azimuthDegrees })}
+          />
         </Field>
         <Field label="Elevation">
-          <NumberField value={elevation} onChange={setElevation} />
+          <NumberField
+            value={environment.sun.elevationDegrees}
+            onChange={(elevationDegrees) => updateSun({ elevationDegrees })}
+          />
         </Field>
       </Stack>
     </div>
