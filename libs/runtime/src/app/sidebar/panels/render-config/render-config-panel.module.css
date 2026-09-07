@@ -32,7 +32,6 @@
 .content {
   display: grid;
   gap: var(--size-10);
-  border-top: var(--size-border) solid var(--color-border);
   padding: var(--size-12);
 }
 

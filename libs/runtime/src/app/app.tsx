@@ -57,7 +57,7 @@ export const App = ({ controller }: AppProps) => {
   useEffect(() => controller.configure({ camera, gpuBudget }), [camera, controller, gpuBudget]);
 
   return (
-    <main className={styles.root}>
+    <div className={styles.root}>
       <HeaderPanel visible={isHeaderPanelVisible} />
       <ScenePanel visible={isScenePanelVisible} />
       <Viewport
@@ -88,6 +88,6 @@ export const App = ({ controller }: AppProps) => {
         }
       />
       <FooterPanel ready={ready} visible={isFooterPanelVisible} />
-    </main>
+    </div>
   );
 };

@@ -1,0 +1,20 @@
+.root {
+  border-bottom: var(--size-border) solid var(--color-border);
+}
+
+.header {
+  display: flex;
+}
+
+.title {
+  flex-grow: 1;
+  padding: var(--size-8) var(--size-12);
+}
+
+.panel {
+  border-top: var(--size-border) solid var(--color-border);
+}
+
+.panel[data-closed] {
+  display: none;
+}

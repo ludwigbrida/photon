@@ -13,8 +13,7 @@
   border-bottom: var(--size-border) solid var(--color-border);
 }
 
-.header,
-.content {
+.header {
   padding: var(--size-8) var(--size-12);
   color: var(--color-text-muted);
 }
