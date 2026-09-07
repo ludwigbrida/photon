@@ -2,7 +2,6 @@
   "plugins": [
     "prettier-plugin-css-order",
     "prettier-plugin-organize-imports",
-    "prettier-plugin-wesl",
-    "prettier-plugin-wgsl"
+    "prettier-plugin-wesl"
   ]
 }
