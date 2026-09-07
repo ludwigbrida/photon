@@ -33,6 +33,20 @@ export const SunSection = () => {
             onChange={(elevationDegrees) => updateSun({ elevationDegrees })}
           />
         </Field>
+        <Field label="Angular radius">
+          <NumberField
+            value={environment.sun.angularRadiusDegrees}
+            min={0}
+            onChange={(angularRadiusDegrees) => updateSun({ angularRadiusDegrees })}
+          />
+        </Field>
+        <Field label="Intensity">
+          <NumberField
+            value={environment.sun.intensity}
+            min={0}
+            onChange={(intensity) => updateSun({ intensity })}
+          />
+        </Field>
       </Stack>
     </div>
   );
