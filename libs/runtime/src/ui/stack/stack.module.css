@@ -3,3 +3,11 @@
   align-items: center;
   gap: var(--size-12);
 }
+
+.horizontal {
+  flex-direction: row;
+}
+
+.vertical {
+  flex-direction: column;
+}
