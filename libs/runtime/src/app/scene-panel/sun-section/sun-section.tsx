@@ -47,6 +47,34 @@ export const SunSection = () => {
             onChange={(intensity) => updateSun({ intensity })}
           />
         </Field>
+        <Field label="Color">
+          <Stack orientation="horizontal" equal>
+            <NumberField
+              value={environment.sun.color[0]}
+              min={0}
+              max={1}
+              onChange={(red) =>
+                updateSun({ color: [red, environment.sun.color[1], environment.sun.color[2]] })
+              }
+            />
+            <NumberField
+              value={environment.sun.color[1]}
+              min={0}
+              max={1}
+              onChange={(green) =>
+                updateSun({ color: [environment.sun.color[0], green, environment.sun.color[2]] })
+              }
+            />
+            <NumberField
+              value={environment.sun.color[2]}
+              min={0}
+              max={1}
+              onChange={(blue) =>
+                updateSun({ color: [environment.sun.color[0], environment.sun.color[1], blue] })
+              }
+            />
+          </Stack>
+        </Field>
       </Stack>
     </div>
   );

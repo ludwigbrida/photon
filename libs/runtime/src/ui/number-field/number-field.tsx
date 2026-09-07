@@ -3,6 +3,7 @@ import styles from "./number-field.module.css";
 
 type NumberFieldProps = {
   readonly min?: number;
+  readonly max?: number;
   readonly step?: number | "any";
   readonly disabled?: boolean;
   readonly value: number;
@@ -11,6 +12,7 @@ type NumberFieldProps = {
 
 export const NumberField = ({
   min,
+  max,
   step = "any",
   disabled = false,
   value,
@@ -18,6 +20,7 @@ export const NumberField = ({
 }: NumberFieldProps) => (
   <BaseNumberField.Root
     min={min}
+    max={max}
     step={step}
     disabled={disabled}
     value={value}
