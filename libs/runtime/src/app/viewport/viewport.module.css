@@ -47,7 +47,7 @@
   z-index: var(--layer-overlay);
   border-bottom: var(--size-border) solid var(--color-border);
   background: var(--color-surface-muted);
-  padding: var(--space-8) var(--space-12);
+  padding: var(--size-8) var(--size-12);
   pointer-events: none;
   color: var(--color-text-muted);
 }
@@ -57,7 +57,7 @@
   flex-shrink: 0;
 
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--size-8);
   margin-left: auto;
   pointer-events: auto;
 }
@@ -90,9 +90,9 @@
   align-self: start;
   justify-self: start;
   z-index: var(--layer-overlay);
-  margin: var(--space-12);
+  margin: var(--size-12);
   border: var(--size-border) solid var(--color-border);
-  padding: var(--space-4) var(--space-8);
+  padding: var(--size-4) var(--size-8);
   pointer-events: none;
   color: var(--color-text-muted);
 }
@@ -105,7 +105,7 @@
   align-items: center;
   align-self: start;
   justify-self: end;
-  gap: var(--space-10);
+  gap: var(--size-10);
   z-index: var(--layer-overlay);
-  margin: var(--space-12);
+  margin: var(--size-12);
 }

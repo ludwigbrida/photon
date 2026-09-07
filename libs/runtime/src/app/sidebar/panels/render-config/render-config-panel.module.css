@@ -7,7 +7,7 @@
   justify-content: space-between;
 
   align-items: center;
-  padding: var(--space-8) var(--space-12);
+  padding: var(--size-8) var(--size-12);
 }
 
 .sectionTitle {
@@ -31,9 +31,9 @@
 
 .content {
   display: grid;
-  gap: var(--space-10);
+  gap: var(--size-10);
   border-top: var(--size-border) solid var(--color-border);
-  padding: var(--space-12);
+  padding: var(--size-12);
 }
 
 .field {
@@ -41,7 +41,7 @@
   justify-content: space-between;
 
   align-items: start;
-  gap: var(--space-12);
+  gap: var(--size-12);
 }
 
 .fieldLabel {

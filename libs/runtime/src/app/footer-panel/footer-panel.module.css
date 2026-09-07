@@ -4,10 +4,10 @@
   grid-column: 1 / -1;
   justify-content: space-between;
   align-items: center;
-  gap: var(--space-12);
+  gap: var(--size-12);
   border-top: var(--size-border) solid var(--color-border);
   background: var(--color-surface-muted);
-  padding: var(--space-8) var(--space-12);
+  padding: var(--size-8) var(--size-12);
 }
 
 .start,
@@ -15,7 +15,7 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--space-12);
+  gap: var(--size-12);
 }
 
 .deviceStatusReady {

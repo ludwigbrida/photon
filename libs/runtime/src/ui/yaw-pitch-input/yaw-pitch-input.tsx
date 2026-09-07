@@ -29,7 +29,6 @@ const AngleInput = ({ angle, label, value, disabled, onChange }: AngleInputProps
         value={degrees(value[angle])}
         disabled={disabled}
         step="any"
-        ariaLabel={label}
         onChange={(nextValue) => onChange(updateAngle(value, angle, nextValue))}
       />
     </>

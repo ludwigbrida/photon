@@ -14,7 +14,7 @@
   grid-row: 1;
   align-items: center;
   border-bottom: var(--size-border) solid var(--color-border);
-  padding: var(--space-8) var(--space-12);
+  padding: var(--size-8) var(--size-12);
 }
 
 .content {
