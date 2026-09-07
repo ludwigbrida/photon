@@ -5,10 +5,11 @@ import styles from "./stack.module.css";
 
 type StackProps = {
   orientation?: "horizontal" | "vertical";
+  separator?: boolean;
   children: ReactNode[];
 };
 
-export const Stack = ({ orientation = "horizontal", children }: StackProps) => (
+export const Stack = ({ orientation = "horizontal", separator = false, children }: StackProps) => (
   <div
     className={clsx(styles.stack, {
       [styles.horizontal]: orientation === "horizontal",
@@ -17,7 +18,7 @@ export const Stack = ({ orientation = "horizontal", children }: StackProps) => (
   >
     {children.map((item, index) => (
       <Fragment key={index}>
-        {index > 0 && <Separator />}
+        {separator && index > 0 && <Separator />}
         {item}
       </Fragment>
     ))}
