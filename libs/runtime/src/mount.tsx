@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app/app.tsx";
 import { createController, type RuntimeOptions } from "./controller.ts";
@@ -8,7 +8,11 @@ export const mount = (target: HTMLElement, options: RuntimeOptions) => {
   const controller = createController(options);
 
   const root = createRoot(target);
-  root.render(createElement(App, { controller }));
+  root.render(
+    <StrictMode>
+      <App controller={controller} />
+    </StrictMode>,
+  );
 
   return () => root.unmount();
 };

@@ -1,1 +1,1 @@
-export { mount } from "./mount.ts";
+export { mount } from "./mount.tsx";
