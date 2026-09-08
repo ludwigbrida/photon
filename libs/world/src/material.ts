@@ -1,6 +1,6 @@
 import type { Color } from "@photon/core";
 
-export type MaterialId = number;
+export type MaterialIndex = number;
 
 export type Material = {
   readonly color: Color;
