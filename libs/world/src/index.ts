@@ -1,7 +1,10 @@
 export {
   CHUNK_SIZE,
+  CHUNK_VOLUME,
+  createChunk,
   createChunkKey,
   getChunkCoordinates,
+  getChunkVoxelIndex,
   type Chunk,
   type ChunkKey,
 } from "./chunk.ts";
