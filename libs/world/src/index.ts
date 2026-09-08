@@ -5,6 +5,7 @@ export {
   createChunkKey,
   getChunkCoordinates,
   getChunkVoxelIndex,
+  getChunkVoxelValue,
   type Chunk,
   type ChunkKey,
 } from "./chunk.ts";

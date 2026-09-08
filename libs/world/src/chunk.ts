@@ -1,4 +1,5 @@
 import type { Vector3 } from "@photon/core";
+import type { VoxelValue } from "./voxel.ts";
 
 export const CHUNK_SIZE = 16;
 export const CHUNK_VOLUME = CHUNK_SIZE ** 3;
@@ -31,4 +32,8 @@ export const createChunk = (): Chunk => {
 
 export const getChunkVoxelIndex = (localPosition: Vector3): number => {
   return localPosition[0] + localPosition[1] * CHUNK_SIZE + localPosition[2] * CHUNK_SIZE ** 2;
+};
+
+export const getChunkVoxelValue = (chunk: Chunk, localPosition: Vector3): VoxelValue => {
+  return chunk.voxels[getChunkVoxelIndex(localPosition)];
 };
