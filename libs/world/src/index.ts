@@ -16,4 +16,4 @@ export {
   encodeMaterialIndex,
   type VoxelValue,
 } from "./voxel.ts";
-export { createWorld, type World } from "./world.ts";
+export { createWorld, getWorldVoxelValue, type World } from "./world.ts";
