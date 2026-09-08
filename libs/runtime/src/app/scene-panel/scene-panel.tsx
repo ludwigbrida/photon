@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { Accordion } from "../../ui/accordion/accordion.tsx";
 import styles from "./scene-panel.module.css";
+import { SkySection } from "./sky-section/sky-section.tsx";
 import { SunSection } from "./sun-section/sun-section.tsx";
 
 type ScenePanelProps = {
@@ -14,7 +15,7 @@ export const ScenePanel = ({ visible }: ScenePanelProps) => {
       <div className={styles.content}>
         <Accordion titles={["SUN", "SKY"]}>
           <SunSection />
-          <div style={{ padding: "var(--size-12)" }}>TBD</div>
+          <SkySection />
         </Accordion>
       </div>
     </aside>
