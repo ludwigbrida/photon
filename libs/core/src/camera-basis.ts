@@ -1,4 +1,4 @@
-import { cross, normalize, type Vector3 } from "@photon/core";
+import { cross, normalize, type Vector3 } from "./vector3.ts";
 
 export const createCameraBasis = (direction: Vector3, up: Vector3) => {
   // TODO: Handle a zero-length direction.
