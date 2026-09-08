@@ -1,5 +1,6 @@
 export { degrees, radians } from "./angle.ts";
 export { createCameraBasis } from "./camera-basis.ts";
+export { createCameraMatrix } from "./camera-matrix.ts";
 export { Projection, type Camera } from "./camera.ts";
 export type { Color } from "./color.ts";
 export {
