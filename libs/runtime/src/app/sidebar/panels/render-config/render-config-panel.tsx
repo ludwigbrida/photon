@@ -1,5 +1,4 @@
-import type { Vector3 } from "@photon/core";
-import type { Camera } from "@photon/renderer";
+import type { Camera, Vector3 } from "@photon/core";
 import type { CameraYawPitch } from "../../../../camera/orientation.ts";
 import { yawPitchFromDirection } from "../../../../camera/orientation.ts";
 import { Accordion } from "../../../../ui/accordion/accordion.tsx";

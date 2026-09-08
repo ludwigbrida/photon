@@ -1,5 +1,4 @@
-import type { Scene } from "@photon/core";
-import type { Camera } from "../camera/types.ts";
+import type { Camera, Scene } from "@photon/core";
 import { createCameraUniform } from "../camera/uniform.ts";
 import type { Environment } from "../environment/types.ts";
 import { createEnvironmentUniform } from "../environment/uniform.ts";

@@ -1,5 +1,6 @@
 import { cube, material, move, pipe, union } from "@photon/author";
-import { Projection, type Camera, type Environment } from "@photon/renderer";
+import { Projection, type Camera } from "@photon/core";
+import type { Environment } from "@photon/renderer";
 
 const white = material({
   color: [0.8, 0.8, 0.8],

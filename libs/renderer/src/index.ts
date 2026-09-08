@@ -1,5 +1,3 @@
-export { Projection } from "./camera/types.ts";
-export type { Camera } from "./camera/types.ts";
 export { createRenderer } from "./create.ts";
 export type { Environment } from "./environment/types.ts";
 export { DEFAULT_RENDER_SCHEDULING, type RenderScheduling } from "./scheduling.ts";

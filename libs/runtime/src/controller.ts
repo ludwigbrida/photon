@@ -1,10 +1,10 @@
 import type { Shape } from "@photon/author";
 import { compile } from "@photon/compiler";
+import type { Camera } from "@photon/core";
 import {
   createRenderer,
   DEFAULT_MAX_SAMPLES,
   DEFAULT_RENDER_SCHEDULING,
-  type Camera,
   type Environment,
   type RendererHandle,
   type RendererTelemetry,

@@ -1,5 +1,4 @@
-import { add, cross, normalize, scale, type Vector3 } from "@photon/core";
-import { Projection, type Camera } from "@photon/renderer";
+import { add, cross, normalize, Projection, scale, type Camera, type Vector3 } from "@photon/core";
 import { directionFromYawPitch, yawPitchFromDirection } from "./orientation.ts";
 
 const DEFAULT_UP: Vector3 = [0, 1, 0];

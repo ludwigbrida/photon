@@ -1,4 +1,4 @@
-import type { Vector3 } from "@photon/core";
+import type { Vector3 } from "./vector3.ts";
 
 export const Projection = {
   Orthographic: 0,

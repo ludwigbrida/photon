@@ -1,5 +1,4 @@
-import type { Vector3 } from "@photon/core";
-import type { Camera } from "@photon/renderer";
+import type { Camera, Vector3 } from "@photon/core";
 import clsx from "clsx";
 import type { CameraYawPitch } from "../../camera/orientation.ts";
 import { RenderConfigPanel } from "./panels/render-config/render-config-panel.tsx";

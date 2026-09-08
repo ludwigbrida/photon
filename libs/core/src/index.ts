@@ -1,4 +1,5 @@
 export { degrees, radians } from "./angle.ts";
+export { Projection, type Camera } from "./camera.ts";
 export type { Color } from "./color.ts";
 export type { Scene } from "./scene.ts";
 export {

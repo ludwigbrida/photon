@@ -1,7 +1,6 @@
-import { radians } from "@photon/core";
+import { Projection, radians, type Camera } from "@photon/core";
 import { f32, pack, u32, vec3f } from "../helpers/wgsl.ts";
 import { createCameraBasis } from "./basis.ts";
-import { type Camera, Projection } from "./types.ts";
 
 export const createCameraUniform = (camera: Camera): ArrayBuffer => {
   const { right, up, forward } = createCameraBasis(camera.direction, camera.up ?? [0, 1, 0]);

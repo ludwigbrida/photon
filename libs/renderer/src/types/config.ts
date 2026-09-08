@@ -1,4 +1,4 @@
-import type { Camera } from "../camera/types.ts";
+import type { Camera } from "@photon/core";
 import type { Environment } from "../environment/types.ts";
 
 export type RendererConfig = {
