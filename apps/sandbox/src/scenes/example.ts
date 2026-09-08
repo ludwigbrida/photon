@@ -55,6 +55,8 @@ const camera: Camera = {
   projection: Projection.Orthographic,
   position: [256.5, 256.5, -257.5],
   direction: [-0.5758468, -0.5758468, 0.5803456],
+  nearPlane: 0.1,
+  farPlane: 10_000,
   orthographicScale: 12,
 };
 

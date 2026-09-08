@@ -100,6 +100,8 @@ const camera: Camera = {
   projection: Projection.Perspective,
   position: [0, 1, -32],
   direction: [0, 0, 1],
+  nearPlane: 0.1,
+  farPlane: 10_000,
   verticalFov: 60,
 };
 
