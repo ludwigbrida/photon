@@ -8,8 +8,8 @@ import {
   type Chunk,
   type ChunkKey,
 } from "./chunk.ts";
-import type { Material } from "./material.ts";
-import { EMPTY_VOXEL_VALUE, type VoxelValue } from "./voxel.ts";
+import type { Material, MaterialIndex } from "./material.ts";
+import { EMPTY_VOXEL_VALUE, MAX_MATERIAL_COUNT, type VoxelValue } from "./voxel.ts";
 
 export type World = {
   // The palette is append-only for now, so cells can refer to entries by their stable array index.
@@ -24,10 +24,31 @@ export type VoxelEdit = {
   readonly value: VoxelValue;
 };
 
+export type AddedMaterial = {
+  readonly world: World;
+  readonly materialIndex: MaterialIndex;
+};
+
 export const createWorld = (): World => {
   return {
     materials: [],
     chunks: new Map(),
+  };
+};
+
+export const addWorldMaterial = (world: World, material: Material): AddedMaterial => {
+  if (world.materials.length >= MAX_MATERIAL_COUNT) {
+    throw new Error(`Worlds can contain at most ${MAX_MATERIAL_COUNT} materials.`);
+  }
+
+  const materialIndex = world.materials.length;
+
+  return {
+    world: {
+      ...world,
+      materials: [...world.materials, material],
+    },
+    materialIndex,
   };
 };
 
