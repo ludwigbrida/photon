@@ -30,6 +30,18 @@ export const scale = (vector: Vector3, amount: number): Vector3 => [
   vector[2] * amount,
 ];
 
+export const divide = (vector: Vector3, amount: number): Vector3 => [
+  vector[0] / amount,
+  vector[1] / amount,
+  vector[2] / amount,
+];
+
+export const floor = (vector: Vector3): Vector3 => [
+  Math.floor(vector[0]),
+  Math.floor(vector[1]),
+  Math.floor(vector[2]),
+];
+
 export const normalize = (vector: Vector3): Vector3 => {
   const length = Math.hypot(vector[0], vector[1], vector[2]);
 

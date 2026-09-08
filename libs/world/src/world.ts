@@ -1,4 +1,4 @@
-import type { Vector3 } from "@photon/core";
+import { divide, floor, scale, subtract, type Vector3 } from "@photon/core";
 import {
   CHUNK_SIZE,
   createChunkKey,
@@ -23,19 +23,11 @@ export const createWorld = (): World => {
 };
 
 const getWorldChunkCoordinates = (worldPosition: Vector3): Vector3 => {
-  return [
-    Math.floor(worldPosition[0] / CHUNK_SIZE),
-    Math.floor(worldPosition[1] / CHUNK_SIZE),
-    Math.floor(worldPosition[2] / CHUNK_SIZE),
-  ];
+  return floor(divide(worldPosition, CHUNK_SIZE));
 };
 
 const getLocalPosition = (worldPosition: Vector3, chunkCoordinates: Vector3): Vector3 => {
-  return [
-    worldPosition[0] - chunkCoordinates[0] * CHUNK_SIZE,
-    worldPosition[1] - chunkCoordinates[1] * CHUNK_SIZE,
-    worldPosition[2] - chunkCoordinates[2] * CHUNK_SIZE,
-  ];
+  return subtract(worldPosition, scale(chunkCoordinates, CHUNK_SIZE));
 };
 
 export const getWorldVoxelValue = (world: World, worldPosition: Vector3): VoxelValue => {
