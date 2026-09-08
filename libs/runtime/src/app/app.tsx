@@ -21,6 +21,7 @@ export const App = ({ controller }: AppProps) => {
   const [gpuBudget, setGpuBudget] = useState(controller.initialGpuBudget);
   const [telemetry, setTelemetry] = useState(controller.initialTelemetry);
   const [ready, setReady] = useState(false);
+  const [viewportMode, setViewportMode] = useState<"pathTracer" | "rasterizer">("pathTracer");
   const [isHeaderPanelVisible, setHeaderPanelVisible] = useState(true);
   const [isScenePanelVisible, setScenePanelVisible] = useState(true);
   const [isContextPanelVisible, setContextPanelVisible] = useState(true);
@@ -65,6 +66,9 @@ export const App = ({ controller }: AppProps) => {
       </EnvironmentProvider>
       <Viewport
         canvasRef={canvasRef}
+        camera={camera}
+        world={controller.initialWorld}
+        mode={viewportMode}
         telemetry={telemetry}
         ready={ready}
         headerPanelVisible={isHeaderPanelVisible}
@@ -78,6 +82,7 @@ export const App = ({ controller }: AppProps) => {
         onScenePanelVisibleChange={() => setScenePanelVisible((visible) => !visible)}
         onContextPanelVisibleChange={() => setContextPanelVisible((visible) => !visible)}
         onFooterPanelVisibleChange={() => setFooterPanelVisible((visible) => !visible)}
+        onModeChange={setViewportMode}
       />
       <Sidebar
         ready={ready}

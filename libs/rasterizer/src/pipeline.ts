@@ -1,4 +1,4 @@
-import rasterizeShader from "./rasterize.wesl?static";
+import rasterizeShader from "./rasterize.wgsl?raw";
 import type { RasterizerConfig } from "./types.ts";
 
 export type RasterizePipeline = {

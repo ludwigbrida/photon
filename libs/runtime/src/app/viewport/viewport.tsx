@@ -1,14 +1,22 @@
+import type { Camera } from "@photon/core";
 import type { RendererTelemetry } from "@photon/renderer";
+import type { World } from "@photon/world";
 import clsx from "clsx";
 import type { RefObject } from "react";
 import { formatDuration } from "../../format-duration.ts";
 import { Button } from "../../ui/button/button.tsx";
 import { Metric } from "../../ui/metric/metric.tsx";
 import { Stack } from "../../ui/stack/stack.tsx";
+import { RasterizerCanvas } from "./rasterizer-canvas.tsx";
 import styles from "./viewport.module.css";
+
+type ViewportMode = "pathTracer" | "rasterizer";
 
 type ViewportProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  camera: Camera;
+  world?: World;
+  mode: ViewportMode;
   telemetry: RendererTelemetry;
   ready: boolean;
   headerPanelVisible: boolean;
@@ -22,10 +30,14 @@ type ViewportProps = {
   onScenePanelVisibleChange: () => void;
   onContextPanelVisibleChange: () => void;
   onFooterPanelVisibleChange: () => void;
+  onModeChange: (mode: ViewportMode) => void;
 };
 
 export const Viewport = ({
   canvasRef,
+  camera,
+  world,
+  mode,
   telemetry,
   ready,
   headerPanelVisible,
@@ -39,6 +51,7 @@ export const Viewport = ({
   onScenePanelVisibleChange,
   onContextPanelVisibleChange,
   onFooterPanelVisibleChange,
+  onModeChange,
 }: ViewportProps) => {
   const state = telemetry,
     isRendering = state.isRunning;
@@ -55,10 +68,18 @@ export const Viewport = ({
       <div className={styles.pattern} />
       <canvas
         ref={canvasRef}
-        className={clsx(styles.canvas, { [styles.canvasPaused]: !isRendering })}
+        className={clsx(styles.canvas, {
+          [styles.canvasHidden]: mode !== "pathTracer",
+          [styles.canvasPaused]: !isRendering,
+        })}
         width="640"
         height="480"
       />
+      {world && mode === "rasterizer" && (
+        <div className={styles.rasterizerCanvas}>
+          <RasterizerCanvas world={world} camera={camera} />
+        </div>
+      )}
       <div className={styles.telemetryBar}>
         <Stack orientation="horizontal" separator>
           <Metric label="RESOLUTION">640 × 480</Metric>
@@ -81,6 +102,26 @@ export const Viewport = ({
             {elapsed.hours}:{elapsed.minutes}:{elapsed.seconds}
           </Metric>
         </Stack>
+        {world && (
+          <div className={styles.modeTabs}>
+            <button
+              className={clsx(styles.modeTab, { [styles.modeTabActive]: mode === "pathTracer" })}
+              aria-pressed={mode === "pathTracer"}
+              type="button"
+              onClick={() => onModeChange("pathTracer")}
+            >
+              PATH TRACER
+            </button>
+            <button
+              className={clsx(styles.modeTab, { [styles.modeTabActive]: mode === "rasterizer" })}
+              aria-pressed={mode === "rasterizer"}
+              type="button"
+              onClick={() => onModeChange("rasterizer")}
+            >
+              RASTERIZER
+            </button>
+          </div>
+        )}
         <div className={styles.layoutToggles}>
           {toggles.map(([label, ariaLabel, visible, onClick]) => (
             <button

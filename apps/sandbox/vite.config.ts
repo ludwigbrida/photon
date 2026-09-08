@@ -8,8 +8,5 @@ export default defineConfig({
     viteWesl({
       weslToml: "../../libs/renderer/wesl.toml",
     }),
-    viteWesl({
-      weslToml: "../../libs/rasterizer/wesl.toml",
-    }),
   ],
 });

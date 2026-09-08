@@ -1,6 +1,7 @@
 import { cube, material, move, pipe, pyramid, union } from "@photon/author";
 import { type Camera, Projection } from "@photon/core";
 import type { Environment } from "@photon/renderer";
+import { addWorldMaterial, applyVoxelEdits, createWorld, encodeMaterialIndex } from "@photon/world";
 
 const white = material({
   color: [1, 1, 1],
@@ -22,6 +23,15 @@ const mirror = material({
 const blue = material({
   color: [0.1, 0.3, 1],
 });
+
+const addedWorldMaterial = addWorldMaterial(createWorld(), { color: [0.2, 0.6, 1], metallic: 0 });
+
+const world = applyVoxelEdits(addedWorldMaterial.world, [
+  {
+    position: [0, 0, 0],
+    value: encodeMaterialIndex(addedWorldMaterial.materialIndex),
+  },
+]);
 
 const scene = union(
   pyramid({
@@ -77,6 +87,7 @@ const environment: Environment = {
 
 export default {
   scene,
+  world,
   camera,
   environment,
 };

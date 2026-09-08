@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
-    "types": ["@webgpu/types", "wesl-plugin/suffixes"]
+    "types": ["@webgpu/types", "vite/client", "wesl-plugin/suffixes"]
   },
   "include": ["src"]
 }

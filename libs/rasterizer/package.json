@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@webgpu/types": "0.1.72",
-    "wesl-plugin": "0.6.80"
+    "wesl-plugin": "0.6.80",
+    "vite": "8.2.2"
   }
 }
