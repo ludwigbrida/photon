@@ -1,5 +1,6 @@
 import type { Environment } from "@photon/renderer";
 import { useContext } from "react";
+import { ColorField } from "../../../ui/color-field/color-field.tsx";
 import { Field } from "../../../ui/field/field.tsx";
 import { NumberField } from "../../../ui/number-field/number-field.tsx";
 import { Stack } from "../../../ui/stack/stack.tsx";
@@ -48,32 +49,7 @@ export const SunSection = () => {
           />
         </Field>
         <Field label="Color">
-          <Stack orientation="horizontal" equal>
-            <NumberField
-              value={environment.sun.color[0]}
-              min={0}
-              max={1}
-              onChange={(red) =>
-                updateSun({ color: [red, environment.sun.color[1], environment.sun.color[2]] })
-              }
-            />
-            <NumberField
-              value={environment.sun.color[1]}
-              min={0}
-              max={1}
-              onChange={(green) =>
-                updateSun({ color: [environment.sun.color[0], green, environment.sun.color[2]] })
-              }
-            />
-            <NumberField
-              value={environment.sun.color[2]}
-              min={0}
-              max={1}
-              onChange={(blue) =>
-                updateSun({ color: [environment.sun.color[0], environment.sun.color[1], blue] })
-              }
-            />
-          </Stack>
+          <ColorField value={environment.sun.color} onChange={(color) => updateSun({ color })} />
         </Field>
       </Stack>
     </div>
