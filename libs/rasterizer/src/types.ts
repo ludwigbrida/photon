@@ -18,4 +18,5 @@ export type RasterizerFrame = {
 
 export type Rasterizer = {
   readonly render: (frame: RasterizerFrame) => void;
+  readonly destroy: () => void;
 };
