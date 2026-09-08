@@ -7,7 +7,9 @@ export type World = {
   readonly chunks: ReadonlyMap<ChunkKey, Chunk>;
 };
 
-export const createWorld = (): World => ({
-  materials: [],
-  chunks: new Map(),
-});
+export const createWorld = (): World => {
+  return {
+    materials: [],
+    chunks: new Map(),
+  };
+};
