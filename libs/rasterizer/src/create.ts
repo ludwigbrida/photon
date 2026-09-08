@@ -17,6 +17,12 @@ export const createRasterizer = (config: RasterizerConfig): Rasterizer => {
             storeOp: "store",
           },
         ],
+        depthStencilAttachment: {
+          view: frame.depthTarget,
+          depthClearValue: 1,
+          depthLoadOp: "clear",
+          depthStoreOp: "store",
+        },
       });
 
       renderPass.end();
