@@ -9,17 +9,20 @@ import {
   type RendererHandle,
   type RendererTelemetry,
 } from "@photon/renderer";
+import type { World } from "@photon/world";
 
 export type RuntimeOptions = {
   readonly scene: Shape;
   readonly camera: Camera;
   readonly environment: Environment;
   readonly depth?: number;
+  readonly world?: World;
 };
 
 export type RuntimeController = {
   readonly initialCamera: Camera;
   readonly initialEnvironment: Environment;
+  readonly initialWorld?: World;
   readonly initialGpuBudget: number;
   readonly initialTelemetry: RendererTelemetry;
   readonly mountCanvas: (canvas: HTMLCanvasElement, options: MountOptions) => () => void;
@@ -48,6 +51,7 @@ export const createController = ({
   camera: initialCamera,
   environment,
   depth = 10,
+  world,
 }: RuntimeOptions): RuntimeController => {
   const compiled = compile(scene, { depth });
   const renderer = { current: null as RendererHandle | null };
@@ -91,6 +95,7 @@ export const createController = ({
   return {
     initialCamera,
     initialEnvironment: environment,
+    initialWorld: world,
     initialGpuBudget: gpuBudget,
     initialTelemetry: createInitialTelemetry(),
     mountCanvas,
