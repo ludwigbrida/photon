@@ -1,4 +1,5 @@
-import type { VoxelMesh } from "./mesh.ts";
+import type { ChunkKey, World } from "@photon/world";
+import { createChunkMesh, type VoxelMesh } from "./mesh.ts";
 
 export type GpuVoxelMesh = {
   readonly positionBuffer: GPUBuffer;
@@ -69,4 +70,12 @@ export const createGpuVoxelMesh = (device: GPUDevice, mesh: VoxelMesh): GpuVoxel
       indexBuffer.destroy();
     },
   };
+};
+
+export const createGpuChunkMesh = (
+  device: GPUDevice,
+  world: World,
+  chunkKey: ChunkKey,
+): GpuVoxelMesh => {
+  return createGpuVoxelMesh(device, createChunkMesh(world, chunkKey));
 };
